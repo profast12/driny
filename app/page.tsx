@@ -16,10 +16,19 @@ export default function Home() {
   ];
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setUsuario(session?.user ?? null);
-    });
-  }, []);
+  supabase.auth.getSession().then(async ({ data: { session } }) => {
+    if (session?.user) {
+      const { data: perfil } = await supabase
+        .from('usuarios')
+        .select('username')
+        .eq('email', session.user.email)
+        .single();
+      setUsuario({ ...session.user, username: perfil?.username || null });
+    } else {
+      setUsuario(null);
+    }
+  });
+}, []);
 
   const cerrarSesion = async () => {
     await supabase.auth.signOut();
@@ -81,7 +90,7 @@ export default function Home() {
               <a href="/perfil" style={{ textDecoration: 'none', textAlign: 'center' }}>
   <div style={{ fontSize: '11px', color: '#aaa' }}>Hola,</div>
   <div style={{ fontWeight: 'bold', color: '#f90' }}>
-    {usuario.email.split('@')[0]}
+    {usuario.username || usuario.email.split('@')[0]}
   </div>
 </a>
               <button

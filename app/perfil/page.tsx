@@ -94,13 +94,26 @@ export default function Perfil() {
   };
 
   const guardarInfo = async () => {
-    setGuardando(true);
-    setError("");
-    setMensaje("");
+  setGuardando(true);
+  setError("");
+  setMensaje("");
+
+  if (username !== perfil?.username) {
+    if (perfil?.username_updated_at) {
+      const ultimaActualizacion = new Date(perfil.username_updated_at);
+      const ahora = new Date();
+      const diasDesdeUltimoCambio = Math.floor((ahora.getTime() - ultimaActualizacion.getTime()) / (1000 * 60 * 60 * 24));
+      if (diasDesdeUltimoCambio < 30) {
+        const diasRestantes = 30 - diasDesdeUltimoCambio;
+        setError(`Solo puedes cambiar tu nombre de usuario cada 30 días. Puedes cambiarlo en ${diasRestantes} días.`);
+        setGuardando(false);
+        return;
+      }
+    }
 
     const { error: dbError } = await supabase
       .from('usuarios')
-      .update({ nombre, username })
+      .update({ nombre, username, username_updated_at: new Date().toISOString() })
       .eq('email', usuario.email);
 
     if (dbError) {
@@ -112,11 +125,17 @@ export default function Perfil() {
       setGuardando(false);
       return;
     }
+  } else {
+    await supabase
+      .from('usuarios')
+      .update({ nombre })
+      .eq('email', usuario.email);
+  }
 
-    setMensaje("¡Información actualizada correctamente!");
-    setGuardando(false);
-    setTimeout(() => setMensaje(""), 3000);
-  };
+  setMensaje("¡Información actualizada correctamente!");
+  setGuardando(false);
+  setTimeout(() => setMensaje(""), 3000);
+};
 
   const cerrarSesion = async () => {
     await supabase.auth.signOut();
