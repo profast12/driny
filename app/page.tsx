@@ -20,10 +20,10 @@ export default function Home() {
     if (session?.user) {
       const { data: perfil } = await supabase
         .from('usuarios')
-        .select('username')
+        .select('username, avatar_url')
         .eq('email', session.user.email)
         .single();
-      setUsuario({ ...session.user, username: perfil?.username || null });
+      setUsuario({ ...session.user, username: perfil?.username || null, avatar_url: perfil?.avatar_url || null });
     } else {
       setUsuario(null);
     }
@@ -87,10 +87,32 @@ export default function Home() {
         <div style={{ display: 'flex', gap: '24px', color: 'white', fontSize: '14px', minWidth: 'fit-content' }}>
           {usuario ? (
             <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-              <a href="/perfil" style={{ textDecoration: 'none', textAlign: 'center' }}>
-  <div style={{ fontSize: '11px', color: '#aaa' }}>Hola,</div>
-  <div style={{ fontWeight: 'bold', color: '#f90' }}>
-    {usuario.username || usuario.email.split('@')[0]}
+              <a href="/perfil" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '10px' }}>
+  <div style={{
+    width: '36px',
+    height: '36px',
+    borderRadius: '50%',
+    backgroundColor: '#f90',
+    overflow: 'hidden',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    fontSize: '16px',
+    fontWeight: 'bold',
+    color: '#111',
+    flexShrink: 0
+  }}>
+    {usuario.avatar_url ? (
+      <img src={usuario.avatar_url} alt="avatar" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+    ) : (
+      (usuario.username || usuario.email).charAt(0).toUpperCase()
+    )}
+  </div>
+  <div style={{ textAlign: 'left' }}>
+    <div style={{ fontSize: '11px', color: '#aaa' }}>Hola,</div>
+    <div style={{ fontWeight: 'bold', color: '#f90', fontSize: '13px' }}>
+      {usuario.username || usuario.email.split('@')[0]}
+    </div>
   </div>
 </a>
               <button
