@@ -2,7 +2,7 @@
 import { useState, useEffect } from "react";
 import { supabase } from "../../../lib/supabase";
 
-export default function DetalleProducto({ params }: { params: { id: string } }) {
+export default function DetalleProducto({ params }: any) {
   const [producto, setProducto] = useState<any>(null);
   const [cargando, setCargando] = useState(true);
   const [cantidad, setCantidad] = useState(1);
