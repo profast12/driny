@@ -9,8 +9,9 @@ export default function DetalleProducto({ params }: any) {
   const [agregado, setAgregado] = useState(false);
 
   useEffect(() => {
-    cargarProducto();
-  }, []);
+  console.log("ID recibido:", params.id);
+  cargarProducto();
+}, []);
 
   const cargarProducto = async () => {
     const { data } = await supabase
