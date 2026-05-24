@@ -57,17 +57,23 @@ export default function Home() {
         <h1 style={{ color: '#f90', fontSize: '30px', fontWeight: 'bold', minWidth: 'fit-content' }}>Driny</h1>
 
         <input
-          type="text"
-          placeholder="🔍  Buscar productos, marcas y más..."
-          style={{
-            flex: 1,
-            padding: '12px 16px',
-            borderRadius: '8px',
-            border: 'none',
-            fontSize: '15px',
-            outline: 'none'
-          }}
-        />
+  type="text"
+  placeholder="🔍  Buscar productos, marcas y más..."
+  onKeyDown={e => {
+    if (e.key === 'Enter') {
+      const valor = (e.target as HTMLInputElement).value;
+      if (valor.trim()) window.location.href = `/busqueda?q=${valor}`;
+    }
+  }}
+  style={{
+    flex: 1,
+    padding: '12px 16px',
+    borderRadius: '8px',
+    border: 'none',
+    fontSize: '15px',
+    outline: 'none'
+  }}
+/>
 
         <div style={{ display: 'flex', gap: '24px', color: 'white', fontSize: '14px', minWidth: 'fit-content' }}>
           {usuario ? (
