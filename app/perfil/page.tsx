@@ -60,11 +60,11 @@ export default function Perfil() {
 
   const subirFoto = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (!file) return;
+    if (!file || !perfil) return;
 
     setSubiendoFoto(true);
     const extension = file.name.split('.').pop();
-    const nombreArchivo = `${usuario.id}.${extension}`;
+    const nombreArchivo = `${perfil.id}.${extension}`;
 
     const { error: uploadError } = await supabase.storage
       .from('avatares')
@@ -86,7 +86,7 @@ export default function Perfil() {
     await supabase
       .from('usuarios')
       .update({ avatar_url: url })
-      .eq('email', usuario.email);
+      .eq('id', perfil.id);
 
     setSubiendoFoto(false);
     setMensaje("¡Foto actualizada correctamente!");
@@ -94,48 +94,48 @@ export default function Perfil() {
   };
 
   const guardarInfo = async () => {
-  setGuardando(true);
-  setError("");
-  setMensaje("");
+    setGuardando(true);
+    setError("");
+    setMensaje("");
 
-  if (username !== perfil?.username) {
-    if (perfil?.username_updated_at) {
-      const ultimaActualizacion = new Date(perfil.username_updated_at);
-      const ahora = new Date();
-      const diasDesdeUltimoCambio = Math.floor((ahora.getTime() - ultimaActualizacion.getTime()) / (1000 * 60 * 60 * 24));
-      if (diasDesdeUltimoCambio < 30) {
-        const diasRestantes = 30 - diasDesdeUltimoCambio;
-        setError(`Solo puedes cambiar tu nombre de usuario cada 30 días. Puedes cambiarlo en ${diasRestantes} días.`);
+    if (username !== perfil?.username) {
+      if (perfil?.username_updated_at) {
+        const ultimaActualizacion = new Date(perfil.username_updated_at);
+        const ahora = new Date();
+        const diasDesdeUltimoCambio = Math.floor((ahora.getTime() - ultimaActualizacion.getTime()) / (1000 * 60 * 60 * 24));
+        if (diasDesdeUltimoCambio < 30) {
+          const diasRestantes = 30 - diasDesdeUltimoCambio;
+          setError(`Solo puedes cambiar tu nombre de usuario cada 30 días. Puedes cambiarlo en ${diasRestantes} días.`);
+          setGuardando(false);
+          return;
+        }
+      }
+
+      const { error: dbError } = await supabase
+        .from('usuarios')
+        .update({ nombre, username, username_updated_at: new Date().toISOString() })
+        .eq('id', perfil.id);
+
+      if (dbError) {
+        if (dbError.message.includes('unique')) {
+          setError("Ese nombre de usuario ya está en uso");
+        } else {
+          setError("Error al guardar los cambios");
+        }
         setGuardando(false);
         return;
       }
+    } else {
+      await supabase
+        .from('usuarios')
+        .update({ nombre })
+        .eq('id', perfil.id);
     }
 
-    const { error: dbError } = await supabase
-      .from('usuarios')
-      .update({ nombre, username, username_updated_at: new Date().toISOString() })
-      .eq('email', usuario.email);
-
-    if (dbError) {
-      if (dbError.message.includes('unique')) {
-        setError("Ese nombre de usuario ya está en uso");
-      } else {
-        setError("Error al guardar los cambios");
-      }
-      setGuardando(false);
-      return;
-    }
-  } else {
-    await supabase
-      .from('usuarios')
-      .update({ nombre })
-      .eq('email', usuario.email);
-  }
-
-  setMensaje("¡Información actualizada correctamente!");
-  setGuardando(false);
-  setTimeout(() => setMensaje(""), 3000);
-};
+    setMensaje("¡Información actualizada correctamente!");
+    setGuardando(false);
+    setTimeout(() => setMensaje(""), 3000);
+  };
 
   const cerrarSesion = async () => {
     await supabase.auth.signOut();
@@ -190,7 +190,6 @@ export default function Perfil() {
           marginBottom: '24px',
           color: 'white'
         }}>
-          {/* FOTO */}
           <div style={{ position: 'relative', flexShrink: 0 }}>
             <div
               onClick={() => fileRef.current?.click()}
@@ -374,7 +373,9 @@ export default function Perfil() {
                   onBlur={e => e.target.style.border = '2px solid #e5e7eb'}
                 />
               </div>
-              <p style={{ fontSize: '12px', color: '#888', marginTop: '4px' }}>Solo letras, números y guiones bajos</p>
+              <p style={{ fontSize: '12px', color: '#888', marginTop: '4px' }}>
+                Solo puedes cambiar tu nombre de usuario cada 30 días
+              </p>
             </div>
 
             <div style={{ marginBottom: '24px' }}>
