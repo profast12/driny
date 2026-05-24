@@ -1,23 +1,24 @@
 "use client";
 import { useState, useEffect } from "react";
 import { supabase } from "../../../lib/supabase";
+import { use } from "react";
 
-export default function DetalleProducto({ params }: any) {
+export default function DetalleProducto({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = use(params);
   const [producto, setProducto] = useState<any>(null);
   const [cargando, setCargando] = useState(true);
   const [cantidad, setCantidad] = useState(1);
   const [agregado, setAgregado] = useState(false);
 
   useEffect(() => {
-  console.log("ID recibido:", params.id);
-  cargarProducto();
-}, []);
+    if (id) cargarProducto();
+  }, [id]);
 
   const cargarProducto = async () => {
     const { data } = await supabase
       .from('productos')
       .select('*')
-      .eq('id', params.id)
+      .eq('id', id)
       .single();
     if (data) setProducto(data);
     setCargando(false);
@@ -199,7 +200,6 @@ export default function DetalleProducto({ params }: any) {
               padding: '14px',
               backgroundColor: '#f90',
               color: '#111',
-              border: 'none',
               borderRadius: '10px',
               fontWeight: 'bold',
               fontSize: '16px',
