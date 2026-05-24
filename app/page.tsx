@@ -78,12 +78,12 @@ export default function Home() {
         <div style={{ display: 'flex', gap: '24px', color: 'white', fontSize: '14px', minWidth: 'fit-content' }}>
           {usuario ? (
             <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-              <div style={{ textAlign: 'center' }}>
-                <div style={{ fontSize: '11px', color: '#aaa' }}>Hola,</div>
-                <div style={{ fontWeight: 'bold', color: '#f90' }}>
-                  {usuario.email.split('@')[0]}
-                </div>
-              </div>
+              <a href="/perfil" style={{ textDecoration: 'none', textAlign: 'center' }}>
+  <div style={{ fontSize: '11px', color: '#aaa' }}>Hola,</div>
+  <div style={{ fontWeight: 'bold', color: '#f90' }}>
+    {usuario.email.split('@')[0]}
+  </div>
+</a>
               <button
                 onClick={cerrarSesion}
                 style={{
