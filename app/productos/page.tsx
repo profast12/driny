@@ -183,14 +183,14 @@ export default function Productos() {
               gap: '16px'
             }}>
               {filtrados.map(p => (
-                <div key={p.id} style={{
-                  backgroundColor: 'white',
-                  borderRadius: '12px',
-                  padding: '16px',
-                  boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
-                  cursor: 'pointer',
-                  transition: 'transform 0.2s'
-                }}
+                <div key={p.id} onClick={() => window.location.href = `/producto/${p.id}`} style={{
+  backgroundColor: 'white',
+  borderRadius: '12px',
+  padding: '16px',
+  boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
+  cursor: 'pointer',
+  transition: 'transform 0.2s'
+}}
                   onMouseOver={e => (e.currentTarget as HTMLElement).style.transform = 'translateY(-4px)'}
                   onMouseOut={e => (e.currentTarget as HTMLElement).style.transform = 'translateY(0)'}
                 >
