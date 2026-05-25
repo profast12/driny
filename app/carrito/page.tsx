@@ -3,6 +3,21 @@ import { useState, useEffect } from "react";
 import { supabase } from "../../lib/supabase";
 import { PayPalScriptProvider, PayPalButtons } from "@paypal/react-paypal-js";
 
+const departamentos = [
+  "Amazonas", "Antioquia", "Arauca", "Atlántico", "Bolívar", "Boyacá", "Caldas",
+  "Caquetá", "Casanare", "Cauca", "Cesar", "Chocó", "Córdoba", "Cundinamarca",
+  "Guainía", "Guaviare", "Huila", "La Guajira", "Magdalena", "Meta", "Nariño",
+  "Norte de Santander", "Putumayo", "Quindío", "Risaralda", "San Andrés y Providencia",
+  "Santander", "Sucre", "Tolima", "Valle del Cauca", "Vaupés", "Vichada"
+];
+
+const paises = [
+  "Colombia", "Argentina", "Bolivia", "Brasil", "Chile", "Costa Rica", "Cuba",
+  "Ecuador", "El Salvador", "España", "Estados Unidos", "Guatemala", "Honduras",
+  "México", "Nicaragua", "Panamá", "Paraguay", "Perú", "Puerto Rico",
+  "República Dominicana", "Uruguay", "Venezuela", "Otro"
+];
+
 export default function Carrito() {
   const [items, setItems] = useState<any[]>([]);
   const [cargando, setCargando] = useState(true);
@@ -10,10 +25,13 @@ export default function Carrito() {
   const [paso, setPaso] = useState<'carrito' | 'direccion' | 'pago'>('carrito');
   const [direccion, setDireccion] = useState({
     nombre: '',
+    apellido: '',
     telefono: '',
-    direccion: '',
-    ciudad: '',
+    pais: 'Colombia',
     departamento: '',
+    ciudad: '',
+    direccion: '',
+    codigoPostal: '',
     notas: ''
   });
   const [errorDireccion, setErrorDireccion] = useState('');
@@ -26,13 +44,19 @@ export default function Carrito() {
       }
       setUsuario(session.user);
       cargarCarrito(session.user.id);
-
       const { data: perfil } = await supabase
         .from('usuarios')
         .select('nombre')
         .eq('email', session.user.email)
         .single();
-      if (perfil) setDireccion(prev => ({ ...prev, nombre: perfil.nombre || '' }));
+      if (perfil?.nombre) {
+        const partes = perfil.nombre.split(' ');
+        setDireccion(prev => ({
+          ...prev,
+          nombre: partes[0] || '',
+          apellido: partes.slice(1).join(' ') || ''
+        }));
+      }
     });
   }, []);
 
@@ -63,7 +87,8 @@ export default function Carrito() {
   };
 
   const validarDireccion = () => {
-    if (!direccion.nombre || !direccion.telefono || !direccion.direccion || !direccion.ciudad || !direccion.departamento) {
+    if (!direccion.nombre || !direccion.apellido || !direccion.telefono ||
+      !direccion.pais || !direccion.ciudad || !direccion.direccion) {
       setErrorDireccion("Por favor completa todos los campos obligatorios");
       return false;
     }
@@ -72,15 +97,15 @@ export default function Carrito() {
   };
 
   const guardarPedido = async () => {
-    const { data: pedido, error } = await supabase
+    const { data: pedido } = await supabase
       .from('pedidos')
       .insert([{
         comprador_id: usuario.id,
         comprador_email: usuario.email,
-        comprador_nombre: direccion.nombre,
-        direccion: direccion.direccion,
+        comprador_nombre: `${direccion.nombre} ${direccion.apellido}`,
+        direccion: `${direccion.direccion}${direccion.codigoPostal ? ', CP: ' + direccion.codigoPostal : ''}`,
         ciudad: direccion.ciudad,
-        departamento: direccion.departamento,
+        departamento: `${direccion.departamento ? direccion.departamento + ', ' : ''}${direccion.pais}`,
         telefono: direccion.telefono,
         notas: direccion.notas,
         total,
@@ -89,7 +114,7 @@ export default function Carrito() {
       .select()
       .single();
 
-    if (error || !pedido) return;
+    if (!pedido) return;
 
     for (const item of items) {
       await supabase.from('pedido_items').insert([{
@@ -105,7 +130,7 @@ export default function Carrito() {
         await supabase.from('notificaciones').insert([{
           usuario_id: item.productos.vendedor_id,
           titulo: '¡Nueva venta! 💰',
-          mensaje: `Vendiste "${item.productos.nombre}" — Comprador: ${direccion.nombre} | Tel: ${direccion.telefono} | Dirección: ${direccion.direccion}, ${direccion.ciudad}, ${direccion.departamento}`,
+          mensaje: `Vendiste "${item.productos.nombre}" — Comprador: ${direccion.nombre} ${direccion.apellido} | Tel: ${direccion.telefono} | Dirección: ${direccion.direccion}, ${direccion.ciudad}, ${direccion.departamento ? direccion.departamento + ', ' : ''}${direccion.pais}`,
           pedido_id: pedido.id
         }]);
       }
@@ -117,6 +142,17 @@ export default function Carrito() {
   const subtotal = items.reduce((acc, item) => acc + (item.productos?.precio || 0) * item.cantidad, 0);
   const total = subtotal;
 
+  const inputStyle = {
+    width: '100%', padding: '12px', borderRadius: '8px',
+    border: '2px solid #e5e7eb', fontSize: '14px', outline: 'none',
+    boxSizing: 'border-box' as const, backgroundColor: 'white'
+  };
+
+  const labelStyle = {
+    fontSize: '13px', fontWeight: 'bold' as const,
+    display: 'block' as const, marginBottom: '6px', color: '#374151'
+  };
+
   return (
     <main style={{ backgroundColor: '#f3f4f6', minHeight: '100vh' }}>
 
@@ -127,7 +163,7 @@ export default function Carrito() {
       }}>
         <a href="/" style={{ color: '#f90', fontSize: '26px', fontWeight: 'bold', textDecoration: 'none' }}>Driny</a>
         <div style={{ flex: 1 }}></div>
-        <a href="/login" style={{ color: 'white', fontSize: '14px', textDecoration: 'none' }}>Mi cuenta</a>
+        <a href="/perfil" style={{ color: 'white', fontSize: '14px', textDecoration: 'none' }}>Mi cuenta</a>
       </nav>
 
       {/* PASOS */}
@@ -236,16 +272,19 @@ export default function Carrito() {
                       ${total.toLocaleString('es-CO')} COP
                     </span>
                   </div>
-                  <button
-                    onClick={() => setPaso('direccion')}
-                    style={{
-                      width: '100%', padding: '14px', backgroundColor: '#f90',
-                      border: 'none', borderRadius: '8px', fontWeight: 'bold',
-                      fontSize: '16px', cursor: 'pointer'
-                    }}
-                  >
+                  <button onClick={() => setPaso('direccion')} style={{
+                    width: '100%', padding: '14px', backgroundColor: '#f90',
+                    border: 'none', borderRadius: '8px', fontWeight: 'bold',
+                    fontSize: '16px', cursor: 'pointer'
+                  }}>
                     Continuar →
                   </button>
+                  <div style={{
+                    marginTop: '16px', padding: '12px', backgroundColor: '#f3f4f6',
+                    borderRadius: '8px', fontSize: '12px', color: '#666', textAlign: 'center'
+                  }}>
+                    🔒 Pago seguro con PayPal
+                  </div>
                 </div>
               </div>
             )}
@@ -254,67 +293,154 @@ export default function Carrito() {
 
         {/* PASO 2: DIRECCIÓN */}
         {paso === 'direccion' && (
-          <div style={{ maxWidth: '600px', margin: '0 auto' }}>
+          <div style={{ maxWidth: '680px', margin: '0 auto' }}>
             <h1 style={{ fontSize: '26px', fontWeight: 'bold', marginBottom: '24px' }}>📦 Dirección de envío</h1>
             <div style={{
-              backgroundColor: 'white', borderRadius: '16px', padding: '28px',
+              backgroundColor: 'white', borderRadius: '16px', padding: '32px',
               boxShadow: '0 2px 8px rgba(0,0,0,0.08)'
             }}>
               {errorDireccion && (
                 <div style={{
                   backgroundColor: '#fee2e2', border: '1px solid #fca5a5',
-                  borderRadius: '8px', padding: '12px', marginBottom: '16px',
+                  borderRadius: '8px', padding: '12px', marginBottom: '20px',
                   fontSize: '14px', color: '#991b1b'
                 }}>❌ {errorDireccion}</div>
               )}
 
-              {[
-                { label: 'Nombre completo *', key: 'nombre', placeholder: 'Tu nombre completo', type: 'text' },
-                { label: 'Teléfono *', key: 'telefono', placeholder: 'Ej: 3001234567', type: 'tel' },
-                { label: 'Dirección *', key: 'direccion', placeholder: 'Calle, carrera, número, apto', type: 'text' },
-                { label: 'Ciudad *', key: 'ciudad', placeholder: 'Ej: Cali', type: 'text' },
-                { label: 'Departamento *', key: 'departamento', placeholder: 'Ej: Valle del Cauca', type: 'text' },
-                { label: 'Notas adicionales', key: 'notas', placeholder: 'Instrucciones especiales de entrega', type: 'text' },
-              ].map(campo => (
-                <div key={campo.key} style={{ marginBottom: '16px' }}>
-                  <label style={{ fontSize: '13px', fontWeight: 'bold', display: 'block', marginBottom: '6px' }}>
-                    {campo.label}
-                  </label>
+              {/* NOMBRE Y APELLIDO */}
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '16px' }}>
+                <div>
+                  <label style={labelStyle}>Nombre *</label>
                   <input
-                    type={campo.type}
-                    placeholder={campo.placeholder}
-                    value={direccion[campo.key as keyof typeof direccion]}
-                    onChange={e => setDireccion(prev => ({ ...prev, [campo.key]: e.target.value }))}
-                    style={{
-                      width: '100%', padding: '12px', borderRadius: '8px',
-                      border: '2px solid #e5e7eb', fontSize: '15px', outline: 'none',
-                      boxSizing: 'border-box'
-                    }}
+                    type="text" placeholder="Tu nombre"
+                    value={direccion.nombre}
+                    onChange={e => setDireccion(prev => ({ ...prev, nombre: e.target.value }))}
+                    style={inputStyle}
                     onFocus={e => e.target.style.border = '2px solid #f90'}
                     onBlur={e => e.target.style.border = '2px solid #e5e7eb'}
                   />
                 </div>
-              ))}
+                <div>
+                  <label style={labelStyle}>Apellido *</label>
+                  <input
+                    type="text" placeholder="Tu apellido"
+                    value={direccion.apellido}
+                    onChange={e => setDireccion(prev => ({ ...prev, apellido: e.target.value }))}
+                    style={inputStyle}
+                    onFocus={e => e.target.style.border = '2px solid #f90'}
+                    onBlur={e => e.target.style.border = '2px solid #e5e7eb'}
+                  />
+                </div>
+              </div>
 
-              <div style={{ display: 'flex', gap: '12px', marginTop: '8px' }}>
-                <button
-                  onClick={() => setPaso('carrito')}
-                  style={{
-                    flex: 1, padding: '12px', backgroundColor: '#f3f4f6',
-                    border: 'none', borderRadius: '8px', fontWeight: 'bold',
-                    fontSize: '15px', cursor: 'pointer', color: '#666'
-                  }}
-                >← Volver</button>
-                <button
-                  onClick={() => {
-                    if (validarDireccion()) setPaso('pago');
-                  }}
-                  style={{
-                    flex: 2, padding: '12px', backgroundColor: '#f90',
-                    border: 'none', borderRadius: '8px', fontWeight: 'bold',
-                    fontSize: '15px', cursor: 'pointer'
-                  }}
-                >Continuar al pago →</button>
+              {/* TELÉFONO */}
+              <div style={{ marginBottom: '16px' }}>
+                <label style={labelStyle}>Teléfono / WhatsApp *</label>
+                <input
+                  type="tel" placeholder="Ej: +57 300 123 4567"
+                  value={direccion.telefono}
+                  onChange={e => setDireccion(prev => ({ ...prev, telefono: e.target.value }))}
+                  style={inputStyle}
+                  onFocus={e => e.target.style.border = '2px solid #f90'}
+                  onBlur={e => e.target.style.border = '2px solid #e5e7eb'}
+                />
+              </div>
+
+              {/* PAÍS */}
+              <div style={{ marginBottom: '16px' }}>
+                <label style={labelStyle}>País *</label>
+                <select
+                  value={direccion.pais}
+                  onChange={e => setDireccion(prev => ({ ...prev, pais: e.target.value, departamento: '' }))}
+                  style={{ ...inputStyle, cursor: 'pointer' }}
+                  onFocus={e => e.target.style.border = '2px solid #f90'}
+                  onBlur={e => e.target.style.border = '2px solid #e5e7eb'}
+                >
+                  {paises.map(p => <option key={p} value={p}>{p}</option>)}
+                </select>
+              </div>
+
+              {/* DEPARTAMENTO - solo Colombia */}
+              {direccion.pais === 'Colombia' && (
+                <div style={{ marginBottom: '16px' }}>
+                  <label style={labelStyle}>Departamento *</label>
+                  <select
+                    value={direccion.departamento}
+                    onChange={e => setDireccion(prev => ({ ...prev, departamento: e.target.value }))}
+                    style={{ ...inputStyle, cursor: 'pointer' }}
+                    onFocus={e => e.target.style.border = '2px solid #f90'}
+                    onBlur={e => e.target.style.border = '2px solid #e5e7eb'}
+                  >
+                    <option value="">Selecciona un departamento</option>
+                    {departamentos.map(d => <option key={d} value={d}>{d}</option>)}
+                  </select>
+                </div>
+              )}
+
+              {/* CIUDAD Y CÓDIGO POSTAL */}
+              <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '16px', marginBottom: '16px' }}>
+                <div>
+                  <label style={labelStyle}>Ciudad *</label>
+                  <input
+                    type="text" placeholder="Ej: Cali"
+                    value={direccion.ciudad}
+                    onChange={e => setDireccion(prev => ({ ...prev, ciudad: e.target.value }))}
+                    style={inputStyle}
+                    onFocus={e => e.target.style.border = '2px solid #f90'}
+                    onBlur={e => e.target.style.border = '2px solid #e5e7eb'}
+                  />
+                </div>
+                <div>
+                  <label style={labelStyle}>Código postal</label>
+                  <input
+                    type="text" placeholder="Ej: 760001"
+                    value={direccion.codigoPostal}
+                    onChange={e => setDireccion(prev => ({ ...prev, codigoPostal: e.target.value }))}
+                    style={inputStyle}
+                    onFocus={e => e.target.style.border = '2px solid #f90'}
+                    onBlur={e => e.target.style.border = '2px solid #e5e7eb'}
+                  />
+                </div>
+              </div>
+
+              {/* DIRECCIÓN */}
+              <div style={{ marginBottom: '16px' }}>
+                <label style={labelStyle}>Dirección completa *</label>
+                <input
+                  type="text" placeholder="Calle, carrera, número, apartamento, barrio"
+                  value={direccion.direccion}
+                  onChange={e => setDireccion(prev => ({ ...prev, direccion: e.target.value }))}
+                  style={inputStyle}
+                  onFocus={e => e.target.style.border = '2px solid #f90'}
+                  onBlur={e => e.target.style.border = '2px solid #e5e7eb'}
+                />
+              </div>
+
+              {/* NOTAS */}
+              <div style={{ marginBottom: '24px' }}>
+                <label style={labelStyle}>Notas de entrega (opcional)</label>
+                <textarea
+                  placeholder="Instrucciones especiales para el envío, referencias del lugar, etc."
+                  value={direccion.notas}
+                  onChange={e => setDireccion(prev => ({ ...prev, notas: e.target.value }))}
+                  rows={3}
+                  style={{ ...inputStyle, resize: 'vertical' as const }}
+                  onFocus={e => e.target.style.border = '2px solid #f90'}
+                  onBlur={e => e.target.style.border = '2px solid #e5e7eb'}
+                />
+              </div>
+
+              <div style={{ display: 'flex', gap: '12px' }}>
+                <button onClick={() => setPaso('carrito')} style={{
+                  flex: 1, padding: '14px', backgroundColor: '#f3f4f6',
+                  border: 'none', borderRadius: '8px', fontWeight: 'bold',
+                  fontSize: '15px', cursor: 'pointer', color: '#666'
+                }}>← Volver</button>
+                <button onClick={() => { if (validarDireccion()) setPaso('pago'); }} style={{
+                  flex: 2, padding: '14px', backgroundColor: '#f90',
+                  border: 'none', borderRadius: '8px', fontWeight: 'bold',
+                  fontSize: '15px', cursor: 'pointer'
+                }}>Continuar al pago →</button>
               </div>
             </div>
           </div>
@@ -322,13 +448,13 @@ export default function Carrito() {
 
         {/* PASO 3: PAGO */}
         {paso === 'pago' && (
-          <div style={{ maxWidth: '500px', margin: '0 auto' }}>
+          <div style={{ maxWidth: '560px', margin: '0 auto' }}>
             <h1 style={{ fontSize: '26px', fontWeight: 'bold', marginBottom: '24px' }}>💳 Pago</h1>
 
             {/* RESUMEN DIRECCIÓN */}
             <div style={{
               backgroundColor: 'white', borderRadius: '16px', padding: '20px',
-              boxShadow: '0 2px 8px rgba(0,0,0,0.08)', marginBottom: '20px'
+              boxShadow: '0 2px 8px rgba(0,0,0,0.08)', marginBottom: '16px'
             }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
                 <h3 style={{ fontSize: '15px', fontWeight: 'bold' }}>📦 Enviar a</h3>
@@ -336,51 +462,68 @@ export default function Carrito() {
                   background: 'none', border: 'none', color: '#f90', cursor: 'pointer', fontSize: '13px', fontWeight: 'bold'
                 }}>Cambiar</button>
               </div>
-              <p style={{ fontSize: '14px', color: '#555', lineHeight: 1.7 }}>
-                <strong>{direccion.nombre}</strong><br />
-                {direccion.direccion}, {direccion.ciudad}, {direccion.departamento}<br />
-                Tel: {direccion.telefono}
-                {direccion.notas && <><br />Nota: {direccion.notas}</>}
+              <p style={{ fontSize: '14px', color: '#555', lineHeight: 1.8 }}>
+                <strong>{direccion.nombre} {direccion.apellido}</strong><br />
+                {direccion.direccion}<br />
+                {direccion.ciudad}{direccion.departamento ? `, ${direccion.departamento}` : ''}, {direccion.pais}
+                {direccion.codigoPostal && ` — CP: ${direccion.codigoPostal}`}<br />
+                📞 {direccion.telefono}
+                {direccion.notas && <><br />📝 {direccion.notas}</>}
               </p>
             </div>
 
             {/* RESUMEN PEDIDO */}
             <div style={{
               backgroundColor: 'white', borderRadius: '16px', padding: '20px',
-              boxShadow: '0 2px 8px rgba(0,0,0,0.08)', marginBottom: '20px'
+              boxShadow: '0 2px 8px rgba(0,0,0,0.08)', marginBottom: '16px'
             }}>
               <h3 style={{ fontSize: '15px', fontWeight: 'bold', marginBottom: '12px' }}>Resumen del pedido</h3>
               {items.map(item => (
                 <div key={item.id} style={{
                   display: 'flex', justifyContent: 'space-between',
-                  fontSize: '14px', marginBottom: '8px'
+                  fontSize: '14px', marginBottom: '8px', alignItems: 'center'
                 }}>
-                  <span>{item.productos?.nombre} x{item.cantidad}</span>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <span style={{ fontSize: '20px' }}>{item.productos?.emoji || '🛍️'}</span>
+                    <span>{item.productos?.nombre} x{item.cantidad}</span>
+                  </div>
                   <span style={{ fontWeight: 'bold' }}>
                     ${(Number(item.productos?.precio) * item.cantidad).toLocaleString('es-CO')}
                   </span>
                 </div>
               ))}
-              <div style={{ borderTop: '1px solid #e5e7eb', paddingTop: '12px', marginTop: '8px', display: 'flex', justifyContent: 'space-between' }}>
-                <span style={{ fontWeight: 'bold' }}>Total</span>
+              <div style={{
+                borderTop: '1px solid #e5e7eb', paddingTop: '12px', marginTop: '8px',
+                display: 'flex', justifyContent: 'space-between'
+              }}>
+                <span style={{ fontWeight: 'bold' }}>Total a pagar</span>
                 <span style={{ fontWeight: 'bold', color: '#f90', fontSize: '18px' }}>
                   ${total.toLocaleString('es-CO')} COP
+                  <span style={{ fontSize: '12px', color: '#888', fontWeight: 'normal', marginLeft: '4px' }}>
+                    (≈ USD {(total / 4200).toFixed(2)})
+                  </span>
                 </span>
               </div>
             </div>
 
             {/* PAYPAL */}
             <div style={{
-              backgroundColor: 'white', borderRadius: '16px', padding: '20px',
+              backgroundColor: 'white', borderRadius: '16px', padding: '24px',
               boxShadow: '0 2px 8px rgba(0,0,0,0.08)'
             }}>
-              <h3 style={{ fontSize: '15px', fontWeight: 'bold', marginBottom: '16px' }}>Método de pago</h3>
+              <h3 style={{ fontSize: '15px', fontWeight: 'bold', marginBottom: '8px' }}>Método de pago</h3>
+              <p style={{ fontSize: '13px', color: '#888', marginBottom: '16px' }}>
+                Paga con tu cuenta PayPal o directamente con tarjeta de crédito/débito
+              </p>
               <PayPalScriptProvider options={{
-                clientId: "AU_LWUBY_cVr1GF3VGQMOWe4yXeHv_tCqsZNaQaSEIpGk5zH5DtfTh8s8IpxN3JmNvBFbnBSDIpuosPi",
-                currency: "USD"
+                clientId: "Ad9Sk0NTMyecZrSX4m4Lr72OL8R0K1uCyQf9J2vgg9o9HE3H1Vv1-cgn1RDlBFQ28ZN0UzIbtNFZ6kWr",
+                currency: "USD",
+                components: "buttons",
+                enableFunding: "card,venmo",
+                disableFunding: ""
               }}>
                 <PayPalButtons
-                  style={{ layout: "vertical" }}
+                  style={{ layout: "vertical", shape: "rect", label: "pay" }}
                   createOrder={(data, actions) => {
                     return actions.order.create({
                       intent: "CAPTURE",
@@ -389,7 +532,7 @@ export default function Carrito() {
                           currency_code: "USD",
                           value: (total / 4200).toFixed(2)
                         },
-                        description: "Compra en Driny"
+                        description: `Compra en Driny — ${items.map(i => i.productos?.nombre).join(', ')}`
                       }]
                     });
                   }}
@@ -405,16 +548,20 @@ export default function Carrito() {
                   }}
                 />
               </PayPalScriptProvider>
+
+              <div style={{
+                marginTop: '16px', padding: '12px', backgroundColor: '#f3f4f6',
+                borderRadius: '8px', fontSize: '12px', color: '#666', textAlign: 'center'
+              }}>
+                🔒 Tus datos están protegidos con cifrado SSL
+              </div>
             </div>
 
-            <button
-              onClick={() => setPaso('direccion')}
-              style={{
-                width: '100%', padding: '12px', backgroundColor: '#f3f4f6',
-                border: 'none', borderRadius: '8px', fontWeight: 'bold',
-                fontSize: '15px', cursor: 'pointer', color: '#666', marginTop: '12px'
-              }}
-            >← Volver</button>
+            <button onClick={() => setPaso('direccion')} style={{
+              width: '100%', padding: '12px', backgroundColor: '#f3f4f6',
+              border: 'none', borderRadius: '8px', fontWeight: 'bold',
+              fontSize: '15px', cursor: 'pointer', color: '#666', marginTop: '12px'
+            }}>← Volver</button>
           </div>
         )}
       </div>
