@@ -195,15 +195,22 @@ export default function Productos() {
                   onMouseOut={e => (e.currentTarget as HTMLElement).style.transform = 'translateY(0)'}
                 >
                   <div style={{
-                    backgroundColor: '#f3f4f6',
-                    height: '140px',
-                    borderRadius: '8px',
-                    marginBottom: '12px',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    fontSize: '48px'
-                  }}>{p.emoji || '🛍️'}</div>
+  backgroundColor: '#f3f4f6',
+  height: '140px',
+  borderRadius: '8px',
+  marginBottom: '12px',
+  overflow: 'hidden',
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  fontSize: '48px'
+}}>
+  {p.imagen_url ? (
+    <img src={p.imagen_url} alt={p.nombre} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+  ) : (
+    p.emoji || '🛍️'
+  )}
+</div>
                   <p style={{ fontSize: '12px', color: '#888', marginBottom: '4px' }}>{p.categoria}</p>
                   <p style={{ fontWeight: 'bold', marginBottom: '6px', fontSize: '14px' }}>{p.nombre}</p>
                   <p style={{ color: '#f90', fontWeight: 'bold', fontSize: '16px' }}>

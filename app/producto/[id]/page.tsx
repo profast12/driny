@@ -152,20 +152,28 @@ export default function DetalleProducto({ params }: { params: Promise<{ id: stri
 
           {/* IMAGEN */}
           <div style={{
-            backgroundColor: 'white',
-            borderRadius: '16px',
-            padding: '40px',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            fontSize: '140px',
-            width: '420px',
-            minWidth: '420px',
-            height: '380px',
-            boxShadow: '0 2px 8px rgba(0,0,0,0.08)'
-          }}>
-            {producto.emoji || '🛍️'}
-          </div>
+  backgroundColor: 'white',
+  borderRadius: '16px',
+  overflow: 'hidden',
+  width: '420px',
+  minWidth: '420px',
+  height: '380px',
+  boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  fontSize: '140px'
+}}>
+  {producto.imagen_url ? (
+    <img
+      src={producto.imagen_url}
+      alt={producto.nombre}
+      style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+    />
+  ) : (
+    producto.emoji || '🛍️'
+  )}
+</div>
 
           {/* INFO */}
           <div style={{ flex: 1 }}>
