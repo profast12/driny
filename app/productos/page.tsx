@@ -18,9 +18,9 @@ export default function Productos() {
   const cargarProductos = async () => {
     setCargando(true);
     const { data, error } = await supabase
-      .from('productos')
-      .select('*')
-      .order('created_at', { ascending: false });
+  .from('productos')
+  .select('*, usuarios(nombre_tienda, nombre)')
+  .order('created_at', { ascending: false });
     if (data) setProductos(data);
     setCargando(false);
   };
@@ -211,7 +211,10 @@ export default function Productos() {
     p.emoji || '🛍️'
   )}
 </div>
-                  <p style={{ fontSize: '12px', color: '#888', marginBottom: '4px' }}>{p.categoria}</p>
+                  <p style={{ fontSize: '12px', color: '#888', marginBottom: '2px' }}>{p.categoria}</p>
+<p style={{ fontSize: '12px', color: '#f90', marginBottom: '4px', fontWeight: 'bold' }}>
+  🏪 {p.usuarios?.nombre_tienda || p.usuarios?.nombre || 'Vendedor Driny'}
+</p>
                   <p style={{ fontWeight: 'bold', marginBottom: '6px', fontSize: '14px' }}>{p.nombre}</p>
                   <p style={{ color: '#f90', fontWeight: 'bold', fontSize: '16px' }}>
                     ${Number(p.precio).toLocaleString('es-CO')} COP
