@@ -41,7 +41,7 @@ const cargarNotificaciones = async (userId: string) => {
     .eq('usuario_id', userId)
     .order('created_at', { ascending: false })
     .limit(10);
-    console.log("Notificaciones:", data, "Error:", error);
+    console.log("Notificaciones:", data, "Error:", Error);
   if (data) setNotificaciones(data);
 };
 
