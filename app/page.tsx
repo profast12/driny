@@ -1,7 +1,6 @@
 "use client";
 import { useState, useEffect } from "react";
 import { supabase } from "../lib/supabase";
-import { error } from "console";
 
 export default function Home() {
   const categorias = ["Electrónica", "Ropa", "Hogar", "Deportes", "Juguetes", "Autos"];
