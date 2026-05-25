@@ -229,13 +229,24 @@ export default function Carrito() {
       });
     }}
     onApprove={async (data, actions) => {
-      if (actions.order) {
-        await actions.order.capture();
-        alert("✅ ¡Pago exitoso! Gracias por tu compra en Driny.");
-        await supabase.from('carrito').delete().eq('usuario_id', usuario.id);
-        window.location.href = "/";
+  if (actions.order) {
+    await actions.order.capture();
+
+    for (const item of items) {
+      if (item.productos?.vendedor_id) {
+        await supabase.from('notificaciones').insert([{
+          usuario_id: item.productos.vendedor_id,
+          titulo: '¡Nueva venta! 💰',
+          mensaje: `Vendiste "${item.productos.nombre}" por $${Number(item.productos.precio).toLocaleString('es-CO')} COP`
+        }]);
       }
-    }}
+    }
+
+    await supabase.from('carrito').delete().eq('usuario_id', usuario.id);
+    alert("✅ ¡Pago exitoso! Gracias por tu compra en Driny.");
+    window.location.href = "/";
+  }
+}}
     onError={() => {
       alert("❌ Error al procesar el pago. Intenta de nuevo.");
     }}

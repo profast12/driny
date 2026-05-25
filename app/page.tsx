@@ -5,6 +5,8 @@ import { supabase } from "../lib/supabase";
 export default function Home() {
   const categorias = ["Electrónica", "Ropa", "Hogar", "Deportes", "Juguetes", "Autos"];
   const [usuario, setUsuario] = useState<any>(null);
+  const [notificaciones, setNotificaciones] = useState<any[]>([]);
+const [mostrarNotif, setMostrarNotif] = useState(false);
 
   const productos = [
     { id: 1, nombre: "Audífonos Bluetooth", precio: "89.900", vendedor: "TechStore" },
@@ -24,11 +26,32 @@ export default function Home() {
         .eq('email', session.user.email)
         .single();
       setUsuario({ ...session.user, username: perfil?.username || null, avatar_url: perfil?.avatar_url || null });
+      cargarNotificaciones(session.user.id);
     } else {
       setUsuario(null);
     }
   });
 }, []);
+
+const cargarNotificaciones = async (userId: string) => {
+  const { data } = await supabase
+    .from('notificaciones')
+    .select('*')
+    .eq('usuario_id', userId)
+    .order('created_at', { ascending: false })
+    .limit(10);
+  if (data) setNotificaciones(data);
+};
+
+const marcarLeidas = async () => {
+  if (!usuario) return;
+  await supabase
+    .from('notificaciones')
+    .update({ leida: true })
+    .eq('usuario_id', usuario.id)
+    .eq('leida', false);
+  setNotificaciones(prev => prev.map(n => ({ ...n, leida: true })));
+};
 
   const cerrarSesion = async () => {
     await supabase.auth.signOut();
@@ -140,10 +163,118 @@ export default function Home() {
   <div style={{ fontSize: '11px', color: '#aaa' }}>¿Quieres</div>
   <div style={{ fontWeight: 'bold' }}>Vender?</div>
 </a>
-          <a href="/carrito" style={{ textDecoration: 'none', textAlign: 'center', color: '#f90' }}>
-            <div style={{ fontSize: '22px' }}>🛒</div>
-            <div style={{ fontSize: '11px', color: 'white' }}>Carrito</div>
-          </a>
+          {usuario && (
+  <div style={{ position: 'relative' }}>
+    <button
+      onClick={() => {
+        setMostrarNotif(!mostrarNotif);
+        if (!mostrarNotif) marcarLeidas();
+      }}
+      style={{
+        backgroundColor: 'transparent',
+        border: 'none',
+        cursor: 'pointer',
+        fontSize: '22px',
+        position: 'relative',
+        padding: '4px'
+      }}
+    >
+      🔔
+      {notificaciones.filter(n => !n.leida).length > 0 && (
+        <span style={{
+          position: 'absolute',
+          top: '-2px',
+          right: '-2px',
+          backgroundColor: '#ef4444',
+          color: 'white',
+          borderRadius: '50%',
+          width: '18px',
+          height: '18px',
+          fontSize: '11px',
+          fontWeight: 'bold',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center'
+        }}>
+          {notificaciones.filter(n => !n.leida).length}
+        </span>
+      )}
+    </button>
+
+    {mostrarNotif && (
+      <div style={{
+        position: 'absolute',
+        right: 0,
+        top: '40px',
+        backgroundColor: 'white',
+        borderRadius: '12px',
+        boxShadow: '0 8px 32px rgba(0,0,0,0.2)',
+        width: '320px',
+        zIndex: 1000,
+        overflow: 'hidden'
+      }}>
+        <div style={{
+          padding: '16px',
+          borderBottom: '1px solid #f3f4f6',
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center'
+        }}>
+          <h3 style={{ fontSize: '16px', fontWeight: 'bold', color: '#111' }}>Notificaciones</h3>
+          <button
+            onClick={() => setMostrarNotif(false)}
+            style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '18px', color: '#888' }}
+          >✕</button>
+        </div>
+
+        {notificaciones.length === 0 ? (
+          <div style={{ padding: '40px', textAlign: 'center', color: '#888' }}>
+            <div style={{ fontSize: '40px', marginBottom: '8px' }}>🔔</div>
+            <p style={{ fontSize: '14px' }}>No tienes notificaciones</p>
+          </div>
+        ) : (
+          <div style={{ maxHeight: '360px', overflowY: 'auto' }}>
+            {notificaciones.map(n => (
+              <div key={n.id} style={{
+                padding: '14px 16px',
+                borderBottom: '1px solid #f3f4f6',
+                backgroundColor: n.leida ? 'white' : '#fff8ee'
+              }}>
+                <div style={{ display: 'flex', gap: '10px', alignItems: 'flex-start' }}>
+                  <span style={{ fontSize: '20px' }}>
+                    {n.titulo.includes('venta') ? '💰' : '🔔'}
+                  </span>
+                  <div>
+                    <p style={{ fontWeight: 'bold', fontSize: '13px', color: '#111', marginBottom: '2px' }}>
+                      {n.titulo}
+                    </p>
+                    <p style={{ fontSize: '12px', color: '#666', marginBottom: '4px' }}>{n.mensaje}</p>
+                    <p style={{ fontSize: '11px', color: '#aaa' }}>
+                      {new Date(n.created_at).toLocaleDateString('es-CO', {
+                        day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit'
+                      })}
+                    </p>
+                  </div>
+                  {!n.leida && (
+                    <div style={{
+                      width: '8px', height: '8px', borderRadius: '50%',
+                      backgroundColor: '#f90', flexShrink: 0, marginTop: '4px'
+                    }}></div>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    )}
+  </div>
+)}
+
+<a href="/carrito" style={{ textDecoration: 'none', textAlign: 'center', color: '#f90' }}>
+  <div style={{ fontSize: '22px' }}>🛒</div>
+  <div style={{ fontSize: '11px', color: 'white' }}>Carrito</div>
+</a>
         </div>
       </nav>
 
