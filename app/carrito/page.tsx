@@ -516,7 +516,7 @@ export default function Carrito() {
                 Paga con tu cuenta PayPal o directamente con tarjeta de crédito/débito
               </p>
               <PayPalScriptProvider options={{
-                clientId: "Ad9Sk0NTMyecZrSX4m4Lr72OL8R0K1uCyQf9J2vgg9o9HE3H1Vv1-cgn1RDlBFQ28ZN0UzIbtNFZ6kWr",
+                clientId: "AW_ux8LNCrEoHuA9klwfwsp850LjmjMRcZF3HvXkindzGjuC8Nchao6WUmLPpQfRE61JHg2u7Qu97Abf",
                 currency: "USD",
                 components: "buttons",
                 enableFunding: "card,venmo",
