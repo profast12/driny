@@ -48,7 +48,7 @@ export default function Home() {
         fontSize: '13px',
         color: '#111'
       }}>
-        <a href="/productos" style={{ cursor: 'pointer', textDecoration: 'none', color: '#111' }}>¿Quieres vender en Driny?</a>
+        <a href="/vende-con-nosotros" style={{ cursor: 'pointer', textDecoration: 'none', color: '#111' }}>¿Quieres vender en Driny?</a>
         <span>|</span>
         <span style={{ cursor: 'pointer' }}>Ayuda</span>
         <span>|</span>
@@ -136,10 +136,10 @@ export default function Home() {
               <div style={{ fontWeight: 'bold' }}>Mi cuenta</div>
             </a>
           )}
-          <div style={{ cursor: 'pointer', textAlign: 'center' }}>
-            <div style={{ fontSize: '11px', color: '#aaa' }}>¿Quieres</div>
-            <div style={{ fontWeight: 'bold' }}>Vender?</div>
-          </div>
+          <a href="/vende-con-nosotros" style={{ textDecoration: 'none', color: 'white', textAlign: 'center' }}>
+  <div style={{ fontSize: '11px', color: '#aaa' }}>¿Quieres</div>
+  <div style={{ fontWeight: 'bold' }}>Vender?</div>
+</a>
           <a href="/carrito" style={{ textDecoration: 'none', textAlign: 'center', color: '#f90' }}>
             <div style={{ fontSize: '22px' }}>🛒</div>
             <div style={{ fontSize: '11px', color: 'white' }}>Carrito</div>
