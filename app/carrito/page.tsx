@@ -536,12 +536,17 @@ export default function Carrito() {
                     });
                   }}
                   onApprove={async (data, actions) => {
-                    if (actions.order) {
-                      await actions.order.capture();
-                      await guardarPedido();
-                      window.location.href = "/pedido-exitoso";
-                    }
-                  }}
+  if (actions.order) {
+    await actions.order.capture();
+    try {
+      await guardarPedido();
+      alert("Pedido guardado correctamente");
+    } catch (err) {
+      alert("Error al guardar pedido: " + JSON.stringify(err));
+    }
+    window.location.href = "/pedido-exitoso";
+  }
+}}
                   onError={() => {
                     alert("❌ Error al procesar el pago. Intenta de nuevo.");
                   }}
