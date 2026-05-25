@@ -97,46 +97,55 @@ export default function Carrito() {
   };
 
   const guardarPedido = async () => {
-    const { data: pedido } = await supabase
-      .from('pedidos')
-      .insert([{
-        comprador_id: usuario.id,
-        comprador_email: usuario.email,
-        comprador_nombre: `${direccion.nombre} ${direccion.apellido}`,
-        direccion: `${direccion.direccion}${direccion.codigoPostal ? ', CP: ' + direccion.codigoPostal : ''}`,
-        ciudad: direccion.ciudad,
-        departamento: `${direccion.departamento ? direccion.departamento + ', ' : ''}${direccion.pais}`,
-        telefono: direccion.telefono,
-        notas: direccion.notas,
-        total,
-        estado: 'pagado'
-      }])
-      .select()
-      .single();
+    try {
+      const { data: pedido, error: pedidoError } = await supabase
+        .from('pedidos')
+        .insert([{
+          comprador_id: usuario.id,
+          comprador_email: usuario.email,
+          comprador_nombre: `${direccion.nombre} ${direccion.apellido}`,
+          direccion: `${direccion.direccion}${direccion.codigoPostal ? ', CP: ' + direccion.codigoPostal : ''}`,
+          ciudad: direccion.ciudad,
+          departamento: `${direccion.departamento ? direccion.departamento + ', ' : ''}${direccion.pais}`,
+          telefono: direccion.telefono,
+          notas: direccion.notas,
+          total,
+          estado: 'pagado'
+        }])
+        .select()
+        .single();
 
-    if (!pedido) return;
-
-    for (const item of items) {
-      await supabase.from('pedido_items').insert([{
-        pedido_id: pedido.id,
-        producto_id: item.productos?.id,
-        nombre_producto: item.productos?.nombre,
-        precio: item.productos?.precio,
-        cantidad: item.cantidad,
-        vendedor_id: item.productos?.vendedor_id
-      }]);
-
-      if (item.productos?.vendedor_id) {
-        await supabase.from('notificaciones').insert([{
-          usuario_id: item.productos.vendedor_id,
-          titulo: '¡Nueva venta! 💰',
-          mensaje: `Vendiste "${item.productos.nombre}" — Comprador: ${direccion.nombre} ${direccion.apellido} | Tel: ${direccion.telefono} | Dirección: ${direccion.direccion}, ${direccion.ciudad}, ${direccion.departamento ? direccion.departamento + ', ' : ''}${direccion.pais}`,
-          pedido_id: pedido.id
-        }]);
+      if (pedidoError) {
+        console.error("Error guardando pedido:", pedidoError);
+        return;
       }
-    }
 
-    await supabase.from('carrito').delete().eq('usuario_id', usuario.id);
+      for (const item of items) {
+        const { error: itemError } = await supabase.from('pedido_items').insert([{
+          pedido_id: pedido.id,
+          producto_id: item.productos?.id,
+          nombre_producto: item.productos?.nombre,
+          precio: item.productos?.precio,
+          cantidad: item.cantidad,
+          vendedor_id: item.productos?.vendedor_id
+        }]);
+        if (itemError) console.error("Error guardando item:", itemError);
+
+        if (item.productos?.vendedor_id) {
+          const { error: notifError } = await supabase.from('notificaciones').insert([{
+            usuario_id: item.productos.vendedor_id,
+            titulo: '¡Nueva venta! 💰',
+            mensaje: `Vendiste "${item.productos.nombre}" — Comprador: ${direccion.nombre} ${direccion.apellido} | Tel: ${direccion.telefono} | Dirección: ${direccion.direccion}, ${direccion.ciudad}, ${direccion.departamento ? direccion.departamento + ', ' : ''}${direccion.pais}`,
+            pedido_id: pedido.id
+          }]);
+          if (notifError) console.error("Error guardando notificacion:", notifError);
+        }
+      }
+
+      await supabase.from('carrito').delete().eq('usuario_id', usuario.id);
+    } catch (err) {
+      console.error("Error general en guardarPedido:", err);
+    }
   };
 
   const subtotal = items.reduce((acc, item) => acc + (item.productos?.precio || 0) * item.cantidad, 0);
@@ -307,7 +316,6 @@ export default function Carrito() {
                 }}>❌ {errorDireccion}</div>
               )}
 
-              {/* NOMBRE Y APELLIDO */}
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '16px' }}>
                 <div>
                   <label style={labelStyle}>Nombre *</label>
@@ -333,7 +341,6 @@ export default function Carrito() {
                 </div>
               </div>
 
-              {/* TELÉFONO */}
               <div style={{ marginBottom: '16px' }}>
                 <label style={labelStyle}>Teléfono / WhatsApp *</label>
                 <input
@@ -346,7 +353,6 @@ export default function Carrito() {
                 />
               </div>
 
-              {/* PAÍS */}
               <div style={{ marginBottom: '16px' }}>
                 <label style={labelStyle}>País *</label>
                 <select
@@ -360,7 +366,6 @@ export default function Carrito() {
                 </select>
               </div>
 
-              {/* DEPARTAMENTO - solo Colombia */}
               {direccion.pais === 'Colombia' && (
                 <div style={{ marginBottom: '16px' }}>
                   <label style={labelStyle}>Departamento *</label>
@@ -377,7 +382,6 @@ export default function Carrito() {
                 </div>
               )}
 
-              {/* CIUDAD Y CÓDIGO POSTAL */}
               <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '16px', marginBottom: '16px' }}>
                 <div>
                   <label style={labelStyle}>Ciudad *</label>
@@ -403,7 +407,6 @@ export default function Carrito() {
                 </div>
               </div>
 
-              {/* DIRECCIÓN */}
               <div style={{ marginBottom: '16px' }}>
                 <label style={labelStyle}>Dirección completa *</label>
                 <input
@@ -416,7 +419,6 @@ export default function Carrito() {
                 />
               </div>
 
-              {/* NOTAS */}
               <div style={{ marginBottom: '24px' }}>
                 <label style={labelStyle}>Notas de entrega (opcional)</label>
                 <textarea
@@ -451,7 +453,6 @@ export default function Carrito() {
           <div style={{ maxWidth: '560px', margin: '0 auto' }}>
             <h1 style={{ fontSize: '26px', fontWeight: 'bold', marginBottom: '24px' }}>💳 Pago</h1>
 
-            {/* RESUMEN DIRECCIÓN */}
             <div style={{
               backgroundColor: 'white', borderRadius: '16px', padding: '20px',
               boxShadow: '0 2px 8px rgba(0,0,0,0.08)', marginBottom: '16px'
@@ -472,7 +473,6 @@ export default function Carrito() {
               </p>
             </div>
 
-            {/* RESUMEN PEDIDO */}
             <div style={{
               backgroundColor: 'white', borderRadius: '16px', padding: '20px',
               boxShadow: '0 2px 8px rgba(0,0,0,0.08)', marginBottom: '16px'
@@ -506,7 +506,6 @@ export default function Carrito() {
               </div>
             </div>
 
-            {/* PAYPAL */}
             <div style={{
               backgroundColor: 'white', borderRadius: '16px', padding: '24px',
               boxShadow: '0 2px 8px rgba(0,0,0,0.08)'
