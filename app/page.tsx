@@ -1,6 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 import { supabase } from "../lib/supabase";
+import { error } from "console";
 
 export default function Home() {
   const categorias = ["Electrónica", "Ropa", "Hogar", "Deportes", "Juguetes", "Autos"];
@@ -34,12 +35,14 @@ const [mostrarNotif, setMostrarNotif] = useState(false);
 }, []);
 
 const cargarNotificaciones = async (userId: string) => {
+  console.log("Cargando notificaciones para:", userId)
   const { data } = await supabase
     .from('notificaciones')
     .select('*')
     .eq('usuario_id', userId)
     .order('created_at', { ascending: false })
     .limit(10);
+    console.log("Notificaciones:", data, "Error:", error);
   if (data) setNotificaciones(data);
 };
 
