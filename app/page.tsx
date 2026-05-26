@@ -234,7 +234,7 @@ const marcarLeidas = async () => {
           </div>
         ) : (
           <div style={{ maxHeight: '360px', overflowY: 'auto' }}>
-            {notificaciones.map(n => (
+           {notificaciones.map(n => (
   <div
     key={n.id}
     onClick={() => {
@@ -246,6 +246,7 @@ const marcarLeidas = async () => {
       backgroundColor: n.leida ? 'white' : '#fff8ee',
       cursor: n.pedido_id ? 'pointer' : 'default'
     }}
+  
   >
                 <div style={{ display: 'flex', gap: '10px', alignItems: 'flex-start' }}>
                   <span style={{ fontSize: '20px' }}>
