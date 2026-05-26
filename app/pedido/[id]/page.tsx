@@ -2,8 +2,14 @@
 import { useState, useEffect } from "react";
 import { supabase } from "../../../lib/supabase";
 
-export default function DetallePedido({ params }: any) {
-  const id = params.id;
+export default function DetallePedido() {
+  const [id, setId] = useState('');
+
+  useEffect(() => {
+    const pathParts = window.location.pathname.split('/');
+    const pedidoId = pathParts[pathParts.length - 1];
+    setId(pedidoId);
+  }, []);
   const [pedido, setPedido] = useState<any>(null);
   const [items, setItems] = useState<any[]>([]);
   const [cargando, setCargando] = useState(true);
