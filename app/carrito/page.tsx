@@ -538,12 +538,57 @@ export default function Carrito() {
                   onApprove={async (data, actions) => {
   if (actions.order) {
     await actions.order.capture();
-    try {
-      await guardarPedido();
-      alert("Pedido guardado correctamente");
-    } catch (err) {
-      alert("Error al guardar pedido: " + JSON.stringify(err));
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) {
+      alert("Error: no hay sesión activa");
+      return;
     }
+    const userId = session.user.id;
+    const userEmail = session.user.email;
+
+    const { data: pedido, error: pedidoError } = await supabase
+      .from('pedidos')
+      .insert([{
+        comprador_id: userId,
+        comprador_email: userEmail,
+        comprador_nombre: `${direccion.nombre} ${direccion.apellido}`,
+        direccion: direccion.direccion,
+        ciudad: direccion.ciudad,
+        departamento: `${direccion.departamento ? direccion.departamento + ', ' : ''}${direccion.pais}`,
+        telefono: direccion.telefono,
+        notas: direccion.notas,
+        total,
+        estado: 'pagado'
+      }])
+      .select()
+      .single();
+
+    if (pedidoError) {
+      alert("Error guardando pedido: " + pedidoError.message);
+      return;
+    }
+
+    for (const item of items) {
+      await supabase.from('pedido_items').insert([{
+        pedido_id: pedido.id,
+        producto_id: item.productos?.id,
+        nombre_producto: item.productos?.nombre,
+        precio: item.productos?.precio,
+        cantidad: item.cantidad,
+        vendedor_id: item.productos?.vendedor_id
+      }]);
+
+      if (item.productos?.vendedor_id) {
+        await supabase.from('notificaciones').insert([{
+          usuario_id: item.productos.vendedor_id,
+          titulo: '¡Nueva venta! 💰',
+          mensaje: `Vendiste "${item.productos.nombre}" — Comprador: ${direccion.nombre} ${direccion.apellido} | Tel: ${direccion.telefono} | Dir: ${direccion.direccion}, ${direccion.ciudad}, ${direccion.pais}`,
+          pedido_id: pedido.id
+        }]);
+      }
+    }
+
+    await supabase.from('carrito').delete().eq('usuario_id', userId);
     window.location.href = "/pedido-exitoso";
   }
 }}
