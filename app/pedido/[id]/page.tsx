@@ -4,12 +4,6 @@ import { supabase } from "../../../lib/supabase";
 
 export default function DetallePedido() {
   const [id, setId] = useState('');
-
-  useEffect(() => {
-    const pathParts = window.location.pathname.split('/');
-    const pedidoId = pathParts[pathParts.length - 1];
-    setId(pedidoId);
-  }, []);
   const [pedido, setPedido] = useState<any>(null);
   const [items, setItems] = useState<any[]>([]);
   const [cargando, setCargando] = useState(true);
@@ -18,220 +12,263 @@ export default function DetallePedido() {
   const [mensaje, setMensaje] = useState('');
 
   useEffect(() => {
+    const parts = window.location.pathname.split('/');
+    setId(parts[parts.length - 1]);
+  }, []);
+
+  useEffect(() => {
     if (id) cargarPedido();
   }, [id]);
 
   const cargarPedido = async () => {
-    const { data: pedidoData } = await supabase
-      .from('pedidos').select('*').eq('id', id).single();
-    if (pedidoData) { setPedido(pedidoData); setEstado(pedidoData.estado); }
-    const { data: itemsData } = await supabase
-      .from('pedido_items').select('*').eq('pedido_id', id);
-    if (itemsData) setItems(itemsData);
+    const { data: p } = await supabase.from('pedidos').select('*').eq('id', id).single();
+    if (p) { setPedido(p); setEstado(p.estado); }
+    const { data: its } = await supabase.from('pedido_items').select('*').eq('pedido_id', id);
+    if (its) setItems(its);
     setCargando(false);
   };
 
-  const actualizarEstado = async (nuevoEstado: string) => {
+  const actualizarEstado = async (s: string) => {
     setActualizando(true);
-    await supabase.from('pedidos').update({ estado: nuevoEstado }).eq('id', id);
-    setEstado(nuevoEstado);
-    setMensaje("Estado actualizado: " + nuevoEstado);
+    await supabase.from('pedidos').update({ estado: s }).eq('id', id);
+    setEstado(s);
+    setMensaje("Estado actualizado correctamente");
     setActualizando(false);
     setTimeout(() => setMensaje(''), 3000);
   };
 
-  const pasoCompletado = (paso: number) => {
-    if (estado === 'entregado') return true;
-    if (estado === 'enviado' && paso <= 3) return true;
-    if (estado === 'preparando' && paso <= 1) return true;
-    return false;
-  };
+  const paso = estado === 'entregado' ? 4 : estado === 'enviado' ? 3 : estado === 'preparando' ? 2 : 1;
 
-  const getBadge = () => {
-    if (estado === 'pagado') return { bg: '#d1fae5', color: '#065f46', label: '✅ Pagado' };
-    if (estado === 'preparando') return { bg: '#fef3c7', color: '#92400e', label: '📦 Preparando' };
-    if (estado === 'enviado') return { bg: '#dbeafe', color: '#1e40af', label: '🚚 Enviado' };
-    if (estado === 'entregado') return { bg: '#f3f4f6', color: '#374151', label: '🎉 Entregado' };
-    if (estado === 'cancelado') return { bg: '#fee2e2', color: '#991b1b', label: '❌ Cancelado' };
-    return { bg: '#f3f4f6', color: '#111', label: estado };
-  };
+  const badge = estado === 'pagado' ? { bg: '#d1fae5', color: '#065f46', label: '✅ Pago confirmado' }
+    : estado === 'preparando' ? { bg: '#fef3c7', color: '#92400e', label: '📦 En preparación' }
+    : estado === 'enviado' ? { bg: '#dbeafe', color: '#1e40af', label: '🚚 En camino' }
+    : estado === 'entregado' ? { bg: '#dcfce7', color: '#166534', label: '🎉 Entregado' }
+    : estado === 'cancelado' ? { bg: '#fee2e2', color: '#991b1b', label: '❌ Cancelado' }
+    : { bg: '#f3f4f6', color: '#111', label: estado };
 
-  const badge = getBadge();
+  const pasos = [
+    { num: 1, label: 'Pago confirmado', icon: '💳' },
+    { num: 2, label: 'Preparando', icon: '📦' },
+    { num: 3, label: 'En camino', icon: '🚚' },
+    { num: 4, label: 'Entregado', icon: '🎉' },
+  ];
+
+  const instrucciones = [
+    { icon: '✅', titulo: 'Confirma la disponibilidad', desc: 'Verifica que tienes el producto listo para enviar en buen estado.' },
+    { icon: '📦', titulo: 'Empaca con cuidado', desc: 'Usa una caja o bolsa resistente. Si es frágil agrega relleno protector.' },
+    { icon: '📞', titulo: 'Contacta al comprador', desc: pedido ? 'Escríbele por WhatsApp al ' + pedido.telefono + ' para coordinar la entrega.' : '' },
+    { icon: '🚚', titulo: 'Envía el pedido', desc: 'Puedes usar Coordinadora, Interrapidísimo, Servientrega o TCC.' },
+    { icon: '🔄', titulo: 'Actualiza el estado', desc: 'Una vez enviado cambia el estado para mantener informado al comprador.' },
+  ];
+
+  const btnEstados = [
+    { valor: 'preparando', label: '📦 Preparando pedido', color: '#f59e0b', desc: 'Estás alistando el producto' },
+    { valor: 'enviado', label: '🚚 Pedido enviado', color: '#3483fa', desc: 'Ya entregaste a transportadora' },
+    { valor: 'entregado', label: '🎉 Pedido entregado', color: '#00a650', desc: 'El comprador lo recibió' },
+    { valor: 'cancelado', label: '❌ Cancelar pedido', color: '#ef4444', desc: 'No puedes completar el pedido' },
+  ];
 
   if (cargando) return (
-    <main style={{ backgroundColor: '#f3f4f6', minHeight: '100vh' }}>
-      <nav style={{ backgroundColor: '#111', padding: '14px 24px' }}>
-        <a href="/" style={{ color: '#f90', fontSize: '26px', fontWeight: 'bold', textDecoration: 'none' }}>Driny</a>
+    <main style={{ backgroundColor: '#ebebeb', minHeight: '100vh' }}>
+      <nav style={{ backgroundColor: '#f90', padding: '0 24px', height: '56px', display: 'flex', alignItems: 'center' }}>
+        <a href="/" style={{ color: '#111', fontSize: '22px', fontWeight: 'bold', textDecoration: 'none' }}>Driny</a>
       </nav>
       <div style={{ textAlign: 'center', padding: '80px', color: '#888' }}>Cargando pedido...</div>
     </main>
   );
 
   if (!pedido) return (
-    <main style={{ backgroundColor: '#f3f4f6', minHeight: '100vh' }}>
-      <nav style={{ backgroundColor: '#111', padding: '14px 24px' }}>
-        <a href="/" style={{ color: '#f90', fontSize: '26px', fontWeight: 'bold', textDecoration: 'none' }}>Driny</a>
+    <main style={{ backgroundColor: '#ebebeb', minHeight: '100vh' }}>
+      <nav style={{ backgroundColor: '#f90', padding: '0 24px', height: '56px', display: 'flex', alignItems: 'center' }}>
+        <a href="/" style={{ color: '#111', fontSize: '22px', fontWeight: 'bold', textDecoration: 'none' }}>Driny</a>
       </nav>
       <div style={{ textAlign: 'center', padding: '80px', color: '#888' }}>Pedido no encontrado</div>
     </main>
   );
 
   return (
-    <main style={{ backgroundColor: '#f3f4f6', minHeight: '100vh' }}>
+    <main style={{ backgroundColor: '#ebebeb', minHeight: '100vh' }}>
 
-      <nav style={{ backgroundColor: '#111', padding: '14px 24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-        <a href="/" style={{ color: '#f90', fontSize: '26px', fontWeight: 'bold', textDecoration: 'none' }}>Driny</a>
-        <a href="/vender" style={{ color: '#aaa', textDecoration: 'none', fontSize: '14px' }}>← Volver al panel</a>
+      <nav style={{ backgroundColor: '#f90', padding: '0 24px', display: 'flex', alignItems: 'center', gap: '24px', height: '56px' }}>
+        <a href="/" style={{ color: '#111', fontSize: '22px', fontWeight: 'bold', textDecoration: 'none' }}>Driny</a>
+        <span style={{ color: '#111', opacity: 0.5 }}>|</span>
+        <span style={{ color: '#111', fontSize: '14px', fontWeight: 'bold' }}>Panel de ventas</span>
+        <div style={{ flex: 1 }}></div>
+        <a href="/vender" style={{ color: '#111', textDecoration: 'none', fontSize: '13px', fontWeight: 'bold' }}>← Volver al panel</a>
       </nav>
 
-      <div style={{ maxWidth: '900px', margin: '0 auto', padding: '32px 24px' }}>
+      <div style={{ maxWidth: '960px', margin: '0 auto', padding: '24px 16px' }}>
 
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '24px' }}>
-          <div>
-            <h1 style={{ fontSize: '24px', fontWeight: 'bold', marginBottom: '4px' }}>
-              Pedido #{id.slice(0, 8).toUpperCase()}
-            </h1>
-            <p style={{ fontSize: '14px', color: '#888' }}>
-              {new Date(pedido.created_at).toLocaleDateString('es-CO', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}
-            </p>
-          </div>
-          <div style={{ backgroundColor: badge.bg, color: badge.color, padding: '8px 16px', borderRadius: '20px', fontWeight: 'bold', fontSize: '14px' }}>
-            {badge.label}
-          </div>
-        </div>
+        <p style={{ fontSize: '13px', color: '#666', marginBottom: '16px' }}>
+          <a href="/vender" style={{ color: '#3483fa', textDecoration: 'none' }}>Mis ventas</a>
+          {' › '}Pedido #{id.slice(0, 8).toUpperCase()}
+        </p>
 
         {mensaje !== '' && (
-          <div style={{ backgroundColor: '#d1fae5', border: '1px solid #6ee7b7', borderRadius: '8px', padding: '12px', marginBottom: '20px', fontSize: '14px', color: '#065f46' }}>
+          <div style={{ backgroundColor: '#d1fae5', border: '1px solid #6ee7b7', borderRadius: '8px', padding: '12px 16px', marginBottom: '16px', fontSize: '14px', color: '#065f46' }}>
             ✅ {mensaje}
           </div>
         )}
 
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', marginBottom: '20px' }}>
-
-          <div style={{ backgroundColor: 'white', borderRadius: '16px', padding: '24px', boxShadow: '0 2px 8px rgba(0,0,0,0.08)' }}>
-            <h3 style={{ fontSize: '16px', fontWeight: 'bold', marginBottom: '16px' }}>👤 Información del comprador</h3>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', fontSize: '14px' }}>
-              <div>
-                <p style={{ color: '#888', fontSize: '12px', marginBottom: '2px' }}>Nombre</p>
-                <p style={{ fontWeight: 'bold' }}>{pedido.comprador_nombre}</p>
-              </div>
-              <div>
-                <p style={{ color: '#888', fontSize: '12px', marginBottom: '2px' }}>Correo</p>
-                <p style={{ fontWeight: 'bold' }}>{pedido.comprador_email}</p>
-              </div>
-              <div>
-                <p style={{ color: '#888', fontSize: '12px', marginBottom: '2px' }}>Teléfono</p>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  <p style={{ fontWeight: 'bold' }}>{pedido.telefono}</p>
-                  <a href={"https://wa.me/" + pedido.telefono.replace(/\D/g, '')} target="_blank" style={{ backgroundColor: '#25d366', color: 'white', padding: '4px 10px', borderRadius: '6px', textDecoration: 'none', fontSize: '12px', fontWeight: 'bold' }}>
-                    WhatsApp
-                  </a>
-                </div>
-              </div>
+        <div style={{ backgroundColor: 'white', borderRadius: '8px', padding: '24px', marginBottom: '16px', boxShadow: '0 1px 4px rgba(0,0,0,0.1)' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '24px' }}>
+            <div>
+              <h1 style={{ fontSize: '20px', fontWeight: '600', color: '#333', marginBottom: '6px' }}>Pedido #{id.slice(0, 8).toUpperCase()}</h1>
+              <p style={{ fontSize: '13px', color: '#999' }}>
+                {new Date(pedido.created_at).toLocaleDateString('es-CO', { day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
+              </p>
+            </div>
+            <div style={{ backgroundColor: badge.bg, color: badge.color, padding: '6px 14px', borderRadius: '4px', fontWeight: '600', fontSize: '13px' }}>
+              {badge.label}
             </div>
           </div>
 
-          <div style={{ backgroundColor: 'white', borderRadius: '16px', padding: '24px', boxShadow: '0 2px 8px rgba(0,0,0,0.08)' }}>
-            <h3 style={{ fontSize: '16px', fontWeight: 'bold', marginBottom: '16px' }}>📦 Dirección de envío</h3>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', fontSize: '14px' }}>
-              <div>
-                <p style={{ color: '#888', fontSize: '12px', marginBottom: '2px' }}>Dirección</p>
-                <p style={{ fontWeight: 'bold' }}>{pedido.direccion}</p>
+          {estado !== 'cancelado' && (
+            <div style={{ position: 'relative' }}>
+              <div style={{ position: 'absolute', top: '16px', left: '8%', right: '8%', height: '3px', backgroundColor: '#e0e0e0', zIndex: 0 }}>
+                <div style={{ height: '100%', backgroundColor: '#3483fa', width: paso >= 4 ? '100%' : paso >= 3 ? '66%' : paso >= 2 ? '33%' : '0%' }}></div>
               </div>
-              <div>
-                <p style={{ color: '#888', fontSize: '12px', marginBottom: '2px' }}>Ciudad</p>
-                <p style={{ fontWeight: 'bold' }}>{pedido.ciudad}</p>
+              <div style={{ display: 'flex', justifyContent: 'space-between', position: 'relative', zIndex: 1 }}>
+                {pasos.map(p => (
+                  <div key={p.num} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', flex: 1 }}>
+                    <div style={{ width: '34px', height: '34px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: paso >= p.num ? '#3483fa' : 'white', border: paso >= p.num ? '2px solid #3483fa' : '2px solid #e0e0e0', marginBottom: '8px', fontSize: '14px' }}>
+                      {paso >= p.num ? <span style={{ color: 'white' }}>✓</span> : p.icon}
+                    </div>
+                    <p style={{ fontSize: '11px', color: paso >= p.num ? '#3483fa' : '#999', fontWeight: paso >= p.num ? '600' : 'normal', textAlign: 'center' }}>{p.label}</p>
+                  </div>
+                ))}
               </div>
-              <div>
-                <p style={{ color: '#888', fontSize: '12px', marginBottom: '2px' }}>Departamento / País</p>
-                <p style={{ fontWeight: 'bold' }}>{pedido.departamento}</p>
-              </div>
-              {pedido.notas && (
-                <div>
-                  <p style={{ color: '#888', fontSize: '12px', marginBottom: '2px' }}>Notas</p>
-                  <p style={{ fontWeight: 'bold', color: '#f90' }}>📝 {pedido.notas}</p>
-                </div>
-              )}
             </div>
-          </div>
+          )}
         </div>
 
-        <div style={{ backgroundColor: 'white', borderRadius: '16px', padding: '24px', boxShadow: '0 2px 8px rgba(0,0,0,0.08)', marginBottom: '20px' }}>
-          <h3 style={{ fontSize: '16px', fontWeight: 'bold', marginBottom: '16px' }}>🛍️ Productos del pedido</h3>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-            {items.map(item => (
-              <div key={item.id} style={{ display: 'flex', alignItems: 'center', gap: '16px', padding: '12px', backgroundColor: '#f3f4f6', borderRadius: '10px' }}>
-                <div style={{ width: '50px', height: '50px', borderRadius: '8px', backgroundColor: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '24px' }}>🛍️</div>
-                <div style={{ flex: 1 }}>
-                  <p style={{ fontWeight: 'bold', fontSize: '15px', marginBottom: '2px' }}>{item.nombre_producto}</p>
-                  <p style={{ fontSize: '13px', color: '#888' }}>Cantidad: {item.cantidad}</p>
-                </div>
-                <div style={{ textAlign: 'right' }}>
-                  <p style={{ fontWeight: 'bold', color: '#f90', fontSize: '15px' }}>${(Number(item.precio) * item.cantidad).toLocaleString('es-CO')} COP</p>
-                  <p style={{ fontSize: '12px', color: '#888' }}>${Number(item.precio).toLocaleString('es-CO')} c/u</p>
-                </div>
-              </div>
-            ))}
-            <div style={{ display: 'flex', justifyContent: 'space-between', padding: '12px 0', borderTop: '2px solid #f3f4f6' }}>
-              <span style={{ fontWeight: 'bold', fontSize: '16px' }}>Total pagado</span>
-              <span style={{ fontWeight: 'bold', fontSize: '18px', color: '#f90' }}>${Number(pedido.total).toLocaleString('es-CO')} COP</span>
-            </div>
-          </div>
-        </div>
-
-        <div style={{ backgroundColor: 'white', borderRadius: '16px', padding: '24px', boxShadow: '0 2px 8px rgba(0,0,0,0.08)', marginBottom: '20px' }}>
-          <h3 style={{ fontSize: '16px', fontWeight: 'bold', marginBottom: '20px' }}>📋 Pasos a seguir</h3>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 340px', gap: '16px' }}>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-            <div style={{ display: 'flex', gap: '16px', alignItems: 'flex-start' }}>
-              <div style={{ width: '36px', height: '36px', borderRadius: '50%', flexShrink: 0, backgroundColor: pasoCompletado(1) ? '#22c55e' : '#f3f4f6', color: pasoCompletado(1) ? 'white' : '#888', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold', fontSize: '14px' }}>
-                {pasoCompletado(1) ? '✓' : '1'}
-              </div>
-              <div>
-                <p style={{ fontWeight: 'bold', fontSize: '14px', marginBottom: '4px' }}>Confirmar el pedido</p>
-                <p style={{ fontSize: '13px', color: '#666', lineHeight: 1.6 }}>Revisa que tengas el producto disponible y en buen estado.</p>
-              </div>
-            </div>
-            <div style={{ display: 'flex', gap: '16px', alignItems: 'flex-start' }}>
-              <div style={{ width: '36px', height: '36px', borderRadius: '50%', flexShrink: 0, backgroundColor: pasoCompletado(2) ? '#22c55e' : '#f3f4f6', color: pasoCompletado(2) ? 'white' : '#888', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold', fontSize: '14px' }}>
-                {pasoCompletado(2) ? '✓' : '2'}
-              </div>
-              <div>
-                <p style={{ fontWeight: 'bold', fontSize: '14px', marginBottom: '4px' }}>Empacar el producto</p>
-                <p style={{ fontSize: '13px', color: '#666', lineHeight: 1.6 }}>Empaca el producto de forma segura. Incluye una nota de agradecimiento si quieres.</p>
-              </div>
-            </div>
-            <div style={{ display: 'flex', gap: '16px', alignItems: 'flex-start' }}>
-              <div style={{ width: '36px', height: '36px', borderRadius: '50%', flexShrink: 0, backgroundColor: pasoCompletado(3) ? '#22c55e' : '#f3f4f6', color: pasoCompletado(3) ? 'white' : '#888', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold', fontSize: '14px' }}>
-                {pasoCompletado(3) ? '✓' : '3'}
-              </div>
-              <div>
-                <p style={{ fontWeight: 'bold', fontSize: '14px', marginBottom: '4px' }}>Coordinar el envío</p>
-                <p style={{ fontSize: '13px', color: '#666', lineHeight: 1.6 }}>Contacta al comprador por WhatsApp al {pedido.telefono} para coordinar la entrega. Puedes usar Coordinadora, Interrapidísimo o Servientrega.</p>
+
+            <div style={{ backgroundColor: 'white', borderRadius: '8px', padding: '20px', boxShadow: '0 1px 4px rgba(0,0,0,0.1)' }}>
+              <h2 style={{ fontSize: '16px', fontWeight: '600', color: '#333', marginBottom: '16px', paddingBottom: '12px', borderBottom: '1px solid #f0f0f0' }}>🛍️ Productos vendidos</h2>
+              {items.map(item => (
+                <div key={item.id} style={{ display: 'flex', gap: '16px', padding: '12px 0', borderBottom: '1px solid #f7f7f7' }}>
+                  <div style={{ width: '64px', height: '64px', borderRadius: '6px', backgroundColor: '#f5f5f5', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '28px', flexShrink: 0 }}>🛍️</div>
+                  <div style={{ flex: 1 }}>
+                    <p style={{ fontWeight: '600', fontSize: '14px', color: '#333', marginBottom: '4px' }}>{item.nombre_producto}</p>
+                    <p style={{ fontSize: '13px', color: '#999' }}>Cantidad: {item.cantidad}</p>
+                    <p style={{ fontSize: '13px', color: '#999' }}>Precio unitario: ${Number(item.precio).toLocaleString('es-CO')} COP</p>
+                  </div>
+                  <div style={{ textAlign: 'right' }}>
+                    <p style={{ fontWeight: '700', fontSize: '16px', color: '#333' }}>${(Number(item.precio) * item.cantidad).toLocaleString('es-CO')}</p>
+                    <p style={{ fontSize: '12px', color: '#999' }}>COP</p>
+                  </div>
+                </div>
+              ))}
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingTop: '16px' }}>
+                <span style={{ fontSize: '15px', fontWeight: '600', color: '#333' }}>Total recibido</span>
+                <span style={{ fontSize: '20px', fontWeight: '700', color: '#00a650' }}>${Number(pedido.total).toLocaleString('es-CO')} COP</span>
               </div>
             </div>
-            <div style={{ display: 'flex', gap: '16px', alignItems: 'flex-start' }}>
-              <div style={{ width: '36px', height: '36px', borderRadius: '50%', flexShrink: 0, backgroundColor: pasoCompletado(4) ? '#22c55e' : '#f3f4f6', color: pasoCompletado(4) ? 'white' : '#888', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold', fontSize: '14px' }}>
-                {pasoCompletado(4) ? '✓' : '4'}
-              </div>
-              <div>
-                <p style={{ fontWeight: 'bold', fontSize: '14px', marginBottom: '4px' }}>Marcar como enviado</p>
-                <p style={{ fontSize: '13px', color: '#666', lineHeight: 1.6 }}>Cuando entregues el paquete a la transportadora, actualiza el estado del pedido abajo.</p>
+
+            <div style={{ backgroundColor: 'white', borderRadius: '8px', padding: '20px', boxShadow: '0 1px 4px rgba(0,0,0,0.1)' }}>
+              <h2 style={{ fontSize: '16px', fontWeight: '600', color: '#333', marginBottom: '16px', paddingBottom: '12px', borderBottom: '1px solid #f0f0f0' }}>👤 Datos del comprador</h2>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+                <div>
+                  <p style={{ fontSize: '12px', color: '#999', marginBottom: '4px' }}>NOMBRE</p>
+                  <p style={{ fontSize: '14px', fontWeight: '600', color: '#333' }}>{pedido.comprador_nombre}</p>
+                </div>
+                <div>
+                  <p style={{ fontSize: '12px', color: '#999', marginBottom: '4px' }}>CORREO</p>
+                  <p style={{ fontSize: '14px', fontWeight: '600', color: '#333' }}>{pedido.comprador_email}</p>
+                </div>
+                <div>
+                  <p style={{ fontSize: '12px', color: '#999', marginBottom: '4px' }}>TELÉFONO</p>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <p style={{ fontSize: '14px', fontWeight: '600', color: '#333' }}>{pedido.telefono}</p>
+                    <a href={"https://wa.me/" + pedido.telefono.replace(/\D/g, '')} target="_blank" style={{ backgroundColor: '#25d366', color: 'white', padding: '3px 10px', borderRadius: '4px', textDecoration: 'none', fontSize: '12px', fontWeight: '600' }}>
+                      WhatsApp
+                    </a>
+                  </div>
+                </div>
               </div>
             </div>
+
+            <div style={{ backgroundColor: 'white', borderRadius: '8px', padding: '20px', boxShadow: '0 1px 4px rgba(0,0,0,0.1)' }}>
+              <h2 style={{ fontSize: '16px', fontWeight: '600', color: '#333', marginBottom: '16px', paddingBottom: '12px', borderBottom: '1px solid #f0f0f0' }}>📦 Dirección de envío</h2>
+              <div style={{ display: 'flex', gap: '16px' }}>
+                <div style={{ fontSize: '32px' }}>🗺️</div>
+                <div>
+                  <p style={{ fontSize: '15px', fontWeight: '600', color: '#333', marginBottom: '4px' }}>{pedido.comprador_nombre}</p>
+                  <p style={{ fontSize: '14px', color: '#555', lineHeight: 1.8 }}>{pedido.direccion}<br />{pedido.ciudad}, {pedido.departamento}</p>
+                  {pedido.notas && (
+                    <div style={{ marginTop: '10px', backgroundColor: '#fff8e1', border: '1px solid #ffe082', borderRadius: '6px', padding: '8px 12px' }}>
+                      <p style={{ fontSize: '13px', color: '#795548' }}>📝 <strong>Nota:</strong> {pedido.notas}</p>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            <div style={{ backgroundColor: 'white', borderRadius: '8px', padding: '20px', boxShadow: '0 1px 4px rgba(0,0,0,0.1)' }}>
+              <h2 style={{ fontSize: '16px', fontWeight: '600', color: '#333', marginBottom: '16px', paddingBottom: '12px', borderBottom: '1px solid #f0f0f0' }}>📋 Pasos a seguir</h2>
+              <div style={{ display: 'flex', flexDirection: 'column' }}>
+                {instrucciones.map((inst, i) => (
+                  <div key={i} style={{ display: 'flex', gap: '16px', padding: '14px 0', borderBottom: i < instrucciones.length - 1 ? '1px solid #f7f7f7' : 'none' }}>
+                    <div style={{ width: '36px', height: '36px', borderRadius: '50%', backgroundColor: paso > i + 1 ? '#3483fa' : paso === i + 1 ? '#f90' : '#f0f0f0', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, fontSize: '16px' }}>
+                      {paso > i + 1 ? <span style={{ color: 'white', fontSize: '14px' }}>✓</span> : inst.icon}
+                    </div>
+                    <div>
+                      <p style={{ fontWeight: '600', fontSize: '14px', color: '#333', marginBottom: '4px' }}>{inst.titulo}</p>
+                      <p style={{ fontSize: '13px', color: '#666', lineHeight: 1.6 }}>{inst.desc}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+          </div>
+
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+
+            <div style={{ backgroundColor: 'white', borderRadius: '8px', padding: '20px', boxShadow: '0 1px 4px rgba(0,0,0,0.1)' }}>
+              <h3 style={{ fontSize: '15px', fontWeight: '600', color: '#333', marginBottom: '16px' }}>Actualizar estado</h3>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                {btnEstados.map(e => (
+                  <button key={e.valor} onClick={() => actualizarEstado(e.valor)} disabled={actualizando || estado === e.valor}
+                    style={{ padding: '12px 14px', borderRadius: '6px', border: estado === e.valor ? '2px solid ' + e.color : '1px solid #e0e0e0', fontWeight: '600', fontSize: '13px', cursor: estado === e.valor ? 'not-allowed' : 'pointer', backgroundColor: estado === e.valor ? e.color : 'white', color: estado === e.valor ? 'white' : '#333', textAlign: 'left', opacity: actualizando ? 0.6 : 1 }}>
+                    {e.label}
+                    <span style={{ display: 'block', fontSize: '11px', fontWeight: 'normal', color: estado === e.valor ? 'rgba(255,255,255,0.8)' : '#999', marginTop: '2px' }}>{e.desc}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div style={{ backgroundColor: 'white', borderRadius: '8px', padding: '20px', boxShadow: '0 1px 4px rgba(0,0,0,0.1)' }}>
+              <h3 style={{ fontSize: '15px', fontWeight: '600', color: '#333', marginBottom: '16px' }}>Resumen financiero</h3>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px' }}>
+                  <span style={{ color: '#666' }}>Subtotal</span>
+                  <span style={{ fontWeight: '600' }}>${Number(pedido.total).toLocaleString('es-CO')} COP</span>
+                </div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px' }}>
+                  <span style={{ color: '#666' }}>Comisión Driny (5%)</span>
+                  <span style={{ fontWeight: '600', color: '#ef4444' }}>-${(Number(pedido.total) * 0.05).toLocaleString('es-CO')} COP</span>
+                </div>
+                <div style={{ borderTop: '1px solid #f0f0f0', paddingTop: '10px', display: 'flex', justifyContent: 'space-between', fontSize: '15px' }}>
+                  <span style={{ fontWeight: '700' }}>Tu ganancia</span>
+                  <span style={{ fontWeight: '700', color: '#00a650' }}>${(Number(pedido.total) * 0.95).toLocaleString('es-CO')} COP</span>
+                </div>
+              </div>
+            </div>
+
+            <div style={{ backgroundColor: '#f0f7ff', borderRadius: '8px', padding: '16px', border: '1px solid #c2d9ff' }}>
+              <h3 style={{ fontSize: '14px', fontWeight: '600', color: '#1565c0', marginBottom: '10px' }}>📞 Contacto rápido</h3>
+              <p style={{ fontSize: '13px', color: '#333', marginBottom: '12px' }}>{pedido.comprador_nombre}</p>
+              <a href={"https://wa.me/" + pedido.telefono.replace(/\D/g, '') + "?text=" + encodeURIComponent("Hola " + pedido.comprador_nombre + ", te contacto por tu pedido en Driny #" + id.slice(0, 8).toUpperCase())} target="_blank"
+                style={{ backgroundColor: '#25d366', color: 'white', padding: '10px', borderRadius: '6px', textDecoration: 'none', fontWeight: '700', fontSize: '14px', textAlign: 'center', width: '100%', boxSizing: 'border-box' as const }}>
+                💬 Escribir por WhatsApp
+              </a>
+            </div>
+
           </div>
         </div>
-
-        <div style={{ backgroundColor: 'white', borderRadius: '16px', padding: '24px', boxShadow: '0 2px 8px rgba(0,0,0,0.08)' }}>
-          <h3 style={{ fontSize: '16px', fontWeight: 'bold', marginBottom: '16px' }}>🔄 Actualizar estado</h3>
-          <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
-            <button onClick={() => actualizarEstado('preparando')} disabled={actualizando || estado === 'preparando'} style={{ padding: '10px 20px', borderRadius: '8px', border: 'none', fontWeight: 'bold', fontSize: '14px', cursor: estado === 'preparando' ? 'not-allowed' : 'pointer', backgroundColor: estado === 'preparando' ? '#f59e0b' : '#f3f4f6', color: estado === 'preparando' ? 'white' : '#666' }}>📦 Preparando</button>
-            <button onClick={() => actualizarEstado('enviado')} disabled={actualizando || estado === 'enviado'} style={{ padding: '10px 20px', borderRadius: '8px', border: 'none', fontWeight: 'bold', fontSize: '14px', cursor: estado === 'enviado' ? 'not-allowed' : 'pointer', backgroundColor: estado === 'enviado' ? '#3b82f6' : '#f3f4f6', color: estado === 'enviado' ? 'white' : '#666' }}>🚚 Enviado</button>
-            <button onClick={() => actualizarEstado('entregado')} disabled={actualizando || estado === 'entregado'} style={{ padding: '10px 20px', borderRadius: '8px', border: 'none', fontWeight: 'bold', fontSize: '14px', cursor: estado === 'entregado' ? 'not-allowed' : 'pointer', backgroundColor: estado === 'entregado' ? '#22c55e' : '#f3f4f6', color: estado === 'entregado' ? 'white' : '#666' }}>🎉 Entregado</button>
-            <button onClick={() => actualizarEstado('cancelado')} disabled={actualizando || estado === 'cancelado'} style={{ padding: '10px 20px', borderRadius: '8px', border: 'none', fontWeight: 'bold', fontSize: '14px', cursor: estado === 'cancelado' ? 'not-allowed' : 'pointer', backgroundColor: estado === 'cancelado' ? '#ef4444' : '#f3f4f6', color: estado === 'cancelado' ? 'white' : '#666' }}>❌ Cancelado</button>
-          </div>
-          <p style={{ fontSize: '12px', color: '#888', marginTop: '12px' }}>El comprador será notificado cuando actualices el estado.</p>
-        </div>
-
       </div>
     </main>
   );
