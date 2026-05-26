@@ -235,11 +235,18 @@ const marcarLeidas = async () => {
         ) : (
           <div style={{ maxHeight: '360px', overflowY: 'auto' }}>
             {notificaciones.map(n => (
-              <div key={n.id} style={{
-                padding: '14px 16px',
-                borderBottom: '1px solid #f3f4f6',
-                backgroundColor: n.leida ? 'white' : '#fff8ee'
-              }}>
+  <div
+    key={n.id}
+    onClick={() => {
+      if (n.pedido_id) window.location.href = `/pedido/${n.pedido_id}`;
+    }}
+    style={{
+      padding: '14px 16px',
+      borderBottom: '1px solid #f3f4f6',
+      backgroundColor: n.leida ? 'white' : '#fff8ee',
+      cursor: n.pedido_id ? 'pointer' : 'default'
+    }}
+  >
                 <div style={{ display: 'flex', gap: '10px', alignItems: 'flex-start' }}>
                   <span style={{ fontSize: '20px' }}>
                     {n.titulo.includes('venta') ? '💰' : '🔔'}
