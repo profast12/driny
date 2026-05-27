@@ -293,7 +293,7 @@ const marcarLeidas = async () => {
 
 <a href="/carrito" style={{ textDecoration: 'none', textAlign: 'center', color: '#f90' }}>
   <div style={{ fontSize: '22px' }}>🛒</div>
-  <div style={{ fontSize: '11px', color: 'white' }}>Carrito</div>
+  <div style={{ fontSize: '11px', color: 'black' }}>Carrito</div>
 </a>
         </div>
       </nav>
