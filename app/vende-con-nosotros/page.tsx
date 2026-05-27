@@ -44,7 +44,7 @@ export default function VendeConNosotros() {
   />
 </a>
         <div style={{ display: 'flex', gap: '20px', alignItems: 'center' }}>
-          <a href="/login" style={{ color: 'white', textDecoration: 'none', fontSize: '14px' }}>Iniciar sesión</a>
+          <a href="/login" style={{ color: 'black', textDecoration: 'none', fontSize: '14px' }}>Iniciar sesión</a>
           <a href="/registro" style={{
             backgroundColor: '#f90', color: '#111', padding: '8px 16px',
             borderRadius: '8px', textDecoration: 'none', fontWeight: 'bold', fontSize: '14px'
