@@ -91,8 +91,10 @@ const marcarLeidas = async () => {
   <Image
     src="/logo.png"
     alt="Driny"
-    width={180}
-    height={50}
+    width={120}
+    height={120}
+    style={{ height: 'auto' }}
+
   />
 </a>
 
