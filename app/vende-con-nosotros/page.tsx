@@ -1,5 +1,6 @@
 "use client";
 import { useEffect } from "react";
+import Image from "next/image";
 import { supabase } from "../../lib/supabase";
 
 export default function VendeConNosotros() {
@@ -30,7 +31,18 @@ export default function VendeConNosotros() {
         alignItems: 'center',
         justifyContent: 'space-between'
       }}>
-        <a href="/" style={{ color: '#f90', fontSize: '26px', fontWeight: 'bold', textDecoration: 'none' }}>Driny</a>
+        <a href="/">
+  <Image
+    src="/logo.png"
+    alt="Driny"
+    width={60}
+    height={60}
+    style={{
+      width: 'auto',
+      height: '60px'
+    }}
+  />
+</a>
         <div style={{ display: 'flex', gap: '20px', alignItems: 'center' }}>
           <a href="/login" style={{ color: 'white', textDecoration: 'none', fontSize: '14px' }}>Iniciar sesión</a>
           <a href="/registro" style={{
@@ -61,7 +73,7 @@ export default function VendeConNosotros() {
             backgroundColor: '#f90', color: '#111', padding: '16px 36px',
             borderRadius: '10px', fontWeight: 'bold', fontSize: '17px', textDecoration: 'none'
           }}>
-            🏪 Crear cuenta vendedor gratis
+            Crear cuenta vendedor gratis
           </a>
           <a href="/login" style={{
             backgroundColor: 'transparent', border: '2px solid #f90', color: '#f90',
