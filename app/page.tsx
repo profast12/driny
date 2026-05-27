@@ -70,7 +70,7 @@ const marcarLeidas = async () => {
         justifyContent: 'flex-end',
         gap: '16px',
         fontSize: '13px',
-        color: '#f5eeee'
+        color: '#000000'
       }}>
         <a href="/vende-con-nosotros" style={{ cursor: 'pointer', textDecoration: 'none', color: '#111' }}>¿Quieres vender en Driny?</a>
         <span>|</span>
@@ -81,7 +81,7 @@ const marcarLeidas = async () => {
 
       {/* NAVBAR PRINCIPAL */}
       <nav style={{
-        backgroundColor: '#111',
+        backgroundColor: '#666363',
         padding: '14px 24px',
         display: 'flex',
         alignItems: 'center',
