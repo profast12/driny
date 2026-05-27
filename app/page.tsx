@@ -1,5 +1,6 @@
 "use client";
 import { useState, useEffect } from "react";
+import Image from "next/image";
 import { supabase } from "../lib/supabase";
 
 export default function Home() {
@@ -86,7 +87,14 @@ const marcarLeidas = async () => {
         alignItems: 'center',
         gap: '20px'
       }}>
-        <h1 style={{ color: '#f90', fontSize: '30px', fontWeight: 'bold', minWidth: 'fit-content' }}>Driny</h1>
+        <a href="/">
+  <Image
+    src="/logo.jpeg"
+    alt="Driny"
+    width={180}
+    height={50}
+  />
+</a>
 
         <input
   type="text"
