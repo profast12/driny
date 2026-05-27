@@ -70,7 +70,7 @@ const marcarLeidas = async () => {
         justifyContent: 'flex-end',
         gap: '16px',
         fontSize: '13px',
-        color: '#111'
+        color: '#464343'
       }}>
         <a href="/vende-con-nosotros" style={{ cursor: 'pointer', textDecoration: 'none', color: '#111' }}>¿Quieres vender en Driny?</a>
         <span>|</span>
