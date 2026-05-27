@@ -154,8 +154,8 @@ const marcarLeidas = async () => {
                 onClick={cerrarSesion}
                 style={{
                   backgroundColor: 'transparent',
-                  border: '1px solid #666',
-                  color: '#aaa',
+                  border: '1px solid #4d4d4d',
+                  color: '#000000',
                   padding: '6px 12px',
                   borderRadius: '6px',
                   cursor: 'pointer',
