@@ -59,7 +59,7 @@ export default function VendeConNosotros() {
         textAlign: 'center',
         padding: '80px 24px'
       }}>
-        <p style={{ color: '#f90', letterSpacing: '3px', fontSize: '13px', marginBottom: '16px' }}>
+        <p style={{ color: 'rgb(48, 46, 44)', letterSpacing: '3px', fontSize: '13px', marginBottom: '16px' }}>
           VENDE EN DRINY
         </p>
         <h1 style={{ fontSize: '44px', fontWeight: 'bold', marginBottom: '20px', lineHeight: 1.2 }}>
@@ -73,7 +73,7 @@ export default function VendeConNosotros() {
             backgroundColor: '#f90', color: '#111', padding: '16px 36px',
             borderRadius: '10px', fontWeight: 'bold', fontSize: '17px', textDecoration: 'none'
           }}>
-            Crear cuenta vendedor gratis
+            Crear cuenta de vendedor gratis
           </a>
           <a href="/login" style={{
             backgroundColor: 'transparent', border: '2px solid #f90', color: '#f90',
@@ -87,7 +87,7 @@ export default function VendeConNosotros() {
 
       {/* ESTADISTICAS */}
       <div style={{
-        backgroundColor: '#111',
+        backgroundColor: '#464545',
         padding: '40px 24px',
         display: 'flex',
         justifyContent: 'center',
@@ -101,7 +101,7 @@ export default function VendeConNosotros() {
           { numero: '100%', label: 'Pagos seguros' },
         ].map((stat, i) => (
           <div key={i} style={{ textAlign: 'center', color: 'white' }}>
-            <p style={{ fontSize: '36px', fontWeight: 'bold', color: '#f90', marginBottom: '4px' }}>{stat.numero}</p>
+            <p style={{ fontSize: '36px', fontWeight: 'bold', color: 'rgb(255, 255, 255)', marginBottom: '4px' }}>{stat.numero}</p>
             <p style={{ fontSize: '14px', color: '#aaa' }}>{stat.label}</p>
           </div>
         ))}
@@ -110,7 +110,7 @@ export default function VendeConNosotros() {
       {/* BENEFICIOS */}
       <section style={{ padding: '60px 24px', maxWidth: '1000px', margin: '0 auto' }}>
         <h2 style={{ fontSize: '32px', fontWeight: 'bold', textAlign: 'center', marginBottom: '48px' }}>
-          ¿Por qué vender en Driny?
+          ¿Por Qué Vender En DRINY?
         </h2>
         <div style={{
           display: 'grid',
@@ -119,32 +119,32 @@ export default function VendeConNosotros() {
         }}>
           {[
             {
-              emoji: '🚀',
+              emoji: '',
               titulo: 'Empieza en minutos',
               descripcion: 'Crea tu cuenta, sube tus productos y empieza a recibir pedidos el mismo día. Sin complicaciones.'
             },
             {
-              emoji: '💰',
+              emoji: '',
               titulo: 'Sin costos fijos',
               descripcion: 'No pagas nada por registrarte. Solo cobramos una pequeña comisión cuando realizas una venta exitosa.'
             },
             {
-              emoji: '🔒',
+              emoji: '',
               titulo: 'Pagos seguros',
               descripcion: 'Integración con PayPal y próximamente más métodos de pago. Tu dinero siempre protegido.'
             },
             {
-              emoji: '📦',
+              emoji: '',
               titulo: 'Gestión fácil',
               descripcion: 'Panel de control intuitivo para administrar tus productos, ver tus ventas y gestionar tu inventario.'
             },
             {
-              emoji: '🔨',
+              emoji: '',
               titulo: 'Subastas incluidas',
               descripcion: 'Publica subastas de tus productos y genera más ventas con precios dinámicos en tiempo real.'
             },
             {
-              emoji: '📊',
+              emoji: '',
               titulo: 'Estadísticas en tiempo real',
               descripcion: 'Visualiza cuántas personas ven tus productos, cuánto vendes y cómo crecer tu negocio.'
             },
