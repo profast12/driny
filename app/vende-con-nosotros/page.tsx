@@ -25,7 +25,7 @@ export default function VendeConNosotros() {
 
       {/* NAVBAR */}
       <nav style={{
-        backgroundColor: '#eeeeee',
+        backgroundColor: '#cfcfcf',
         padding: '14px 24px',
         display: 'flex',
         alignItems: 'center',
