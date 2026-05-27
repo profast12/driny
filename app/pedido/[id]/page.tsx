@@ -1,6 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 import { supabase } from "../../../lib/supabase";
+import jsPDF from 'jspdf';
 
 export default function DetallePedido() {
   const [id, setId] = useState('');
@@ -35,6 +36,185 @@ export default function DetallePedido() {
     setMensaje("Estado actualizado correctamente");
     setActualizando(false);
     setTimeout(() => setMensaje(''), 3000);
+  };
+
+  const descargarGuia = () => {
+    const doc = new jsPDF();
+    const naranja: [number, number, number] = [255, 153, 0];
+    const negro: [number, number, number] = [17, 17, 17];
+    const gris: [number, number, number] = [100, 100, 100];
+    const grisClaro: [number, number, number] = [240, 240, 240];
+
+    doc.setFillColor(...naranja);
+    doc.rect(0, 0, 210, 35, 'F');
+    doc.setTextColor(0, 0, 0);
+    doc.setFontSize(28);
+    doc.setFont('helvetica', 'bold');
+    doc.text('DRINY', 14, 22);
+    doc.setFontSize(10);
+    doc.setFont('helvetica', 'normal');
+    doc.setTextColor(50, 50, 50);
+    doc.text('Guia de Envio', 14, 30);
+    doc.setFontSize(11);
+    doc.setFont('helvetica', 'bold');
+    doc.setTextColor(0, 0, 0);
+    doc.text('Pedido #' + id.slice(0, 8).toUpperCase(), 196, 18, { align: 'right' });
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(9);
+    doc.text(new Date(pedido.created_at).toLocaleDateString('es-CO', { day: 'numeric', month: 'long', year: 'numeric' }), 196, 25, { align: 'right' });
+
+    doc.setDrawColor(...naranja);
+    doc.setLineWidth(1);
+    doc.line(0, 35, 210, 35);
+
+    let y = 50;
+    doc.setFillColor(...grisClaro);
+    doc.rect(14, y - 6, 182, 8, 'F');
+    doc.setFontSize(11);
+    doc.setFont('helvetica', 'bold');
+    doc.setTextColor(...negro);
+    doc.text('DESTINATARIO', 16, y);
+
+    y += 10;
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(14);
+    doc.text(pedido.comprador_nombre, 14, y);
+
+    y += 8;
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(11);
+    doc.setTextColor(...gris);
+    doc.text('Direccion: ' + pedido.direccion, 14, y);
+    y += 7;
+    doc.text('Ciudad: ' + pedido.ciudad, 14, y);
+    y += 7;
+    doc.text('Departamento: ' + pedido.departamento, 14, y);
+    y += 7;
+    doc.text('Telefono: ' + pedido.telefono, 14, y);
+    y += 7;
+    doc.text('Correo: ' + pedido.comprador_email, 14, y);
+    if (pedido.notas) {
+      y += 7;
+      doc.setTextColor(180, 100, 0);
+      doc.text('Nota: ' + pedido.notas, 14, y);
+    }
+
+    y += 12;
+    doc.setDrawColor(...grisClaro);
+    doc.setLineWidth(0.5);
+    doc.line(14, y, 196, y);
+
+    y += 10;
+    doc.setFillColor(...grisClaro);
+    doc.rect(14, y - 6, 182, 8, 'F');
+    doc.setFontSize(11);
+    doc.setFont('helvetica', 'bold');
+    doc.setTextColor(...negro);
+    doc.text('PRODUCTOS', 16, y);
+
+    y += 10;
+    doc.setFontSize(10);
+    doc.setFont('helvetica', 'bold');
+    doc.setTextColor(...gris);
+    doc.text('Producto', 14, y);
+    doc.text('Cant.', 140, y);
+    doc.text('Precio', 165, y);
+    doc.text('Total', 190, y, { align: 'right' });
+    y += 2;
+    doc.setDrawColor(...grisClaro);
+    doc.line(14, y, 196, y);
+
+    items.forEach(item => {
+      y += 8;
+      doc.setFont('helvetica', 'normal');
+      doc.setTextColor(...negro);
+      doc.setFontSize(10);
+      doc.text(item.nombre_producto, 14, y);
+      doc.text(String(item.cantidad), 143, y);
+      doc.text('$' + Number(item.precio).toLocaleString('es-CO'), 165, y);
+      doc.text('$' + (Number(item.precio) * item.cantidad).toLocaleString('es-CO'), 196, y, { align: 'right' });
+    });
+
+    y += 6;
+    doc.setDrawColor(...grisClaro);
+    doc.line(14, y, 196, y);
+    y += 8;
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(12);
+    doc.setTextColor(...negro);
+    doc.text('TOTAL:', 140, y);
+    doc.setTextColor(...naranja);
+    doc.text('$' + Number(pedido.total).toLocaleString('es-CO') + ' COP', 196, y, { align: 'right' });
+
+    y += 12;
+    doc.setDrawColor(...grisClaro);
+    doc.setLineWidth(0.5);
+    doc.line(14, y, 196, y);
+
+    y += 10;
+    doc.setFillColor(...grisClaro);
+    doc.rect(14, y - 6, 182, 8, 'F');
+    doc.setFontSize(11);
+    doc.setFont('helvetica', 'bold');
+    doc.setTextColor(...negro);
+    doc.text('INSTRUCCIONES DE ENVIO', 16, y);
+
+    y += 10;
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(10);
+    doc.setTextColor(...gris);
+    const instruccionesTexto = [
+      '1. Presenta esta guia en la paqueteria de tu eleccion.',
+      '2. Puedes usar: Coordinadora, Interrapidisimo, Servientrega o TCC.',
+      '3. El empleado digitara los datos del destinatario.',
+      '4. Guarda el numero de guia y compartelo con el comprador.',
+      '5. Actualiza el estado del pedido en Driny una vez enviado.',
+    ];
+    instruccionesTexto.forEach(inst => {
+      doc.text(inst, 14, y);
+      y += 7;
+    });
+
+    y += 5;
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(10);
+    doc.setTextColor(...negro);
+    doc.text('Paqueterias recomendadas:', 14, y);
+    y += 8;
+    const paqueterias = [
+      { nombre: 'Coordinadora', web: 'coordinadora.com', tel: '01 8000 510 888' },
+      { nombre: 'Interrapidisimo', web: 'interrapidisimo.com', tel: '01 8000 912 800' },
+      { nombre: 'Servientrega', web: 'servientrega.com.co', tel: '01 8000 112 211' },
+      { nombre: 'TCC', web: 'tcc.com.co', tel: '01 8000 910 444' },
+    ];
+    paqueterias.forEach(p => {
+      doc.setFont('helvetica', 'bold');
+      doc.setTextColor(...negro);
+      doc.setFontSize(9);
+      doc.text(p.nombre + ':', 14, y);
+      doc.setFont('helvetica', 'normal');
+      doc.setTextColor(...gris);
+      doc.text('Web: ' + p.web + '  |  Tel: ' + p.tel, 50, y);
+      y += 7;
+    });
+
+    y = 275;
+    doc.setFillColor(...naranja);
+    doc.rect(0, y, 210, 25, 'F');
+    doc.setTextColor(0, 0, 0);
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(11);
+    doc.text('DRINY', 14, y + 10);
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(9);
+    doc.text('driny.vercel.app', 14, y + 17);
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(9);
+    doc.text('Generado el ' + new Date().toLocaleDateString('es-CO'), 196, y + 10, { align: 'right' });
+    doc.setFont('helvetica', 'normal');
+    doc.text('Colombia', 196, y + 17, { align: 'right' });
+
+    doc.save('Guia-Driny-' + id.slice(0, 8).toUpperCase() + '.pdf');
   };
 
   const paso = estado === 'entregado' ? 4 : estado === 'enviado' ? 3 : estado === 'preparando' ? 2 : 1;
@@ -182,9 +362,7 @@ export default function DetallePedido() {
                   <p style={{ fontSize: '12px', color: '#999', marginBottom: '4px' }}>TELÉFONO</p>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                     <p style={{ fontSize: '14px', fontWeight: '600', color: '#333' }}>{pedido.telefono}</p>
-                    <a href={"https://wa.me/" + pedido.telefono.replace(/\D/g, '')} target="_blank" style={{ backgroundColor: '#25d366', color: 'white', padding: '3px 10px', borderRadius: '4px', textDecoration: 'none', fontSize: '12px', fontWeight: '600' }}>
-                      WhatsApp
-                    </a>
+                    <a href={"https://wa.me/" + pedido.telefono.replace(/\D/g, '')} target="_blank" style={{ backgroundColor: '#25d366', color: 'white', padding: '3px 10px', borderRadius: '4px', textDecoration: 'none', fontSize: '12px', fontWeight: '600' }}>WhatsApp</a>
                   </div>
                 </div>
               </div>
@@ -226,6 +404,14 @@ export default function DetallePedido() {
           </div>
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+
+            <div style={{ backgroundColor: 'white', borderRadius: '8px', padding: '20px', boxShadow: '0 1px 4px rgba(0,0,0,0.1)' }}>
+              <h3 style={{ fontSize: '15px', fontWeight: '600', color: '#333', marginBottom: '8px' }}>📄 Guía de envío</h3>
+              <p style={{ fontSize: '12px', color: '#999', marginBottom: '12px' }}>Descarga e imprime esta guía para llevar a la paquetería</p>
+              <button onClick={descargarGuia} style={{ width: '100%', padding: '12px', backgroundColor: '#111', color: '#f90', border: 'none', borderRadius: '6px', fontWeight: '700', fontSize: '14px', cursor: 'pointer' }}>
+                ⬇️ Descargar guía PDF
+              </button>
+            </div>
 
             <div style={{ backgroundColor: 'white', borderRadius: '8px', padding: '20px', boxShadow: '0 1px 4px rgba(0,0,0,0.1)' }}>
               <h3 style={{ fontSize: '15px', fontWeight: '600', color: '#333', marginBottom: '16px' }}>Actualizar estado</h3>
