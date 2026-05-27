@@ -81,7 +81,7 @@ const marcarLeidas = async () => {
 
       {/* NAVBAR PRINCIPAL */}
       <nav style={{
-        backgroundColor: '#30303079',
+        backgroundColor: '#ffffff',
         padding: '14px 24px',
         display: 'flex',
         alignItems: 'center',
@@ -167,12 +167,12 @@ const marcarLeidas = async () => {
             </div>
           ) : (
             <a href="/login" style={{ textDecoration: 'none', color: 'white', textAlign: 'center' }}>
-              <div style={{ fontSize: '11px', color: '#aaa' }}>Hola, ingresa</div>
+              <div style={{ fontSize: '11px', color: '#000000' }}>Hola, ingresa</div>
               <div style={{ fontWeight: 'bold' }}>Mi cuenta</div>
             </a>
           )}
           <a href="/vende-con-nosotros" style={{ textDecoration: 'none', color: 'white', textAlign: 'center' }}>
-  <div style={{ fontSize: '11px', color: '#aaa' }}>¿Quieres</div>
+  <div style={{ fontSize: '11px', color: '#000000' }}>¿Quieres</div>
   <div style={{ fontWeight: 'bold' }}>Vender?</div>
 </a>
           {usuario && (
