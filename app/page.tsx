@@ -89,7 +89,7 @@ const marcarLeidas = async () => {
       }}>
         <a href="/">
   <Image
-    src="/logo.jpeg"
+    src="/logo.png"
     alt="Driny"
     width={180}
     height={50}
