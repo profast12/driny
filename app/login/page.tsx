@@ -1,5 +1,6 @@
 "use client";
 import { useState } from "react";
+import Image from "next/image";
 import { supabase } from "../../lib/supabase";
 
 export default function Login() {
@@ -46,7 +47,18 @@ export default function Login() {
         alignItems: 'center',
         justifyContent: 'space-between'
       }}>
-        <a href="/" style={{ color: '#f90', fontSize: '26px', fontWeight: 'bold', textDecoration: 'none' }}>Driny</a>
+        <a href="/">
+  <Image
+    src="/logo.png"
+    alt="Driny"
+    width={65}
+    height={65}
+    style={{
+      width: 'auto',
+      height: '65px'
+    }}
+  />
+</a>
         <a href="/registro" style={{ color: 'white', fontSize: '14px', textDecoration: 'none' }}>
           ¿No tienes cuenta? <span style={{ color: '#f90', fontWeight: 'bold' }}>Regístrate</span>
         </a>
