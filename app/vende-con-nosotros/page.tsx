@@ -35,10 +35,10 @@ export default function VendeConNosotros() {
   <Image
     src="/logo.png"
     alt="Driny"
-    width={92}
+    width={85}
     height={70}
     style={{
-      width: '92px',
+      width: 'auto',
       height: '70px'
     }}
   />
