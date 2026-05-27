@@ -76,7 +76,7 @@ const marcarLeidas = async () => {
         <span>|</span>
         <span style={{ cursor: 'pointer' }}>Ayuda</span>
         <span>|</span>
-        <span style={{ cursor: 'pointer' }}>Mis pedidos</span>
+        <a href="/mis-pedidos" style={{ cursor: 'pointer', textDecoration: 'none', color: '#111' }}>Mis pedidos</a>
       </div>
 
       {/* NAVBAR PRINCIPAL */}
@@ -250,8 +250,8 @@ const marcarLeidas = async () => {
   <div
     key={n.id}
     onClick={() => {
-      if (n.pedido_id) window.location.href = `/pedido/${n.pedido_id}`;
-    }}
+  if (n.pedido_id) window.location.href = `/mis-pedidos`;
+}}
     style={{
       padding: '14px 16px',
       borderBottom: '1px solid #f3f4f6',

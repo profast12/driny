@@ -29,14 +29,28 @@ export default function DetallePedido() {
     setCargando(false);
   };
 
-  const actualizarEstado = async (s: string) => {
-    setActualizando(true);
-    await supabase.from('pedidos').update({ estado: s }).eq('id', id);
-    setEstado(s);
-    setMensaje("Estado actualizado correctamente");
-    setActualizando(false);
-    setTimeout(() => setMensaje(''), 3000);
-  };
+ const actualizarEstado = async (s: string) => {
+  setActualizando(true);
+  await supabase.from('pedidos').update({ estado: s }).eq('id', id);
+  
+  const mensajeEstado = s === 'preparando' ? 'Tu pedido está siendo preparado 📦'
+    : s === 'enviado' ? 'Tu pedido está en camino 🚚'
+    : s === 'entregado' ? 'Tu pedido fue entregado 🎉'
+    : s === 'cancelado' ? 'Tu pedido fue cancelado ❌'
+    : 'Tu pedido fue actualizado';
+
+  await supabase.from('notificaciones').insert([{
+    usuario_id: pedido.comprador_id,
+    titulo: '📦 Actualización de tu pedido',
+    mensaje: mensajeEstado + ' — Haz clic para ver el estado',
+    pedido_id: id
+  }]);
+
+  setEstado(s);
+  setMensaje("Estado actualizado correctamente");
+  setActualizando(false);
+  setTimeout(() => setMensaje(''), 3000);
+};
 
   const descargarGuia = () => {
     const doc = new jsPDF();
