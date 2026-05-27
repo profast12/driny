@@ -102,7 +102,7 @@ const marcarLeidas = async () => {
 
         <input
   type="text"
-  placeholder="🔍  Buscar productos, marcas y más..."
+  placeholder="Buscar productos, marcas y más..."
   onKeyDown={e => {
     if (e.key === 'Enter') {
       const valor = (e.target as HTMLInputElement).value;
@@ -166,12 +166,12 @@ const marcarLeidas = async () => {
               </button>
             </div>
           ) : (
-            <a href="/login" style={{ textDecoration: 'none', color: 'white', textAlign: 'center' }}>
+            <a href="/login" style={{ textDecoration: 'none', color: 'black', textAlign: 'center' }}>
               <div style={{ fontSize: '11px', color: '#000000' }}>Hola, ingresa</div>
               <div style={{ fontWeight: 'bold' }}>Mi cuenta</div>
             </a>
           )}
-          <a href="/vende-con-nosotros" style={{ textDecoration: 'none', color: 'white', textAlign: 'center' }}>
+          <a href="/vende-con-nosotros" style={{ textDecoration: 'none', color: 'black', textAlign: 'center' }}>
   <div style={{ fontSize: '11px', color: '#000000' }}>¿Quieres</div>
   <div style={{ fontWeight: 'bold' }}>Vender?</div>
 </a>
