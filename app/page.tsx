@@ -81,7 +81,7 @@ const marcarLeidas = async () => {
 
       {/* NAVBAR PRINCIPAL */}
       <nav style={{
-        backgroundColor: '#666363',
+        backgroundColor: '#3a3838',
         padding: '14px 24px',
         display: 'flex',
         alignItems: 'center',
