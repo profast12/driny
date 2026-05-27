@@ -59,7 +59,7 @@ export default function VendeConNosotros() {
         textAlign: 'center',
         padding: '80px 24px'
       }}>
-        <p style={{ color: 'rgb(48, 46, 44)', letterSpacing: '3px', fontSize: '13px', marginBottom: '16px' }}>
+        <p style={{ color: 'rgb(223, 136, 49)', letterSpacing: '3px', fontSize: '13px', marginBottom: '16px' }}>
           VENDE EN DRINY
         </p>
         <h1 style={{ fontSize: '44px', fontWeight: 'bold', marginBottom: '20px', lineHeight: 1.2 }}>
