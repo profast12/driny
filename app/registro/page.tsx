@@ -1,5 +1,6 @@
 "use client";
 import { useState } from "react";
+import Image from "next/image";
 import { supabase } from "../../lib/supabase";
 
 export default function Registro() {
@@ -72,14 +73,25 @@ export default function Registro() {
     }}>
 
       <nav style={{
-        backgroundColor: '#111',
+        backgroundColor: '#acacac',
         padding: '14px 24px',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-between'
       }}>
-        <a href="/" style={{ color: '#f90', fontSize: '26px', fontWeight: 'bold', textDecoration: 'none' }}>Driny</a>
-        <a href="/login" style={{ color: 'white', fontSize: '14px', textDecoration: 'none' }}>
+        <a href="/">
+  <Image
+    src="/logo.png"
+    alt="Driny"
+    width={65}
+    height={65}
+    style={{
+      width: 'auto',
+      height: '65px'
+    }}
+  />
+</a>
+        <a href="/login" style={{ color: 'black', fontSize: '14px', textDecoration: 'none' }}>
           ¿Ya tienes cuenta? <span style={{ color: '#f90', fontWeight: 'bold' }}>Inicia sesión</span>
         </a>
       </nav>
@@ -133,7 +145,7 @@ export default function Registro() {
                   color: tipo === t ? '#f90' : '#666'
                 }}
               >
-                {t === 'comprador' ? '🛒 Comprador' : '🏪 Vendedor'}
+                {t === 'comprador' ? 'Comprador' : 'Vendedor'}
               </button>
             ))}
           </div>
