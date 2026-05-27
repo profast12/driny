@@ -54,7 +54,7 @@ export default function VendeConNosotros() {
 
       {/* HERO */}
       <div style={{
-        background: 'linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #1b1b1b 100%)',
+        background: 'linear-gradient(135deg, #1a1a2e 0%, #585858 50%, #242424 100%)',
         color: 'white',
         textAlign: 'center',
         padding: '80px 24px'
