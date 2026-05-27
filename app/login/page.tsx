@@ -41,7 +41,7 @@ export default function Login() {
     }}>
 
       <nav style={{
-        backgroundColor: '#d6d6d6',
+        backgroundColor: '#cacaca',
         padding: '14px 24px',
         display: 'flex',
         alignItems: 'center',
@@ -59,7 +59,7 @@ export default function Login() {
     }}
   />
 </a>
-        <a href="/registro" style={{ color: 'white', fontSize: '14px', textDecoration: 'none' }}>
+        <a href="/registro" style={{ color: 'black', fontSize: '14px', textDecoration: 'none' }}>
           ¿No tienes cuenta? <span style={{ color: '#f90', fontWeight: 'bold' }}>Regístrate</span>
         </a>
       </nav>
