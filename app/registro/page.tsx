@@ -73,7 +73,7 @@ export default function Registro() {
     }}>
 
       <nav style={{
-        backgroundColor: '#acacac',
+        backgroundColor: '#cacaca',
         padding: '14px 24px',
         display: 'flex',
         alignItems: 'center',
