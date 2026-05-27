@@ -41,7 +41,7 @@ export default function Login() {
     }}>
 
       <nav style={{
-        backgroundColor: '#111',
+        backgroundColor: '#a3a3a3',
         padding: '14px 24px',
         display: 'flex',
         alignItems: 'center',
