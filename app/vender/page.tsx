@@ -141,6 +141,7 @@ export default function Vender() {
     <main style={{ backgroundColor: '#f3f4f6', minHeight: '100vh' }}>
 
       {/* NAVBAR */}
+      <a href="/subastas-panel" style={{ color: '#aaa', textDecoration: 'none', fontSize: '13px' }}>Mis subastas</a>
       <nav style={{
         backgroundColor: '#111',
         padding: '14px 24px',

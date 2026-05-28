@@ -320,14 +320,14 @@ const marcarLeidas = async () => {
             {cat}
           </span>
         ))}
-        <a href="/subastas" style={{
-          color: '#f90',
-          fontSize: '14px',
-          cursor: 'pointer',
-          whiteSpace: 'nowrap',
-          fontWeight: 'bold',
-          textDecoration: 'none'
-        }}>🔨 Subastas</a>
+        <a href="/subastas-real" style={{
+  color: '#f90',
+  fontSize: '14px',
+  cursor: 'pointer',
+  whiteSpace: 'nowrap',
+  fontWeight: 'bold',
+  textDecoration: 'none'
+}}>Subastas</a>
       </div>
 
       {/* BANNER */}
