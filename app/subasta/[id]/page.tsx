@@ -101,11 +101,12 @@ export default function DetalleSubasta() {
 
     await supabase.from('subastas_real').update({ precio_actual: ofertaNum, total_ofertas: (subasta.total_ofertas || 0) + 1 }).eq('id', id);
     await supabase.from('notificaciones').insert([{
-      usuario_id: subasta.vendedor_id,
-      titulo: 'Nueva oferta en tu subasta',
-      mensaje: 'Alguien oferto $' + ofertaNum.toLocaleString('es-CO') + ' COP en ' + subasta.nombre,
-      pedido_id: null
-    }]);
+  usuario_id: subasta.vendedor_id,
+  titulo: 'Nueva oferta en tu subasta',
+  mensaje: 'Alguien oferto $' + ofertaNum.toLocaleString('es-CO') + ' COP en ' + subasta.nombre + '. Haz clic para ver el resultado.',
+  pedido_id: null,
+  subasta_id: id
+}]);
 
     setMensaje('Oferta enviada exitosamente');
     setMiOferta('');

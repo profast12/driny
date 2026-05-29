@@ -250,7 +250,11 @@ const marcarLeidas = async () => {
   <div
     key={n.id}
     onClick={() => {
-  if (n.pedido_id) window.location.href = `/mis-pedidos`;
+  if (n.subasta_id) {
+    window.location.href = '/subasta-resultado?id=' + n.subasta_id;
+  } else if (n.pedido_id) {
+    window.location.href = '/mis-pedidos';
+  }
 }}
     style={{
       padding: '14px 16px',
