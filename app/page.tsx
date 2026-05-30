@@ -11,12 +11,12 @@ export default function Home() {
   const [busqueda, setBusqueda] = useState('');
 
   const categorias = [
-    { nombre: "Electronica", icono: "💻" },
-    { nombre: "Ropa", icono: "👕" },
-    { nombre: "Hogar", icono: "🏠" },
-    { nombre: "Deportes", icono: "⚽" },
-    { nombre: "Juguetes", icono: "🎮" },
-    { nombre: "Autos", icono: "🚗" },
+    { nombre: "Electronica", icono: "" },
+    { nombre: "Ropa", icono: "" },
+    { nombre: "Hogar", icono: "" },
+    { nombre: "Deportes", icono: "" },
+    { nombre: "Juguetes", icono: "" },
+    { nombre: "Autos", icono: "" },
   ];
 
   useEffect(() => {
