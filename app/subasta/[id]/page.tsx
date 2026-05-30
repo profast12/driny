@@ -18,6 +18,7 @@ export default function DetalleSubasta() {
   const [urgente, setUrgente] = useState(false);
   const intervalRef = useRef<any>(null);
   const timerRef = useRef<any>(null);
+  const [fotoActiva, setFotoActiva] = useState(0);
 
   useEffect(() => {
     const parts = window.location.pathname.split('/');
@@ -160,55 +161,77 @@ export default function DetalleSubasta() {
           {/* COLUMNA IZQUIERDA */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
 
-            {/* IMAGEN Y INFO */}
-            <div style={{ backgroundColor: '#111', borderRadius: '20px', overflow: 'hidden', border: '1px solid #1f1f1f' }}>
-              <div style={{ backgroundColor: '#1a1a1a', height: '300px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '100px', position: 'relative' }}>
-                {subasta.imagen_url ? (
-                  <img src={subasta.imagen_url} style={{ width: '100%', height: '100%', objectFit: 'cover' }} alt={subasta.nombre} />
-                ) : (
-                  <span>{subasta.emoji || '🛍️'}</span>
-                )}
-                {!finalizada && (
-                  <div style={{ position: 'absolute', top: '16px', left: '16px', backgroundColor: '#22c55e', color: 'white', padding: '6px 14px', borderRadius: '20px', fontSize: '12px', fontWeight: 'bold', animation: 'pulse 2s infinite' }}>
-                    EN VIVO
-                  </div>
-                )}
-                {finalizada && (
-                  <div style={{ position: 'absolute', top: '16px', left: '16px', backgroundColor: '#ef4444', color: 'white', padding: '6px 14px', borderRadius: '20px', fontSize: '12px', fontWeight: 'bold' }}>
-                    FINALIZADA
-                  </div>
-                )}
-              </div>
+            {/* GALERIA */}
+<div style={{ position: 'relative', backgroundColor: '#1a1a1a', height: '340px', overflow: 'hidden' }}>
+  {subasta.imagenes && subasta.imagenes.length > 0 ? (
+    <>
+      <img
+        src={subasta.imagenes[fotoActiva]}
+        style={{ width: '100%', height: '100%', objectFit: 'contain', backgroundColor: '#111', transition: 'opacity 0.3s' }}
+        alt={subasta.nombre}
+      />
+      {subasta.imagenes.length > 1 && (
+        <>
+          <button
+            onClick={() => setFotoActiva(prev => prev === 0 ? subasta.imagenes.length - 1 : prev - 1)}
+            style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', backgroundColor: 'rgba(0,0,0,0.6)', border: 'none', color: 'white', width: '36px', height: '36px', borderRadius: '50%', cursor: 'pointer', fontSize: '16px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+          >
+            ‹
+          </button>
+          <button
+            onClick={() => setFotoActiva(prev => prev === subasta.imagenes.length - 1 ? 0 : prev + 1)}
+            style={{ position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)', backgroundColor: 'rgba(0,0,0,0.6)', border: 'none', color: 'white', width: '36px', height: '36px', borderRadius: '50%', cursor: 'pointer', fontSize: '16px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+          >
+            ›
+          </button>
+          <div style={{ position: 'absolute', bottom: '12px', left: '50%', transform: 'translateX(-50%)', display: 'flex', gap: '6px' }}>
+            {subasta.imagenes.map((_: any, i: number) => (
+              <button
+                key={i}
+                onClick={() => setFotoActiva(i)}
+                style={{ width: i === fotoActiva ? '20px' : '8px', height: '8px', borderRadius: '4px', border: 'none', backgroundColor: i === fotoActiva ? '#f90' : 'rgba(255,255,255,0.4)', cursor: 'pointer', transition: 'all 0.3s', padding: 0 }}
+              />
+            ))}
+          </div>
+        </>
+      )}
+    </>
+  ) : (
+    <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '80px' }}>
+      {subasta.emoji || '🛍️'}
+    </div>
+  )}
+  {!finalizada && (
+    <div style={{ position: 'absolute', top: '16px', left: '16px', backgroundColor: '#22c55e', color: 'white', padding: '6px 14px', borderRadius: '20px', fontSize: '12px', fontWeight: 'bold', animation: 'pulse 2s infinite' }}>
+      EN VIVO
+    </div>
+  )}
+  {finalizada && (
+    <div style={{ position: 'absolute', top: '16px', left: '16px', backgroundColor: '#ef4444', color: 'white', padding: '6px 14px', borderRadius: '20px', fontSize: '12px', fontWeight: 'bold' }}>
+      FINALIZADA
+    </div>
+  )}
+  {subasta.imagenes && subasta.imagenes.length > 1 && (
+    <div style={{ position: 'absolute', top: '16px', right: '16px', backgroundColor: 'rgba(0,0,0,0.6)', color: 'white', padding: '4px 10px', borderRadius: '12px', fontSize: '11px' }}>
+      {fotoActiva + 1} / {subasta.imagenes.length}
+    </div>
+  )}
+</div>
 
-              <div style={{ padding: '28px' }}>
-                <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: '12px' }}>
-                  <div>
-                    <p style={{ fontSize: '12px', color: '#666', marginBottom: '6px', textTransform: 'uppercase', letterSpacing: '1px' }}>{subasta.categoria}</p>
-                    <h1 style={{ fontSize: '24px', fontWeight: 'bold', lineHeight: 1.3 }}>{subasta.nombre}</h1>
-                  </div>
-                </div>
-                <p style={{ color: '#888', fontSize: '14px', lineHeight: 1.7, marginTop: '12px' }}>{subasta.descripcion}</p>
-
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginTop: '20px' }}>
-                  <div style={{ backgroundColor: '#1a1a1a', borderRadius: '10px', padding: '14px' }}>
-                    <p style={{ fontSize: '11px', color: '#666', marginBottom: '4px', textTransform: 'uppercase' }}>Precio base</p>
-                    <p style={{ fontWeight: 'bold', fontSize: '15px' }}>${Number(subasta.precio_base).toLocaleString('es-CO')} COP</p>
-                  </div>
-                  <div style={{ backgroundColor: '#1a1a1a', borderRadius: '10px', padding: '14px' }}>
-                    <p style={{ fontSize: '11px', color: '#666', marginBottom: '4px', textTransform: 'uppercase' }}>Incremento minimo</p>
-                    <p style={{ fontWeight: 'bold', fontSize: '15px' }}>${Number(subasta.incremento_minimo).toLocaleString('es-CO')} COP</p>
-                  </div>
-                  <div style={{ backgroundColor: '#1a1a1a', borderRadius: '10px', padding: '14px' }}>
-                    <p style={{ fontSize: '11px', color: '#666', marginBottom: '4px', textTransform: 'uppercase' }}>Total ofertas</p>
-                    <p style={{ fontWeight: 'bold', fontSize: '15px' }}>{subasta.total_ofertas}</p>
-                  </div>
-                  <div style={{ backgroundColor: '#1a1a1a', borderRadius: '10px', padding: '14px' }}>
-                    <p style={{ fontSize: '11px', color: '#666', marginBottom: '4px', textTransform: 'uppercase' }}>Fin de subasta</p>
-                    <p style={{ fontWeight: 'bold', fontSize: '13px' }}>{new Date(subasta.tiempo_fin).toLocaleDateString('es-CO', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}</p>
-                  </div>
-                </div>
-              </div>
-            </div>
+{/* MINIATURAS */}
+{subasta.imagenes && subasta.imagenes.length > 1 && (
+  <div style={{ display: 'flex', gap: '8px', padding: '12px 20px', backgroundColor: '#0f0f0f', overflowX: 'auto' }}>
+    {subasta.imagenes.map((img: string, i: number) => (
+      <div
+        key={i}
+        onClick={() => setFotoActiva(i)}
+        style={{ width: '64px', height: '64px', borderRadius: '8px', overflow: 'hidden', flexShrink: 0, cursor: 'pointer', border: i === fotoActiva ? '2px solid #f90' : '2px solid transparent', transition: 'all 0.2s', opacity: i === fotoActiva ? 1 : 0.6 }}
+      >
+        <img src={img} style={{ width: '100%', height: '100%', objectFit: 'cover' }} alt={'foto ' + (i + 1)} />
+      </div>
+    ))}
+  </div>
+)}
 
             {/* VENDEDOR */}
             {vendedor && (
