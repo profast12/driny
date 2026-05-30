@@ -23,10 +23,10 @@ const [mostrarNotif, setMostrarNotif] = useState(false);
     if (session?.user) {
       const { data: perfil } = await supabase
         .from('usuarios')
-        .select('username, avatar_url')
+        .select('username, avatar_url, tipo')
         .eq('email', session.user.email)
         .single();
-      setUsuario({ ...session.user, username: perfil?.username || null, avatar_url: perfil?.avatar_url || null });
+      setUsuario({ ...session.user, username: perfil?.username || null, avatar_url: perfil?.avatar_url || null, tipo: perfil?.tipo || 'comprador' });
       cargarNotificaciones(session.user.id);
     } else {
       setUsuario(null);
@@ -76,7 +76,9 @@ const marcarLeidas = async () => {
         <span>|</span>
         <span style={{ cursor: 'pointer' }}>Ayuda</span>
         <span>|</span>
-        <a href="/mis-pedidos" style={{ cursor: 'pointer', textDecoration: 'none', color: '#111' }}>Mis pedidos</a>
+        {usuario?.tipo !== 'vendedor' && (
+  <a href="/mis-pedidos" style={{ cursor: 'pointer', textDecoration: 'none', color: '#111' }}>Mis pedidos</a>
+)}
       </div>
 
       {/* NAVBAR PRINCIPAL */}
@@ -253,7 +255,11 @@ const marcarLeidas = async () => {
   if (n.subasta_id) {
     window.location.href = '/subasta-resultado?id=' + n.subasta_id;
   } else if (n.pedido_id) {
-    window.location.href = '/mis-pedidos';
+    if (usuario?.tipo === 'vendedor') {
+      window.location.href = '/pedido/' + n.pedido_id;
+    } else {
+      window.location.href = '/mis-pedidos';
+    }
   }
 }}
     style={{
