@@ -143,7 +143,7 @@ export default function Login() {
           </div>
 
           <div style={{ textAlign: 'right', marginBottom: '24px' }}>
-            <span style={{ fontSize: '13px', color: '#f90', cursor: 'pointer' }}>¿Olvidaste tu contraseña?</span>
+            <a href="/recuperar-contrasena" style={{ fontSize: '13px', color: '#f90', textDecoration: 'none' }}>¿Olvidaste tu contraseña?</a>
           </div>
 
           <button
