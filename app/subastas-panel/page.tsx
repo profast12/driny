@@ -1,5 +1,6 @@
 "use client";
 import { useState, useEffect, useRef } from "react";
+import Image from "next/image";
 import { supabase } from "../../lib/supabase";
 
 const categorias = ["Electronica", "Ropa", "Hogar", "Deportes", "Juguetes", "Autos", "Arte", "Coleccionables", "Otro"];
@@ -127,7 +128,18 @@ export default function SubastasPanel() {
       `}</style>
 
       <nav style={{ backgroundColor: '#1a1a1a', borderBottom: '1px solid #2a2a2a', padding: '0 32px', height: '60px', display: 'flex', alignItems: 'center', gap: '24px' }}>
-        <a href="/" style={{ color: '#f90', fontSize: '22px', fontWeight: 'bold', textDecoration: 'none' }}>Driny</a>
+        <a href="/">
+  <Image
+    src="/logo.png"
+    alt="Driny"
+    width={60}
+    height={60}
+    style={{
+      width: 'auto',
+      height: '60px'
+    }}
+  />
+</a>
         <span style={{ color: '#333' }}>|</span>
         <span style={{ color: '#888', fontSize: '14px' }}>Panel de Subastas</span>
         <div style={{ flex: 1 }}></div>
