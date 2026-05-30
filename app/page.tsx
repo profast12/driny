@@ -1,5 +1,6 @@
 "use client";
 import { useState, useEffect } from "react";
+import Image from "next/image";
 import { supabase } from "../lib/supabase";
 
 export default function Home() {
@@ -105,13 +106,18 @@ export default function Home() {
         <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '14px 24px', display: 'flex', alignItems: 'center', gap: '24px' }}>
 
           {/* LOGO */}
-          <a href="/" style={{ textDecoration: 'none', flexShrink: 0 }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '2px' }}>
-              <span style={{ fontSize: '28px', fontWeight: '900', color: '#111', letterSpacing: '-1px', fontFamily: 'Arial Black, sans-serif' }}>DRINY</span>
-              <div style={{ width: '8px', height: '8px', backgroundColor: '#f90', borderRadius: '50%', marginBottom: '16px', marginLeft: '2px' }}></div>
-            </div>
-            <div style={{ height: '3px', background: 'linear-gradient(90deg, #f90, #ff6b00)', borderRadius: '2px', marginTop: '-6px' }}></div>
-          </a>
+           <a href="/">
+  <Image
+    src="/logo.png"
+    alt="Driny"
+    width={75}
+    height={75}
+    style={{
+      width: 'auto',
+      height: '75px'
+    }}
+  />
+</a>
 
           {/* BUSCADOR */}
           <div style={{ flex: 1, display: 'flex', maxWidth: '600px' }}>
