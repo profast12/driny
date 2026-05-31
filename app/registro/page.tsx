@@ -60,7 +60,7 @@ export default function Registro() {
       return;
     }
 
-    setMensaje("¡Cuenta creada exitosamente! Revisa tu correo para confirmar.");
+    window.location.href = '/verificar?email=' + encodeURIComponent(email);
     setCargando(false);
   };
 
