@@ -72,22 +72,16 @@ export default function Productos() {
       <div style={{ backgroundColor: 'white', boxShadow: '0 2px 8px rgba(0,0,0,0.08)', position: 'sticky', top: 0, zIndex: 100 }}>
         <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '14px 24px', display: 'flex', alignItems: 'center', gap: '20px' }}>
           <a href="/" style={{ textDecoration: 'none', flexShrink: 0 }}>
-            <div style={{ display: 'flex', alignItems: 'flex-end', gap: '2px' }}>
-              <a href="/">
-  <Image
-    src="/logo.png"
-    alt="Driny"
-    width={75}
-    height={75}
-    style={{
-      width: 'auto',
-      height: '75px'
-    }}
-  />
-</a>
-              <div style={{ width: '7px', height: '7px', backgroundColor: '#f90', borderRadius: '50%', marginBottom: '4px', marginLeft: '1px' }}></div>
-            </div>
-            <div style={{ height: '3px', background: 'linear-gradient(90deg, #f90, #ff6b00)', borderRadius: '2px', marginTop: '1px' }}></div>
+            <Image
+              src="/logo.png"
+              alt="Driny"
+              width={75}
+              height={75}
+              style={{
+                width: 'auto',
+                height: '75px'
+              }}
+            />
           </a>
 
           <div style={{ flex: 1, display: 'flex', maxWidth: '560px' }}>
