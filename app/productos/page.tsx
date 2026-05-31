@@ -1,5 +1,6 @@
 "use client";
 import { useState, useEffect } from "react";
+import Image from "next/image";
 import { supabase } from "../../lib/supabase";
 
 const categorias = ["Todos", "Electronica", "Ropa", "Hogar", "Deportes", "Juguetes", "Autos"];
@@ -72,7 +73,18 @@ export default function Productos() {
         <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '14px 24px', display: 'flex', alignItems: 'center', gap: '20px' }}>
           <a href="/" style={{ textDecoration: 'none', flexShrink: 0 }}>
             <div style={{ display: 'flex', alignItems: 'flex-end', gap: '2px' }}>
-              <span style={{ fontSize: '24px', fontWeight: '900', color: '#111', letterSpacing: '-1px', fontFamily: 'Arial Black, sans-serif' }}>DRINY</span>
+              <a href="/">
+  <Image
+    src="/logo.png"
+    alt="Driny"
+    width={75}
+    height={75}
+    style={{
+      width: 'auto',
+      height: '75px'
+    }}
+  />
+</a>
               <div style={{ width: '7px', height: '7px', backgroundColor: '#f90', borderRadius: '50%', marginBottom: '4px', marginLeft: '1px' }}></div>
             </div>
             <div style={{ height: '3px', background: 'linear-gradient(90deg, #f90, #ff6b00)', borderRadius: '2px', marginTop: '1px' }}></div>
