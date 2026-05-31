@@ -4,7 +4,7 @@ import { supabase } from "../../lib/supabase";
 
 export default function Verificar() {
   const [email, setEmail] = useState('');
-  const [codigo, setCodigo] = useState(['', '', '', '', '', '']);
+  const [codigo, setCodigo] = useState(['', '', '', '', '', '', '', '']);
   const [verificando, setVerificando] = useState(false);
   const [error, setError] = useState('');
   const [reenviando, setReenviando] = useState(false);
@@ -44,7 +44,7 @@ export default function Verificar() {
 
   const handlePaste = (e: React.ClipboardEvent) => {
     e.preventDefault();
-    const texto = e.clipboardData.getData('text').replace(/\D/g, '').slice(0, 6);
+    const texto = e.clipboardData.getData('text').replace(/\D/g, '').slice(0, 8);
     const nuevoCodigo = [...codigo];
     texto.split('').forEach((char, i) => { if (i < 6) nuevoCodigo[i] = char; });
     setCodigo(nuevoCodigo);
@@ -54,7 +54,7 @@ export default function Verificar() {
 
   const verificar = async () => {
     const token = codigo.join('');
-    if (token.length !== 6) { setError('Ingresa el codigo completo de 6 digitos'); return; }
+    if (token.length !== 8) { setError('Ingresa el codigo completo de 8 digitos'); return; }
     if (!email) { setError('No se encontro el correo. Vuelve a registrarte.'); return; }
     setVerificando(true); setError('');
 
@@ -157,23 +157,23 @@ export default function Verificar() {
             {/* INPUTS OTP */}
             <div style={{ marginBottom: '28px' }}>
               <p style={{ fontSize: '12px', color: '#888', textAlign: 'center', marginBottom: '16px', textTransform: 'uppercase', letterSpacing: '0.5px', fontWeight: '600' }}>
-                Codigo de verificacion
-              </p>
-              <div style={{ display: 'flex', gap: '10px', justifyContent: 'center' }} onPaste={handlePaste}>
-                {codigo.map((digit, i) => (
-                  <input
-                    key={i}
-                    ref={el => { inputRefs.current[i] = el; }}
-                    type="text"
-                    inputMode="numeric"
-                    maxLength={1}
-                    value={digit}
-                    onChange={e => handleInput(i, e.target.value)}
-                    onKeyDown={e => handleKeyDown(i, e)}
-                    className="otp-input"
-                    style={{
-                      width: '52px',
-                      height: '60px',
+  Codigo de verificacion
+</p>
+<div style={{ display: 'flex', gap: '6px', justifyContent: 'center' }} onPaste={handlePaste}>
+  {codigo.map((digit, i) => (
+    <input
+      key={i}
+      ref={el => { inputRefs.current[i] = el; }}
+      type="text"
+      inputMode="numeric"
+      maxLength={1}
+      value={digit}
+      onChange={e => handleInput(i, e.target.value)}
+      onKeyDown={e => handleKeyDown(i, e)}
+      className="otp-input"
+      style={{
+        width: '42px',
+        height: '54px',
                       textAlign: 'center',
                       fontSize: '24px',
                       fontWeight: '800',
@@ -189,8 +189,8 @@ export default function Verificar() {
                 ))}
               </div>
               <p style={{ fontSize: '12px', color: '#bbb', textAlign: 'center', marginTop: '12px' }}>
-                Puedes pegar el codigo directamente
-              </p>
+  Codigo de 8 digitos — puedes pegarlo directamente
+</p>
             </div>
 
             {/* BOTON VERIFICAR */}
