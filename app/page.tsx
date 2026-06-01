@@ -1,12 +1,13 @@
 "use client";
 import { useState, useEffect } from "react";
-import Image from "next/image";
+import Image from "next/image"
 import { supabase } from "../lib/supabase";
 
 export default function Home() {
   const [usuario, setUsuario] = useState<any>(null);
   const [notificaciones, setNotificaciones] = useState<any[]>([]);
   const [mostrarNotif, setMostrarNotif] = useState(false);
+  const [mostrarMenu, setMostrarMenu] = useState(false);
   const [productos, setProductos] = useState<any[]>([]);
   const [busqueda, setBusqueda] = useState('');
 
@@ -64,6 +65,7 @@ export default function Home() {
   const cerrarSesion = async () => {
     await supabase.auth.signOut();
     setUsuario(null);
+    setMostrarMenu(false);
   };
 
   const buscar = (e: React.KeyboardEvent) => {
@@ -81,32 +83,67 @@ export default function Home() {
         @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
         @keyframes slideDown { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
         @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.6; } }
+        @keyframes slideRight { from { opacity: 0; transform: translateX(-100%); } to { opacity: 1; transform: translateX(0); } }
+
+        .prod-card { transition: all 0.22s; }
+        .prod-card:hover { transform: translateY(-4px); box-shadow: 0 8px 24px rgba(0,0,0,0.1) !important; }
+        .cat-card:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.1) !important; transform: translateY(-2px); }
+        .add-btn:hover { background-color: #f90 !important; color: #111 !important; border-color: #f90 !important; }
         .nav-link:hover { color: #f90 !important; }
-        .cat-card:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.12) !important; transform: translateY(-2px); }
-        .prod-card:hover { box-shadow: 0 6px 20px rgba(0,0,0,0.12) !important; transform: translateY(-3px); }
-        .notif-item:hover { background-color: #f9f9f9 !important; }
-        .search-btn:hover { background-color: #e68a00 !important; }
-        .quick-btn:hover { background-color: #fff5e6 !important; border-color: #f90 !important; }
+
+        @media (max-width: 768px) {
+          .desktop-only { display: none !important; }
+          .mobile-search { display: flex !important; }
+          .nav-categories { display: none !important; }
+          .hero-title { font-size: 24px !important; }
+          .hero-subtitle { font-size: 13px !important; }
+          .hero-padding { padding: 28px 20px !important; }
+          .quick-grid { grid-template-columns: repeat(3, 1fr) !important; }
+          .prod-grid { grid-template-columns: repeat(2, 1fr) !important; }
+          .cat-grid { grid-template-columns: repeat(3, 1fr) !important; }
+          .banner-flex { flex-direction: column !important; gap: 16px !important; }
+          .banner-watermark { display: none !important; }
+          .footer-grid { grid-template-columns: repeat(2, 1fr) !important; }
+          .sidebar-top { display: none !important; }
+        }
+
+        @media (max-width: 480px) {
+          .quick-grid { grid-template-columns: repeat(2, 1fr) !important; }
+          .prod-grid { grid-template-columns: repeat(2, 1fr) !important; }
+          .cat-grid { grid-template-columns: repeat(2, 1fr) !important; }
+          .hero-title { font-size: 20px !important; }
+          .footer-grid { grid-template-columns: 1fr !important; }
+        }
       `}</style>
 
-      {/* BARRA SUPERIOR */}
-      <div style={{ backgroundColor: '#fff8f0', borderBottom: '1px solid #ffe0b2', padding: '6px 0' }}>
+      {/* BARRA SUPERIOR - solo desktop */}
+      <div className="desktop-only" style={{ backgroundColor: '#fff8f0', borderBottom: '1px solid #ffe0b2', padding: '6px 0' }}>
         <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '0 24px', display: 'flex', justifyContent: 'flex-end', gap: '20px', fontSize: '12px', color: '#666' }}>
           {usuario?.tipo !== 'vendedor' && (
             <a href="/mis-pedidos" className="nav-link" style={{ textDecoration: 'none', color: '#666' }}>Mis pedidos</a>
           )}
           <a href="/subastas-real" className="nav-link" style={{ textDecoration: 'none', color: '#666' }}>Subastas</a>
           <a href="/vende-con-nosotros" className="nav-link" style={{ textDecoration: 'none', color: '#666' }}>Vender en Driny</a>
-          <a href="/perfil" className="nav-link" style={{ textDecoration: 'none', color: '#666' }}>Ayuda</a>
         </div>
       </div>
 
-      {/* NAVBAR PRINCIPAL */}
+      {/* NAVBAR */}
       <div style={{ backgroundColor: 'white', boxShadow: '0 2px 8px rgba(0,0,0,0.08)', position: 'sticky', top: 0, zIndex: 100 }}>
-        <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '14px 24px', display: 'flex', alignItems: 'center', gap: '24px' }}>
+        <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '12px 16px', display: 'flex', alignItems: 'center', gap: '12px' }}>
+
+          {/* MENU HAMBURGUESA - mobile */}
+          <button
+            onClick={() => setMostrarMenu(!mostrarMenu)}
+            style={{ display: 'none', background: 'none', border: 'none', cursor: 'pointer', padding: '6px', flexShrink: 0 }}
+            className="mobile-menu-btn"
+          >
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#333" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/>
+            </svg>
+          </button>
 
           {/* LOGO */}
-           <a href="/">
+          <a href="/">
   <Image
     src="/logo.png"
     alt="Driny"
@@ -119,42 +156,42 @@ export default function Home() {
   />
 </a>
 
-          {/* BUSCADOR */}
-          <div style={{ flex: 1, display: 'flex', maxWidth: '600px' }}>
+          {/* BUSCADOR desktop */}
+          <div className="desktop-only" style={{ flex: 1, display: 'flex', maxWidth: '560px' }}>
             <input
               type="text"
               placeholder="Buscar productos, marcas y mas..."
               value={busqueda}
               onChange={e => setBusqueda(e.target.value)}
               onKeyDown={buscar}
-              style={{ flex: 1, padding: '12px 18px', border: '2px solid #f90', borderRight: 'none', borderRadius: '8px 0 0 8px', fontSize: '14px', outline: 'none', backgroundColor: 'white', color: '#333' }}
+              style={{ flex: 1, padding: '11px 16px', border: '2px solid #f90', borderRight: 'none', borderRadius: '8px 0 0 8px', fontSize: '14px', outline: 'none', backgroundColor: 'white', color: '#333' }}
             />
             <button
-              className="search-btn"
               onClick={() => busqueda.trim() && (window.location.href = '/busqueda?q=' + busqueda)}
-              style={{ padding: '12px 20px', backgroundColor: '#f90', border: 'none', borderRadius: '0 8px 8px 0', cursor: 'pointer', transition: 'background 0.2s' }}
+              style={{ padding: '11px 18px', backgroundColor: '#f90', border: 'none', borderRadius: '0 8px 8px 0', cursor: 'pointer' }}
             >
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                 <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
               </svg>
             </button>
           </div>
 
+          <div style={{ flex: 1 }}></div>
+
           {/* ACCIONES */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '16px', flexShrink: 0 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
 
             {usuario ? (
               <>
-                {/* USUARIO */}
-                <a href="/perfil" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '10px' }}>
-                  <div style={{ width: '36px', height: '36px', borderRadius: '50%', backgroundColor: '#f90', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '15px', fontWeight: 'bold', color: '#111', flexShrink: 0, border: '2px solid #f90' }}>
+                <a href="/perfil" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <div style={{ width: '34px', height: '34px', borderRadius: '50%', backgroundColor: '#f90', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '14px', fontWeight: 'bold', color: '#111', flexShrink: 0, border: '2px solid #f90' }}>
                     {usuario.avatar_url ? (
                       <img src={usuario.avatar_url} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                     ) : (
                       (usuario.username || usuario.email).charAt(0).toUpperCase()
                     )}
                   </div>
-                  <div>
+                  <div className="desktop-only">
                     <p style={{ fontSize: '11px', color: '#888', margin: 0 }}>Hola,</p>
                     <p style={{ fontSize: '13px', fontWeight: 'bold', color: '#f90', margin: 0 }}>{usuario.username || usuario.email.split('@')[0]}</p>
                   </div>
@@ -177,16 +214,13 @@ export default function Home() {
                   </button>
 
                   {mostrarNotif && (
-                    <div style={{ position: 'absolute', right: 0, top: '44px', backgroundColor: 'white', borderRadius: '12px', boxShadow: '0 8px 32px rgba(0,0,0,0.15)', width: '340px', zIndex: 200, border: '1px solid #f0f0f0', animation: 'slideDown 0.2s ease', overflow: 'hidden' }}>
-                      <div style={{ padding: '16px 18px', borderBottom: '1px solid #f5f5f5', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <div style={{ position: 'fixed', right: '16px', top: '70px', backgroundColor: 'white', borderRadius: '12px', boxShadow: '0 8px 32px rgba(0,0,0,0.15)', width: 'calc(100vw - 32px)', maxWidth: '340px', zIndex: 200, border: '1px solid #f0f0f0', animation: 'slideDown 0.2s ease', overflow: 'hidden' }}>
+                      <div style={{ padding: '14px 16px', borderBottom: '1px solid #f5f5f5', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                         <h3 style={{ fontSize: '15px', fontWeight: 'bold', color: '#111', margin: 0 }}>Notificaciones</h3>
                         <button onClick={() => setMostrarNotif(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#888', fontSize: '18px' }}>✕</button>
                       </div>
                       {notificaciones.length === 0 ? (
                         <div style={{ padding: '40px', textAlign: 'center', color: '#888' }}>
-                          <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#ddd" strokeWidth="1.5" style={{ marginBottom: '12px' }}>
-                            <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/>
-                          </svg>
                           <p style={{ fontSize: '14px' }}>Sin notificaciones</p>
                         </div>
                       ) : (
@@ -194,20 +228,16 @@ export default function Home() {
                           {notificaciones.map(n => (
                             <div
                               key={n.id}
-                              className="notif-item"
                               onClick={() => {
                                 setMostrarNotif(false);
-                                if (n.subasta_id) {
-                                  window.location.href = '/subasta-resultado?id=' + n.subasta_id;
-                                } else if (n.pedido_id) {
-                                  window.location.href = usuario?.tipo === 'vendedor' ? '/pedido/' + n.pedido_id : '/mis-pedidos';
-                                }
+                                if (n.subasta_id) window.location.href = '/subasta-resultado?id=' + n.subasta_id;
+                                else if (n.pedido_id) window.location.href = usuario?.tipo === 'vendedor' ? '/pedido/' + n.pedido_id : '/mis-pedidos';
                               }}
-                              style={{ padding: '14px 18px', borderBottom: '1px solid #f9f9f9', backgroundColor: n.leida ? 'white' : '#fff8f0', cursor: 'pointer', transition: 'background 0.2s' }}
+                              style={{ padding: '12px 16px', borderBottom: '1px solid #f9f9f9', backgroundColor: n.leida ? 'white' : '#fff8f0', cursor: 'pointer' }}
                             >
-                              <div style={{ display: 'flex', gap: '12px', alignItems: 'flex-start' }}>
-                                <div style={{ width: '36px', height: '36px', borderRadius: '50%', backgroundColor: '#fff0e0', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                                  <span style={{ fontSize: '16px' }}>{n.titulo.includes('venta') || n.titulo.includes('Venta') ? '💰' : n.titulo.includes('subasta') || n.titulo.includes('Subasta') || n.titulo.includes('oferta') ? '🔨' : '📦'}</span>
+                              <div style={{ display: 'flex', gap: '10px', alignItems: 'flex-start' }}>
+                                <div style={{ width: '34px', height: '34px', borderRadius: '50%', backgroundColor: '#fff0e0', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, fontSize: '14px' }}>
+                                  {n.titulo.includes('venta') || n.titulo.includes('Venta') ? '💰' : n.titulo.includes('subasta') || n.titulo.includes('oferta') ? '🔨' : '📦'}
                                 </div>
                                 <div style={{ flex: 1 }}>
                                   <p style={{ fontWeight: 'bold', fontSize: '13px', color: '#111', marginBottom: '3px' }}>{n.titulo}</p>
@@ -226,146 +256,223 @@ export default function Home() {
                   )}
                 </div>
 
-                {/* CERRAR SESION */}
-                <button onClick={cerrarSesion} style={{ backgroundColor: 'transparent', border: '1px solid #e5e5e5', color: '#888', padding: '7px 14px', borderRadius: '8px', cursor: 'pointer', fontSize: '12px', fontWeight: '600' }}>
+                <button onClick={cerrarSesion} className="desktop-only" style={{ backgroundColor: 'transparent', border: '1px solid #e5e5e5', color: '#888', padding: '7px 12px', borderRadius: '8px', cursor: 'pointer', fontSize: '12px', fontWeight: '600' }}>
                   Salir
                 </button>
               </>
             ) : (
               <>
-                <a href="/login" style={{ color: '#333', textDecoration: 'none', fontSize: '14px', fontWeight: '600' }}>Ingresar</a>
-                <a href="/registro" style={{ backgroundColor: '#f90', color: '#111', padding: '9px 20px', borderRadius: '8px', textDecoration: 'none', fontWeight: 'bold', fontSize: '14px' }}>
+                <a href="/login" className="desktop-only" style={{ color: '#333', textDecoration: 'none', fontSize: '14px', fontWeight: '600' }}>Ingresar</a>
+                <a href="/registro" style={{ backgroundColor: '#f90', color: '#111', padding: '8px 16px', borderRadius: '8px', textDecoration: 'none', fontWeight: 'bold', fontSize: '13px' }}>
                   Crear cuenta
                 </a>
               </>
             )}
 
-            {/* CARRITO */}
-            <a href="/carrito" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '6px', color: '#555', padding: '6px 12px', borderRadius: '8px', border: '1px solid #e5e5e5' }}>
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <a href="/carrito" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '5px', color: '#555', padding: '7px 12px', borderRadius: '8px', border: '1px solid #e5e5e5' }}>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/>
                 <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/>
               </svg>
-              <span style={{ fontSize: '13px', fontWeight: '600' }}>Carrito</span>
+              <span className="desktop-only" style={{ fontSize: '13px', fontWeight: '600' }}>Carrito</span>
             </a>
           </div>
         </div>
 
-        {/* CATEGORIAS NAVBAR */}
-        <div style={{ borderTop: '1px solid #f5f5f5', backgroundColor: 'white' }}>
-          <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '0 24px', display: 'flex', gap: '8px', overflowX: 'auto' }}>
+        {/* BUSCADOR MOBILE */}
+        <div style={{ padding: '0 16px 12px', display: 'none' }} className="mobile-search">
+          <input
+            type="text"
+            placeholder="Buscar en Driny..."
+            value={busqueda}
+            onChange={e => setBusqueda(e.target.value)}
+            onKeyDown={buscar}
+            style={{ flex: 1, padding: '10px 14px', border: '2px solid #f90', borderRight: 'none', borderRadius: '8px 0 0 8px', fontSize: '14px', outline: 'none', width: '100%' }}
+          />
+          <button
+            onClick={() => busqueda.trim() && (window.location.href = '/busqueda?q=' + busqueda)}
+            style={{ padding: '10px 14px', backgroundColor: '#f90', border: 'none', borderRadius: '0 8px 8px 0', cursor: 'pointer' }}
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+            </svg>
+          </button>
+        </div>
+
+        {/* CATEGORIAS - desktop */}
+        <div className="nav-categories" style={{ borderTop: '1px solid #f5f5f5', backgroundColor: 'white' }}>
+          <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '0 24px', display: 'flex', gap: '4px', overflowX: 'auto' }}>
             {categorias.map(cat => (
-              <a key={cat.nombre} href={'/productos?cat=' + cat.nombre} className="nav-link" style={{ padding: '10px 16px', textDecoration: 'none', color: '#555', fontSize: '13px', fontWeight: '600', whiteSpace: 'nowrap', borderBottom: '2px solid transparent', transition: 'all 0.2s', display: 'flex', alignItems: 'center', gap: '6px' }}
+              <a key={cat.nombre} href={'/productos?cat=' + cat.nombre} style={{ padding: '10px 14px', textDecoration: 'none', color: '#555', fontSize: '13px', fontWeight: '600', whiteSpace: 'nowrap', borderBottom: '2px solid transparent', transition: 'all 0.2s', display: 'flex', alignItems: 'center', gap: '5px' }}
                 onMouseOver={e => { (e.currentTarget as HTMLElement).style.borderBottomColor = '#f90'; (e.currentTarget as HTMLElement).style.color = '#f90'; }}
                 onMouseOut={e => { (e.currentTarget as HTMLElement).style.borderBottomColor = 'transparent'; (e.currentTarget as HTMLElement).style.color = '#555'; }}
               >
                 {cat.icono} {cat.nombre}
               </a>
             ))}
-            <a href="/subastas-real" className="nav-link" style={{ padding: '10px 16px', textDecoration: 'none', color: '#f90', fontSize: '13px', fontWeight: '800', whiteSpace: 'nowrap', borderBottom: '2px solid #f90', display: 'flex', alignItems: 'center', gap: '6px' }}>
+            <a href="/subastas-real" style={{ padding: '10px 14px', textDecoration: 'none', color: '#f90', fontSize: '13px', fontWeight: '800', whiteSpace: 'nowrap', borderBottom: '2px solid #f90' }}>
               Subastas en vivo
             </a>
           </div>
         </div>
       </div>
 
-      <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '24px' }}>
+      {/* MENU MOBILE LATERAL */}
+      {mostrarMenu && (
+        <div style={{ position: 'fixed', inset: 0, zIndex: 200 }}>
+          <div onClick={() => setMostrarMenu(false)} style={{ position: 'absolute', inset: 0, backgroundColor: 'rgba(0,0,0,0.5)' }}></div>
+          <div style={{ position: 'absolute', left: 0, top: 0, bottom: 0, width: '280px', backgroundColor: 'white', animation: 'slideRight 0.3s ease', overflowY: 'auto' }}>
+            <div style={{ padding: '20px', borderBottom: '1px solid #f5f5f5', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <span style={{ fontSize: '20px', fontWeight: '900', color: '#111', fontFamily: 'Arial Black, sans-serif' }}>DRINY</span>
+              <button onClick={() => setMostrarMenu(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '20px', color: '#888' }}>✕</button>
+            </div>
+            {usuario && (
+              <div style={{ padding: '16px 20px', backgroundColor: '#fff8f0', borderBottom: '1px solid #ffe0b2', display: 'flex', alignItems: 'center', gap: '12px' }}>
+                <div style={{ width: '40px', height: '40px', borderRadius: '50%', backgroundColor: '#f90', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '16px', fontWeight: 'bold', color: '#111' }}>
+                  {usuario.avatar_url ? <img src={usuario.avatar_url} style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : (usuario.username || usuario.email).charAt(0).toUpperCase()}
+                </div>
+                <div>
+                  <p style={{ fontWeight: 'bold', fontSize: '14px', color: '#111', margin: 0 }}>{usuario.username || usuario.email.split('@')[0]}</p>
+                  <p style={{ fontSize: '12px', color: '#888', margin: 0 }}>{usuario.tipo}</p>
+                </div>
+              </div>
+            )}
+            <div style={{ padding: '12px 0' }}>
+              {[
+                { label: 'Inicio', href: '/', icon: '🏠' },
+                { label: 'Productos', href: '/productos', icon: '🛍️' },
+                { label: 'Subastas en vivo', href: '/subastas-real', icon: '🔨' },
+                { label: 'Mi carrito', href: '/carrito', icon: '🛒' },
+                { label: 'Mi perfil', href: '/perfil', icon: '👤' },
+                ...(usuario?.tipo !== 'vendedor' ? [{ label: 'Mis pedidos', href: '/mis-pedidos', icon: '📦' }] : []),
+                ...(usuario?.tipo === 'vendedor' ? [{ label: 'Panel vendedor', href: '/vender', icon: '🏪' }, { label: 'Mis subastas', href: '/subastas-panel', icon: '⚡' }] : []),
+                { label: 'Vender en Driny', href: '/vende-con-nosotros', icon: '💼' },
+              ].map((item, i) => (
+                <a key={i} href={item.href} style={{ display: 'flex', alignItems: 'center', gap: '14px', padding: '13px 20px', textDecoration: 'none', color: '#333', fontSize: '14px', fontWeight: '600', borderBottom: '1px solid #f9f9f9' }}
+                  onMouseOver={e => (e.currentTarget as HTMLElement).style.backgroundColor = '#fff8f0'}
+                  onMouseOut={e => (e.currentTarget as HTMLElement).style.backgroundColor = 'transparent'}
+                >
+                  <span style={{ fontSize: '18px' }}>{item.icon}</span>
+                  {item.label}
+                </a>
+              ))}
+              {usuario && (
+                <button onClick={cerrarSesion} style={{ display: 'flex', alignItems: 'center', gap: '14px', padding: '13px 20px', width: '100%', background: 'none', border: 'none', cursor: 'pointer', color: '#ef4444', fontSize: '14px', fontWeight: '600', borderTop: '1px solid #f5f5f5', marginTop: '8px' }}>
+                  <span style={{ fontSize: '18px' }}>🚪</span>
+                  Cerrar sesion
+                </button>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '16px' }}>
 
         {/* BANNER PRINCIPAL */}
-        <div style={{ borderRadius: '16px', overflow: 'hidden', marginBottom: '24px', background: 'linear-gradient(135deg, #1a1a1a 0%, #2d1a00 50%, #1a1a1a 100%)', display: 'flex', alignItems: 'center', minHeight: '220px', padding: '40px', position: 'relative', animation: 'fadeIn 0.5s ease' }}>
+        <div className="hero-padding" style={{ borderRadius: '16px', overflow: 'hidden', marginBottom: '20px', background: 'linear-gradient(135deg, #1a1a1a 0%, #2d1a00 50%, #1a1a1a 100%)', display: 'flex', alignItems: 'center', minHeight: '200px', padding: '40px', position: 'relative', animation: 'fadeIn 0.5s ease' }}>
           <div style={{ flex: 1, zIndex: 1 }}>
-            <div style={{ display: 'inline-block', backgroundColor: '#f90', color: '#111', padding: '4px 12px', borderRadius: '20px', fontSize: '11px', fontWeight: 'bold', marginBottom: '14px', letterSpacing: '1px' }}>
+            <div style={{ display: 'inline-block', backgroundColor: '#f90', color: '#111', padding: '4px 12px', borderRadius: '20px', fontSize: '11px', fontWeight: 'bold', marginBottom: '12px', letterSpacing: '1px' }}>
               BIENVENIDO A DRINY
             </div>
-            <h1 style={{ fontSize: '36px', fontWeight: '900', color: 'white', marginBottom: '10px', lineHeight: 1.2, fontFamily: 'Arial Black, sans-serif' }}>
-              Todo lo que necesitas,<br />
+            <h1 className="hero-title" style={{ fontSize: '30px', fontWeight: '900', color: 'white', marginBottom: '8px', lineHeight: 1.2, fontFamily: 'Arial Black, sans-serif' }}>
+              Todo lo que necesitas,{' '}
               <span style={{ background: 'linear-gradient(135deg, #f90, #ff6b00)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>en un solo lugar</span>
             </h1>
-            <p style={{ color: '#aaa', fontSize: '15px', marginBottom: '24px' }}>Compra, vende y subasta productos en Colombia</p>
-            <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
-              <a href="/productos" style={{ backgroundColor: '#f90', color: '#111', padding: '12px 28px', borderRadius: '10px', fontWeight: 'bold', textDecoration: 'none', fontSize: '14px' }}>
+            <p className="hero-subtitle" style={{ color: '#aaa', fontSize: '14px', marginBottom: '20px' }}>Compra, vende y subasta en Colombia</p>
+            <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+              <a href="/productos" style={{ backgroundColor: '#f90', color: '#111', padding: '10px 22px', borderRadius: '10px', fontWeight: 'bold', textDecoration: 'none', fontSize: '13px' }}>
                 Ver productos
               </a>
-              <a href="/subastas-real" style={{ backgroundColor: 'transparent', color: '#f90', padding: '12px 28px', borderRadius: '10px', fontWeight: 'bold', textDecoration: 'none', fontSize: '14px', border: '2px solid #f90' }}>
-                Subastas en vivo
+              <a href="/subastas-real" style={{ backgroundColor: 'transparent', color: '#f90', padding: '10px 22px', borderRadius: '10px', fontWeight: 'bold', textDecoration: 'none', fontSize: '13px', border: '2px solid #f90' }}>
+                Subastas
               </a>
             </div>
           </div>
-          <div style={{ position: 'absolute', right: '40px', top: '50%', transform: 'translateY(-50%)', textAlign: 'center', opacity: 0.15 }}>
-            <div style={{ fontSize: '120px', fontWeight: '900', color: '#f90', fontFamily: 'Arial Black, sans-serif', lineHeight: 1 }}>DRINY</div>
+          <div className="banner-watermark" style={{ position: 'absolute', right: '40px', top: '50%', transform: 'translateY(-50%)', textAlign: 'center', opacity: 0.1 }}>
+            <div style={{ fontSize: '100px', fontWeight: '900', color: '#f90', fontFamily: 'Arial Black, sans-serif', lineHeight: 1 }}>DRINY</div>
           </div>
         </div>
 
         {/* ACCESOS RAPIDOS */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))', gap: '12px', marginBottom: '32px' }}>
+        <div className="quick-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(6, 1fr)', gap: '10px', marginBottom: '24px' }}>
           {[
-            { label: 'Envio gratis', sub: 'En tu primera compra', icon: '📦', href: '/productos' },
+            { label: 'Envio gratis', sub: 'Primera compra', icon: '📦', href: '/productos' },
             { label: 'Pago seguro', sub: 'Con PayPal', icon: '🔒', href: '/productos' },
-            { label: 'Vendedores', sub: 'Verificados', icon: '✓', href: '/productos', iconStyle: { backgroundColor: '#22c55e', color: 'white', borderRadius: '50%', width: '32px', height: '32px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '16px', fontWeight: 'bold' } },
+            { label: 'Verificados', sub: 'Vendedores', icon: '✓', href: '/productos' },
             { label: 'Subastas', sub: 'En tiempo real', icon: '🔨', href: '/subastas-real' },
             { label: 'Vender', sub: 'Gratis en Driny', icon: '🏪', href: '/vende-con-nosotros' },
-            { label: 'Soporte', sub: '24/7 disponible', icon: '💬', href: '/perfil' },
+            { label: 'Soporte', sub: '24/7', icon: '💬', href: '/perfil' },
           ].map((item, i) => (
-            <a key={i} href={item.href} className="quick-btn" style={{ backgroundColor: 'white', borderRadius: '12px', padding: '16px', textDecoration: 'none', border: '1px solid #eee', display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', gap: '8px', transition: 'all 0.2s', boxShadow: '0 1px 4px rgba(0,0,0,0.04)' }}>
-              <div style={{ fontSize: '28px' }}>{item.icon}</div>
+            <a key={i} href={item.href} style={{ backgroundColor: 'white', borderRadius: '12px', padding: '14px 10px', textDecoration: 'none', border: '1px solid #eee', display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', gap: '6px', transition: 'all 0.2s', boxShadow: '0 1px 4px rgba(0,0,0,0.04)' }}
+              onMouseOver={e => { (e.currentTarget as HTMLElement).style.borderColor = '#f90'; (e.currentTarget as HTMLElement).style.transform = 'translateY(-2px)'; }}
+              onMouseOut={e => { (e.currentTarget as HTMLElement).style.borderColor = '#eee'; (e.currentTarget as HTMLElement).style.transform = 'translateY(0)'; }}
+            >
+              <div style={{ fontSize: '24px' }}>{item.icon}</div>
               <div>
-                <p style={{ fontSize: '13px', fontWeight: '700', color: '#333', marginBottom: '2px' }}>{item.label}</p>
-                <p style={{ fontSize: '11px', color: '#888' }}>{item.sub}</p>
+                <p style={{ fontSize: '12px', fontWeight: '700', color: '#333', marginBottom: '2px' }}>{item.label}</p>
+                <p style={{ fontSize: '10px', color: '#888' }}>{item.sub}</p>
               </div>
             </a>
           ))}
         </div>
 
-        {/* PRODUCTOS DESTACADOS */}
-        <div style={{ marginBottom: '32px' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-            <div>
-              <h2 style={{ fontSize: '20px', fontWeight: '800', color: '#111', margin: 0, fontFamily: 'Arial Black, sans-serif' }}>Productos destacados</h2>
-              <div style={{ height: '3px', width: '60px', backgroundColor: '#f90', borderRadius: '2px', marginTop: '4px' }}></div>
-            </div>
-            <a href="/productos" style={{ color: '#f90', textDecoration: 'none', fontSize: '13px', fontWeight: '700', display: 'flex', alignItems: 'center', gap: '4px' }}>
-              Ver todos
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M5 12h14M12 5l7 7-7 7"/>
-              </svg>
+        {/* CATEGORIAS MOBILE - scroll horizontal */}
+        <div style={{ display: 'none', overflowX: 'auto', gap: '10px', marginBottom: '20px', paddingBottom: '4px' }} className="mobile-cats">
+          {categorias.map(cat => (
+            <a key={cat.nombre} href={'/productos?cat=' + cat.nombre} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px', textDecoration: 'none', minWidth: '72px', backgroundColor: 'white', borderRadius: '12px', padding: '12px 8px', border: '1px solid #eee', flexShrink: 0 }}>
+              <span style={{ fontSize: '22px' }}>{cat.icono}</span>
+              <p style={{ fontSize: '11px', fontWeight: '600', color: '#333', textAlign: 'center' }}>{cat.nombre}</p>
             </a>
+          ))}
+        </div>
+
+        {/* PRODUCTOS DESTACADOS */}
+        <div style={{ marginBottom: '24px' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px' }}>
+            <div>
+              <h2 style={{ fontSize: '18px', fontWeight: '800', color: '#111', margin: 0, fontFamily: 'Arial Black, sans-serif' }}>Productos destacados</h2>
+              <div style={{ height: '3px', width: '50px', backgroundColor: '#f90', borderRadius: '2px', marginTop: '4px' }}></div>
+            </div>
+            <a href="/productos" style={{ color: '#f90', textDecoration: 'none', fontSize: '13px', fontWeight: '700' }}>Ver todos</a>
           </div>
 
           {productos.length === 0 ? (
-            <div style={{ backgroundColor: 'white', borderRadius: '16px', padding: '60px', textAlign: 'center', border: '1px solid #eee' }}>
-              <p style={{ color: '#888', fontSize: '15px', marginBottom: '16px' }}>No hay productos publicados todavia</p>
-              <a href="/vende-con-nosotros" style={{ backgroundColor: '#f90', color: '#111', padding: '10px 24px', borderRadius: '8px', textDecoration: 'none', fontWeight: 'bold', fontSize: '13px' }}>
+            <div style={{ backgroundColor: 'white', borderRadius: '16px', padding: '48px', textAlign: 'center', border: '1px solid #eee' }}>
+              <p style={{ color: '#888', fontSize: '14px', marginBottom: '14px' }}>No hay productos publicados todavia</p>
+              <a href="/vende-con-nosotros" style={{ backgroundColor: '#f90', color: '#111', padding: '9px 20px', borderRadius: '8px', textDecoration: 'none', fontWeight: 'bold', fontSize: '13px' }}>
                 Publicar el primero
               </a>
             </div>
           ) : (
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '16px' }}>
+            <div className="prod-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))', gap: '12px' }}>
               {productos.map(p => (
                 <div
                   key={p.id}
                   className="prod-card"
                   onClick={() => window.location.href = '/producto/' + p.id}
-                  style={{ backgroundColor: 'white', borderRadius: '12px', overflow: 'hidden', border: '1px solid #eee', cursor: 'pointer', transition: 'all 0.25s', boxShadow: '0 1px 4px rgba(0,0,0,0.04)' }}
+                  style={{ backgroundColor: 'white', borderRadius: '12px', overflow: 'hidden', border: '1px solid #eee', cursor: 'pointer', boxShadow: '0 1px 4px rgba(0,0,0,0.04)' }}
                 >
-                  <div style={{ height: '160px', backgroundColor: '#f9f9f9', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '56px', overflow: 'hidden' }}>
+                  <div style={{ height: '150px', backgroundColor: '#f9f9f9', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                     {p.imagen_url ? (
                       <img src={p.imagen_url} style={{ width: '100%', height: '100%', objectFit: 'cover' }} alt={p.nombre} />
                     ) : (
-                      p.emoji || '🛍️'
+                      <div style={{ fontSize: '48px' }}>{p.emoji || '🛍️'}</div>
                     )}
                   </div>
-                  <div style={{ padding: '14px' }}>
-                    <p style={{ fontSize: '12px', color: '#888', marginBottom: '4px' }}>{p.categoria}</p>
-                    <p style={{ fontWeight: '600', fontSize: '14px', color: '#333', marginBottom: '8px', lineHeight: 1.3 }}>{p.nombre}</p>
-                    <p style={{ fontWeight: '800', fontSize: '18px', color: '#111' }}>
+                  <div style={{ padding: '12px' }}>
+                    <p style={{ fontSize: '11px', color: '#888', marginBottom: '3px' }}>{p.categoria}</p>
+                    <p style={{ fontWeight: '600', fontSize: '13px', color: '#333', marginBottom: '8px', lineHeight: 1.3, height: '34px', overflow: 'hidden' }}>{p.nombre}</p>
+                    <p style={{ fontWeight: '800', fontSize: '16px', color: '#111', marginBottom: '10px' }}>
                       ${Number(p.precio).toLocaleString('es-CO')}
-                      <span style={{ fontSize: '12px', color: '#888', fontWeight: 'normal' }}> COP</span>
+                      <span style={{ fontSize: '10px', color: '#888', fontWeight: 'normal' }}> COP</span>
                     </p>
-                    <button style={{ marginTop: '10px', width: '100%', padding: '9px', backgroundColor: '#fff5e6', color: '#f90', border: '1px solid #ffe0b2', borderRadius: '8px', cursor: 'pointer', fontWeight: 'bold', fontSize: '13px', transition: 'all 0.2s' }}
-                      onMouseOver={e => { (e.currentTarget as HTMLElement).style.backgroundColor = '#f90'; (e.currentTarget as HTMLElement).style.color = '#111'; }}
-                      onMouseOut={e => { (e.currentTarget as HTMLElement).style.backgroundColor = '#fff5e6'; (e.currentTarget as HTMLElement).style.color = '#f90'; }}
+                    <button
+                      className="add-btn"
+                      onClick={e => { e.stopPropagation(); window.location.href = '/producto/' + p.id; }}
+                      style={{ width: '100%', padding: '8px', backgroundColor: 'white', color: '#f90', border: '1.5px solid #f90', borderRadius: '8px', cursor: 'pointer', fontWeight: '700', fontSize: '12px', transition: 'all 0.2s' }}
                     >
-                      Agregar al carrito
+                      Ver producto
                     </button>
                   </div>
                 </div>
@@ -375,51 +482,48 @@ export default function Home() {
         </div>
 
         {/* BANNER SUBASTAS */}
-        <div style={{ background: 'linear-gradient(135deg, #0f0f0f, #1a1000)', borderRadius: '16px', padding: '36px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '32px', boxShadow: '0 4px 20px rgba(0,0,0,0.1)' }}>
+        <div className="banner-flex" style={{ background: 'linear-gradient(135deg, #0f0f0f, #1a1000)', borderRadius: '16px', padding: '28px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
           <div>
-            <div style={{ display: 'inline-block', backgroundColor: '#22c55e', color: 'white', padding: '4px 12px', borderRadius: '20px', fontSize: '11px', fontWeight: 'bold', marginBottom: '12px', letterSpacing: '1px', animation: 'pulse 2s infinite' }}>
+            <div style={{ display: 'inline-block', backgroundColor: '#22c55e', color: 'white', padding: '4px 12px', borderRadius: '20px', fontSize: '11px', fontWeight: 'bold', marginBottom: '10px', letterSpacing: '1px', animation: 'pulse 2s infinite' }}>
               EN VIVO AHORA
             </div>
-            <h3 style={{ fontSize: '24px', fontWeight: '800', color: 'white', marginBottom: '8px', fontFamily: 'Arial Black, sans-serif' }}>
+            <h3 style={{ fontSize: '20px', fontWeight: '800', color: 'white', marginBottom: '6px', fontFamily: 'Arial Black, sans-serif' }}>
               Subastas en tiempo real
             </h3>
-            <p style={{ color: '#888', fontSize: '14px', marginBottom: '20px' }}>Oferta por productos unicos y consiguelos al mejor precio</p>
-            <a href="/subastas-real" style={{ backgroundColor: '#f90', color: '#111', padding: '11px 24px', borderRadius: '10px', fontWeight: 'bold', textDecoration: 'none', fontSize: '14px' }}>
-              Ver subastas activas
+            <p style={{ color: '#888', fontSize: '13px', marginBottom: '16px' }}>Oferta por productos unicos al mejor precio</p>
+            <a href="/subastas-real" style={{ backgroundColor: '#f90', color: '#111', padding: '10px 22px', borderRadius: '10px', fontWeight: 'bold', textDecoration: 'none', fontSize: '13px' }}>
+              Ver subastas
             </a>
           </div>
-          <div style={{ fontSize: '80px', opacity: 0.15, fontWeight: '900', color: '#f90', fontFamily: 'Arial Black, sans-serif' }}>LIVE</div>
+          <div className="banner-watermark" style={{ fontSize: '60px', opacity: 0.1, fontWeight: '900', color: '#f90', fontFamily: 'Arial Black, sans-serif' }}>LIVE</div>
         </div>
 
         {/* BANNER VENDEDOR */}
-        <div style={{ background: 'linear-gradient(135deg, #fff8f0, #fff5e6)', borderRadius: '16px', padding: '36px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', border: '1px solid #ffe0b2', marginBottom: '32px' }}>
+        <div className="banner-flex" style={{ background: 'linear-gradient(135deg, #fff8f0, #fff5e6)', borderRadius: '16px', padding: '28px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', border: '1px solid #ffe0b2', marginBottom: '24px' }}>
           <div>
-            <h3 style={{ fontSize: '22px', fontWeight: '800', color: '#111', marginBottom: '8px', fontFamily: 'Arial Black, sans-serif' }}>
+            <h3 style={{ fontSize: '20px', fontWeight: '800', color: '#111', marginBottom: '6px', fontFamily: 'Arial Black, sans-serif' }}>
               Vende en Driny gratis
             </h3>
-            <p style={{ color: '#666', fontSize: '14px', marginBottom: '20px' }}>Llega a miles de compradores en Colombia. Sin costo de registro.</p>
-            <div style={{ display: 'flex', gap: '12px' }}>
-              <a href="/vende-con-nosotros" style={{ backgroundColor: '#f90', color: '#111', padding: '11px 24px', borderRadius: '10px', fontWeight: 'bold', textDecoration: 'none', fontSize: '14px' }}>
+            <p style={{ color: '#666', fontSize: '13px', marginBottom: '16px' }}>Llega a miles de compradores en Colombia</p>
+            <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+              <a href="/vende-con-nosotros" style={{ backgroundColor: '#f90', color: '#111', padding: '10px 22px', borderRadius: '10px', fontWeight: 'bold', textDecoration: 'none', fontSize: '13px' }}>
                 Empezar a vender
-              </a>
-              <a href="/registro" style={{ backgroundColor: 'transparent', color: '#f90', padding: '11px 24px', borderRadius: '10px', fontWeight: 'bold', textDecoration: 'none', fontSize: '14px', border: '2px solid #f90' }}>
-                Crear cuenta
               </a>
             </div>
           </div>
-          <div style={{ fontSize: '72px', opacity: 0.2 }}>🏪</div>
+          <div className="banner-watermark" style={{ fontSize: '60px', opacity: 0.15 }}>🏪</div>
         </div>
 
-        {/* CATEGORIAS */}
-        <div style={{ marginBottom: '32px' }}>
-          <div style={{ marginBottom: '16px' }}>
-            <h2 style={{ fontSize: '20px', fontWeight: '800', color: '#111', margin: 0, fontFamily: 'Arial Black, sans-serif' }}>Explorar categorias</h2>
-            <div style={{ height: '3px', width: '60px', backgroundColor: '#f90', borderRadius: '2px', marginTop: '4px' }}></div>
+        {/* CATEGORIAS GRID */}
+        <div style={{ marginBottom: '24px' }}>
+          <div style={{ marginBottom: '14px' }}>
+            <h2 style={{ fontSize: '18px', fontWeight: '800', color: '#111', margin: 0, fontFamily: 'Arial Black, sans-serif' }}>Explorar categorias</h2>
+            <div style={{ height: '3px', width: '50px', backgroundColor: '#f90', borderRadius: '2px', marginTop: '4px' }}></div>
           </div>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))', gap: '12px' }}>
+          <div className="cat-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(140px, 1fr))', gap: '10px' }}>
             {categorias.map(cat => (
-              <a key={cat.nombre} href={'/productos?cat=' + cat.nombre} className="cat-card" style={{ backgroundColor: 'white', borderRadius: '12px', padding: '20px', textDecoration: 'none', border: '1px solid #eee', display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', gap: '10px', transition: 'all 0.2s', boxShadow: '0 1px 4px rgba(0,0,0,0.04)' }}>
-                <span style={{ fontSize: '36px' }}>{cat.icono}</span>
+              <a key={cat.nombre} href={'/productos?cat=' + cat.nombre} className="cat-card" style={{ backgroundColor: 'white', borderRadius: '12px', padding: '18px 14px', textDecoration: 'none', border: '1px solid #eee', display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', gap: '8px', transition: 'all 0.2s', boxShadow: '0 1px 4px rgba(0,0,0,0.04)' }}>
+                <span style={{ fontSize: '30px' }}>{cat.icono}</span>
                 <p style={{ fontSize: '13px', fontWeight: '700', color: '#333' }}>{cat.nombre}</p>
               </a>
             ))}
@@ -428,60 +532,48 @@ export default function Home() {
       </div>
 
       {/* FOOTER */}
-      <footer style={{ backgroundColor: '#111', color: '#888', padding: '48px 24px 24px', marginTop: '16px' }}>
+      <footer style={{ backgroundColor: '#111', color: '#888', padding: '40px 16px 24px', marginTop: '16px' }}>
         <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))', gap: '32px', marginBottom: '40px' }}>
+          <div className="footer-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))', gap: '28px', marginBottom: '32px' }}>
             <div>
-              <div style={{ marginBottom: '16px' }}>
-                <span style={{ fontSize: '22px', fontWeight: '900', color: 'white', fontFamily: 'Arial Black, sans-serif' }}>DRINY</span>
-                <div style={{ height: '3px', width: '40px', background: 'linear-gradient(90deg, #f90, #ff6b00)', borderRadius: '2px', marginTop: '4px' }}></div>
+              <div style={{ marginBottom: '12px' }}>
+                <span style={{ fontSize: '20px', fontWeight: '900', color: 'white', fontFamily: 'Arial Black, sans-serif' }}>DRINY</span>
+                <div style={{ height: '3px', width: '36px', background: 'linear-gradient(90deg, #f90, #ff6b00)', borderRadius: '2px', marginTop: '4px' }}></div>
               </div>
               <p style={{ fontSize: '13px', lineHeight: 1.7, color: '#666' }}>El marketplace colombiano para comprar, vender y subastar.</p>
             </div>
-            <div>
-              <h4 style={{ color: 'white', fontSize: '14px', fontWeight: '700', marginBottom: '14px' }}>Comprar</h4>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                {['Todos los productos', 'Ofertas del dia', 'Subastas'].map(item => (
-                  <a key={item} href="/productos" style={{ color: '#666', textDecoration: 'none', fontSize: '13px', transition: 'color 0.2s' }}
-                    onMouseOver={e => (e.currentTarget as HTMLElement).style.color = '#f90'}
-                    onMouseOut={e => (e.currentTarget as HTMLElement).style.color = '#666'}
-                  >{item}</a>
-                ))}
+            {[
+              { titulo: 'Comprar', links: [{ label: 'Todos los productos', href: '/productos' }, { label: 'Subastas', href: '/subastas-real' }] },
+              { titulo: 'Vender', links: [{ label: 'Crear cuenta vendedor', href: '/vende-con-nosotros' }, { label: 'Como funciona', href: '/vende-con-nosotros' }] },
+              { titulo: 'Ayuda', links: [{ label: 'Mi perfil', href: '/perfil' }, { label: 'Mis pedidos', href: '/mis-pedidos' }] },
+            ].map((col, i) => (
+              <div key={i}>
+                <h4 style={{ color: 'white', fontSize: '13px', fontWeight: '700', marginBottom: '12px' }}>{col.titulo}</h4>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                  {col.links.map((link, j) => (
+                    <a key={j} href={link.href} style={{ color: '#666', textDecoration: 'none', fontSize: '13px', transition: 'color 0.2s' }}
+                      onMouseOver={e => (e.currentTarget as HTMLElement).style.color = '#f90'}
+                      onMouseOut={e => (e.currentTarget as HTMLElement).style.color = '#666'}
+                    >{link.label}</a>
+                  ))}
+                </div>
               </div>
-            </div>
-            <div>
-              <h4 style={{ color: 'white', fontSize: '14px', fontWeight: '700', marginBottom: '14px' }}>Vender</h4>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                {['Crear cuenta vendedor', 'Como funciona', 'Tarifas'].map(item => (
-                  <a key={item} href="/vende-con-nosotros" style={{ color: '#666', textDecoration: 'none', fontSize: '13px', transition: 'color 0.2s' }}
-                    onMouseOver={e => (e.currentTarget as HTMLElement).style.color = '#f90'}
-                    onMouseOut={e => (e.currentTarget as HTMLElement).style.color = '#666'}
-                  >{item}</a>
-                ))}
-              </div>
-            </div>
-            <div>
-              <h4 style={{ color: 'white', fontSize: '14px', fontWeight: '700', marginBottom: '14px' }}>Ayuda</h4>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                {['Centro de ayuda', 'Devoluciones', 'Contactanos'].map(item => (
-                  <a key={item} href="/perfil" style={{ color: '#666', textDecoration: 'none', fontSize: '13px', transition: 'color 0.2s' }}
-                    onMouseOver={e => (e.currentTarget as HTMLElement).style.color = '#f90'}
-                    onMouseOut={e => (e.currentTarget as HTMLElement).style.color = '#666'}
-                  >{item}</a>
-                ))}
-              </div>
-            </div>
+            ))}
           </div>
-          <div style={{ borderTop: '1px solid #222', paddingTop: '20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px' }}>
-            <p style={{ fontSize: '13px', color: '#555' }}>© 2025 Driny — Todos los derechos reservados | Colombia</p>
-            <div style={{ display: 'flex', gap: '16px' }}>
-              <a href="#" style={{ color: '#555', textDecoration: 'none', fontSize: '12px' }}>Terminos</a>
-              <a href="#" style={{ color: '#555', textDecoration: 'none', fontSize: '12px' }}>Privacidad</a>
-              <a href="#" style={{ color: '#555', textDecoration: 'none', fontSize: '12px' }}>Cookies</a>
-            </div>
+          <div style={{ borderTop: '1px solid #222', paddingTop: '16px', textAlign: 'center' }}>
+            <p style={{ fontSize: '12px', color: '#555' }}>© 2025 Driny — Todos los derechos reservados | Colombia</p>
           </div>
         </div>
       </footer>
+
+      {/* CSS MOBILE ADICIONAL */}
+      <style>{`
+        @media (max-width: 768px) {
+          .mobile-menu-btn { display: flex !important; }
+          .mobile-search { display: flex !important; }
+          .mobile-cats { display: flex !important; }
+        }
+      `}</style>
 
     </main>
   );
