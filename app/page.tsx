@@ -402,7 +402,7 @@ export default function Home() {
             { label: 'Verificados', sub: 'Vendedores', icon: '✓', href: '/productos' },
             { label: 'Subastas', sub: 'En tiempo real', icon: '🔨', href: '/subastas-real' },
             { label: 'Vender', sub: 'Gratis en Driny', icon: '🏪', href: '/vende-con-nosotros' },
-            { label: 'Soporte', sub: '24/7', icon: '/typing.png', href: '/perfil' },
+            { label: 'Soporte', sub: '24/7', icon: '💬', href: '/perfil' },
           ].map((item, i) => (
             <a key={i} href={item.href} style={{ backgroundColor: 'white', borderRadius: '12px', padding: '14px 10px', textDecoration: 'none', border: '1px solid #eee', display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', gap: '6px', transition: 'all 0.2s', boxShadow: '0 1px 4px rgba(0,0,0,0.04)' }}
               onMouseOver={e => { (e.currentTarget as HTMLElement).style.borderColor = '#f90'; (e.currentTarget as HTMLElement).style.transform = 'translateY(-2px)'; }}
