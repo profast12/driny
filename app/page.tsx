@@ -398,11 +398,11 @@ export default function Home() {
         <div className="quick-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(6, 1fr)', gap: '10px', marginBottom: '24px' }}>
           {[
             { label: 'Envio gratis', sub: 'Primera compra', icon: '📦', href: '/productos' },
-            { label: 'Pago seguro', sub: 'Con PayPal', icon: '🔒', href: '/productos' },
+            { label: 'Pago seguro', sub: 'Con PayPal y otros medios de pago', icon: '🔒', href: '/productos' },
             { label: 'Verificados', sub: 'Vendedores', icon: '✓', href: '/productos' },
             { label: 'Subastas', sub: 'En tiempo real', icon: '🔨', href: '/subastas-real' },
             { label: 'Vender', sub: 'Gratis en Driny', icon: '🏪', href: '/vende-con-nosotros' },
-            { label: 'Soporte', sub: '24/7', icon: '💬', href: '/perfil' },
+            { label: 'Soporte', sub: '24/7', icon: '/typing.png', href: '/perfil' },
           ].map((item, i) => (
             <a key={i} href={item.href} style={{ backgroundColor: 'white', borderRadius: '12px', padding: '14px 10px', textDecoration: 'none', border: '1px solid #eee', display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', gap: '6px', transition: 'all 0.2s', boxShadow: '0 1px 4px rgba(0,0,0,0.04)' }}
               onMouseOver={e => { (e.currentTarget as HTMLElement).style.borderColor = '#f90'; (e.currentTarget as HTMLElement).style.transform = 'translateY(-2px)'; }}
