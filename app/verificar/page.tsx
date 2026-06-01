@@ -128,7 +128,7 @@ export default function Verificar() {
                 Verifica tu correo
               </h1>
               <p style={{ color: '#888', fontSize: '14px', lineHeight: 1.6 }}>
-                Enviamos un codigo de 6 digitos a
+                Enviamos un codigo de 8 digitos a
               </p>
               <p style={{ color: '#f90', fontWeight: '700', fontSize: '14px', marginTop: '4px' }}>
                 {email || 'tu correo electronico'}
