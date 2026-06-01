@@ -339,14 +339,14 @@ export default function Home() {
             )}
             <div style={{ padding: '12px 0' }}>
               {[
-                { label: 'Inicio', href: '/', icon: '🏠' },
-                { label: 'Productos', href: '/productos', icon: '🛍️' },
-                { label: 'Subastas en vivo', href: '/subastas-real', icon: '🔨' },
-                { label: 'Mi carrito', href: '/carrito', icon: '🛒' },
-                { label: 'Mi perfil', href: '/perfil', icon: '👤' },
-                ...(usuario?.tipo !== 'vendedor' ? [{ label: 'Mis pedidos', href: '/mis-pedidos', icon: '📦' }] : []),
-                ...(usuario?.tipo === 'vendedor' ? [{ label: 'Panel vendedor', href: '/vender', icon: '🏪' }, { label: 'Mis subastas', href: '/subastas-panel', icon: '⚡' }] : []),
-                { label: 'Vender en Driny', href: '/vende-con-nosotros', icon: '💼' },
+                { label: 'Inicio', href: '/', icon: '' },
+                { label: 'Productos', href: '/productos', icon: '' },
+                { label: 'Subastas en vivo', href: '/subastas-real', icon: '' },
+                { label: 'Mi carrito', href: '/carrito', icon: '' },
+                { label: 'Mi perfil', href: '/perfil', icon: '' },
+                ...(usuario?.tipo !== 'vendedor' ? [{ label: 'Mis pedidos', href: '/mis-pedidos', icon: '' }] : []),
+                ...(usuario?.tipo === 'vendedor' ? [{ label: 'Panel vendedor', href: '/vender', icon: '' }, { label: 'Mis subastas', href: '/subastas-panel', icon: '⚡' }] : []),
+                { label: 'Vender en Driny', href: '/vende-con-nosotros', icon: '' },
               ].map((item, i) => (
                 <a key={i} href={item.href} style={{ display: 'flex', alignItems: 'center', gap: '14px', padding: '13px 20px', textDecoration: 'none', color: '#333', fontSize: '14px', fontWeight: '600', borderBottom: '1px solid #f9f9f9' }}
                   onMouseOver={e => (e.currentTarget as HTMLElement).style.backgroundColor = '#fff8f0'}
@@ -358,7 +358,7 @@ export default function Home() {
               ))}
               {usuario && (
                 <button onClick={cerrarSesion} style={{ display: 'flex', alignItems: 'center', gap: '14px', padding: '13px 20px', width: '100%', background: 'none', border: 'none', cursor: 'pointer', color: '#ef4444', fontSize: '14px', fontWeight: '600', borderTop: '1px solid #f5f5f5', marginTop: '8px' }}>
-                  <span style={{ fontSize: '18px' }}>🚪</span>
+                  <span style={{ fontSize: '18px' }}></span>
                   Cerrar sesion
                 </button>
               )}
