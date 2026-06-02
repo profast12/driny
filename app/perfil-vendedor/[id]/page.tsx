@@ -19,14 +19,40 @@ export default function PerfilVendedor() {
   }, []);
 
   const cargarPerfil = async (vendId: string) => {
-    const { data: v } = await supabase.from('usuarios').select('*').eq('id', vendId).single();
-    if (v) setVendedor(v);
-    const { data: p } = await supabase.from('productos').select('*').eq('vendedor_id', vendId).order('created_at', { ascending: false });
-    if (p) setProductos(p);
-    const { data: s } = await supabase.from('subastas_real').select('*').eq('vendedor_id', vendId).eq('activa', true).order('created_at', { ascending: false });
-    if (s) setSubastas(s);
-    setCargando(false);
-  };
+  const { data: v } = await supabase
+    .from('usuarios')
+    .select('*')
+    .eq('auth_id', vendId)
+    .maybeSingle();
+
+  if (!v) {
+    const { data: v2 } = await supabase
+      .from('usuarios')
+      .select('*')
+      .eq('id', vendId)
+      .maybeSingle();
+    if (v2) setVendedor(v2);
+  } else {
+    setVendedor(v);
+  }
+
+  const { data: p } = await supabase
+    .from('productos')
+    .select('*')
+    .eq('vendedor_id', vendId)
+    .order('created_at', { ascending: false });
+  if (p) setProductos(p);
+
+  const { data: s } = await supabase
+    .from('subastas_real')
+    .select('*')
+    .eq('vendedor_id', vendId)
+    .eq('activa', true)
+    .order('created_at', { ascending: false });
+  if (s) setSubastas(s);
+
+  setCargando(false);
+};
 
   const filtrados = productos.filter(p => p.nombre.toLowerCase().includes(busqueda.toLowerCase()));
 

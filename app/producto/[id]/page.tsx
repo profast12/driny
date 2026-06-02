@@ -36,39 +36,45 @@ export default function DetalleProducto() {
   }, []);
 
   const cargarTodo = async (prodId: string) => {
-    const { data: prod } = await supabase.from('productos').select('*').eq('id', prodId).single();
-    if (!prod) { setCargando(false); return; }
-    setProducto(prod);
+  const { data: prod } = await supabase.from('productos').select('*').eq('id', prodId).single();
+  if (!prod) { setCargando(false); return; }
+  setProducto(prod);
 
-    // Buscar vendedor por id o por email
-    if (prod.vendedor_id) {
-      let vend = null;
-      const { data: v1 } = await supabase.from('usuarios').select('*').eq('id', prod.vendedor_id).maybeSingle();
-      if (v1) {
-        vend = v1;
-      } else {
-        // Intentar buscar por columna usuario_id si existe
-        const { data: v2 } = await supabase.from('usuarios').select('*').limit(50);
-        if (v2) {
-          const encontrado = v2.find((u: any) => u.id === prod.vendedor_id || u.usuario_id === prod.vendedor_id);
-          if (encontrado) vend = encontrado;
-        }
-      }
-      if (vend) {
-        setVendedor(vend);
-        const { data: prods } = await supabase.from('productos').select('*').eq('vendedor_id', prod.vendedor_id).neq('id', prodId).limit(4);
-        if (prods) setProductosVendedor(prods);
-      }
+  if (prod.vendedor_id) {
+    const { data: vend } = await supabase
+      .from('usuarios')
+      .select('*')
+      .eq('auth_id', prod.vendedor_id)
+      .maybeSingle();
+
+    if (vend) {
+      setVendedor(vend);
+      const { data: prods } = await supabase
+        .from('productos')
+        .select('*')
+        .eq('vendedor_id', prod.vendedor_id)
+        .neq('id', prodId)
+        .limit(4);
+      if (prods) setProductosVendedor(prods);
     }
+  }
 
-    // Productos relacionados misma categoria
-    const { data: relacionados } = await supabase.from('productos').select('*').eq('categoria', prod.categoria).neq('id', prodId).limit(6);
-    if (relacionados) setProductosRelacionados(relacionados);
+  const { data: relacionados } = await supabase
+    .from('productos')
+    .select('*')
+    .eq('categoria', prod.categoria)
+    .neq('id', prodId)
+    .limit(6);
+  if (relacionados) setProductosRelacionados(relacionados);
 
-    const { data: res } = await supabase.from('resenas').select('*').eq('producto_id', prodId).order('created_at', { ascending: false });
-    if (res) setResenas(res);
-    setCargando(false);
-  };
+  const { data: res } = await supabase
+    .from('resenas')
+    .select('*')
+    .eq('producto_id', prodId)
+    .order('created_at', { ascending: false });
+  if (res) setResenas(res);
+  setCargando(false);
+};
 
   const agregarAlCarrito = async () => {
     if (!usuario) { window.location.href = '/login'; return; }
