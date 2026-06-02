@@ -435,7 +435,7 @@ export default function DetalleProducto() {
               {/* GARANTIAS */}
               <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', paddingTop: '14px', borderTop: '1px solid #f5f5f5' }}>
                 {[
-                  { svg: <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#22c55e" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>, text: 'Pago seguro con PayPal', color: '#22c55e' },
+                  { svg: <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#22c55e" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>, text: 'Pago seguro con PayPal y otros medios de pago', color: '#22c55e' },
                   { svg: <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-3.51"/></svg>, text: 'Devolucion en 30 dias', color: '#3b82f6' },
                   { svg: <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#f90" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>, text: 'Envio a todo Colombia', color: '#f90' },
                 ].map((g, i) => (
@@ -530,7 +530,7 @@ export default function DetalleProducto() {
       </div>
 
       <footer style={{ backgroundColor: '#111', color: '#888', padding: '20px', textAlign: 'center' }}>
-        <p style={{ fontSize: '12px' }}>© 2025 Driny — Todos los derechos reservados | Colombia</p>
+        <p style={{ fontSize: '12px' }}>© 2026 Driny — Todos los derechos reservados | Colombia</p>
       </footer>
     </main>
   );
