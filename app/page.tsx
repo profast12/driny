@@ -561,7 +561,7 @@ export default function Home() {
             ))}
           </div>
           <div style={{ borderTop: '1px solid #222', paddingTop: '16px', textAlign: 'center' }}>
-            <p style={{ fontSize: '12px', color: '#555' }}>© 2025 Driny — Todos los derechos reservados | Colombia</p>
+            <p style={{ fontSize: '12px', color: '#555' }}>© 2026 Driny — Todos los derechos reservados | Colombia</p>
           </div>
         </div>
       </footer>
