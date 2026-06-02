@@ -1,6 +1,5 @@
 "use client";
 import { useState, useEffect } from "react";
-import Image from "next/image"
 import { supabase } from "../../../lib/supabase";
 
 export default function DetalleProducto() {
@@ -114,18 +113,7 @@ export default function DetalleProducto() {
   if (!producto) return (
     <main style={{ backgroundColor: '#f5f5f5', minHeight: '100vh', fontFamily: 'Arial, sans-serif', display: 'flex', flexDirection: 'column' }}>
       <nav style={{ backgroundColor: 'white', boxShadow: '0 2px 8px rgba(0,0,0,0.08)', padding: '14px 24px' }}>
-        <a href="/">
-  <Image
-    src="/logo.png"
-    alt="Driny"
-    width={75}
-    height={75}
-    style={{
-      width: 'auto',
-      height: '75px'
-    }}
-  />
-</a>
+        <a href="/" style={{ fontSize: '22px', fontWeight: '900', color: '#111', textDecoration: 'none', fontFamily: 'Arial Black, sans-serif' }}>DRINY</a>
       </nav>
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '16px' }}>
         <p style={{ fontSize: '18px', fontWeight: '700', color: '#333' }}>Producto no encontrado</p>
