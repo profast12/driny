@@ -12,7 +12,7 @@ export default function Home() {
   const [busqueda, setBusqueda] = useState('');
 
   const categorias = [
-    { nombre: "Electronica", icono: "" },
+    { nombre: "Electrónica", icono: "" },
     { nombre: "Ropa", icono: "" },
     { nombre: "Hogar", icono: "" },
     { nombre: "Deportes", icono: "" },
