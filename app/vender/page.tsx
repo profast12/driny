@@ -21,6 +21,7 @@ const disponibilidades = [
 export default function Vender() {
   const [usuario, setUsuario] = useState<any>(null);
   const [perfil, setPerfil] = useState<any>(null);
+  const [confirmarEliminar, setConfirmarEliminar] = useState<string | null>(null);
   const [cargando, setCargando] = useState(true);
   const [misProductos, setMisProductos] = useState<any[]>([]);
   const [publicando, setPublicando] = useState(false);
@@ -135,6 +136,45 @@ export default function Vender() {
           .vender-grid { grid-template-columns: 1fr !important; }
         }
       `}</style>
+      {confirmarEliminar && (
+  <div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.5)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '24px' }}>
+    <div style={{ backgroundColor: 'white', borderRadius: '20px', padding: '36px', maxWidth: '400px', width: '100%', boxShadow: '0 20px 60px rgba(0,0,0,0.2)', animation: 'fadeIn 0.2s ease', textAlign: 'center' }}>
+      <div style={{ width: '60px', height: '60px', borderRadius: '50%', backgroundColor: '#fef2f2', border: '2px solid #fecaca', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 20px' }}>
+        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#ef4444" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/>
+        </svg>
+      </div>
+      <h3 style={{ fontSize: '18px', fontWeight: '800', color: '#111', marginBottom: '10px', fontFamily: 'Arial Black, sans-serif' }}>
+        Eliminar publicacion
+      </h3>
+      <p style={{ fontSize: '14px', color: '#666', lineHeight: 1.6, marginBottom: '24px' }}>
+        Esta accion es permanente y no se puede deshacer. El producto dejara de ser visible para los compradores.
+      </p>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+        <button
+          onClick={async () => {
+            await supabase.from('productos').delete().eq('id', confirmarEliminar);
+            cargarProductos(usuario.id);
+            setConfirmarEliminar(null);
+          }}
+          style={{ width: '100%', padding: '13px', backgroundColor: '#ef4444', color: 'white', border: 'none', borderRadius: '10px', fontWeight: '800', fontSize: '14px', cursor: 'pointer', transition: 'all 0.2s', fontFamily: 'Arial Black, sans-serif' }}
+          onMouseOver={e => (e.currentTarget as HTMLElement).style.backgroundColor = '#dc2626'}
+          onMouseOut={e => (e.currentTarget as HTMLElement).style.backgroundColor = '#ef4444'}
+        >
+          Si, eliminar publicacion
+        </button>
+        <button
+          onClick={() => setConfirmarEliminar(null)}
+          style={{ width: '100%', padding: '13px', backgroundColor: 'white', color: '#333', border: '2px solid #eee', borderRadius: '10px', fontWeight: '700', fontSize: '14px', cursor: 'pointer', transition: 'all 0.2s' }}
+          onMouseOver={e => { (e.currentTarget as HTMLElement).style.borderColor = '#f90'; (e.currentTarget as HTMLElement).style.color = '#f90'; }}
+          onMouseOut={e => { (e.currentTarget as HTMLElement).style.borderColor = '#eee'; (e.currentTarget as HTMLElement).style.color = '#333'; }}
+        >
+          No, mantener publicacion
+        </button>
+      </div>
+    </div>
+  </div>
+)}
 
       {/* NAVBAR */}
       <div style={{ backgroundColor: 'white', boxShadow: '0 2px 8px rgba(0,0,0,0.08)', position: 'sticky', top: 0, zIndex: 100 }}>
@@ -333,7 +373,7 @@ export default function Vender() {
                           onMouseOver={e => { (e.currentTarget as HTMLElement).style.backgroundColor = '#f90'; (e.currentTarget as HTMLElement).style.color = '#111'; }}
                           onMouseOut={e => { (e.currentTarget as HTMLElement).style.backgroundColor = 'white'; (e.currentTarget as HTMLElement).style.color = '#f90'; }}
                         >Ver</a>
-                        <button onClick={() => eliminarProducto(p.id)} style={{ padding: '6px 12px', backgroundColor: 'white', color: '#ef4444', border: '1.5px solid #ef4444', borderRadius: '8px', cursor: 'pointer', fontSize: '12px', fontWeight: '700', transition: 'all 0.2s' }}
+                        <button onClick={() => setConfirmarEliminar(p.id)} style={{ padding: '6px 12px', backgroundColor: 'white', color: '#ef4444', border: '1.5px solid #ef4444', borderRadius: '8px', cursor: 'pointer', fontSize: '12px', fontWeight: '700', transition: 'all 0.2s' }}
                           onMouseOver={e => { (e.currentTarget as HTMLElement).style.backgroundColor = '#ef4444'; (e.currentTarget as HTMLElement).style.color = 'white'; }}
                           onMouseOut={e => { (e.currentTarget as HTMLElement).style.backgroundColor = 'white'; (e.currentTarget as HTMLElement).style.color = '#ef4444'; }}
                         >Eliminar</button>
