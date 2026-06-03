@@ -59,15 +59,21 @@ export default function Registro() {
     }
 
     if (data.user) {
-      await supabase.from('usuarios').insert([{
-        id: crypto.randomUUID(),
-        auth_id: data.user.id,
-        nombre,
-        email,
-        tipo,
-        nombre_tienda: tipo === 'vendedor' ? nombreTienda : null,
-      }]);
-    }
+  const { error: insertError } = await supabase.from('usuarios').insert([{
+    id: crypto.randomUUID(),
+    auth_id: data.user.id,
+    nombre: nombre.trim(),
+    email: email.trim().toLowerCase(),
+    tipo: tipo,
+    nombre_tienda: tipo === 'vendedor' ? nombreTienda.trim() : null,
+    username: null,
+    avatar_url: null,
+  }]);
+
+  if (insertError) {
+    console.error('Error insertando usuario:', insertError);
+  }
+}
 
     window.location.href = '/verificar?email=' + encodeURIComponent(email);
   };
