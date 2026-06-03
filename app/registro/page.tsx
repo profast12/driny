@@ -53,8 +53,8 @@ export default function Registro() {
       options: { emailRedirectTo: 'https://driny.vercel.app/verificar' }
     });
 
-    if (authError) {
-  setError(authError.message);
+   if (authError) {
+  setError(authError.message.includes('already') ? 'Este correo ya esta registrado' : 'Error al crear la cuenta. Intenta de nuevo.');
   setCargando(false); return;
 }
 
