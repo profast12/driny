@@ -30,17 +30,14 @@ const idiomas = [
 const cambiarIdioma = (codigo: string) => {
   setIdiomaAbierto(false);
 
-  const aplicar = (intentos: number) => {
-    const select = document.querySelector('#google_translate_element select') as HTMLSelectElement;
-    if (select) {
-      select.value = codigo;
-      select.dispatchEvent(new Event('change'));
-    } else if (intentos > 0) {
-      setTimeout(() => aplicar(intentos - 1), 400);
-    }
-  };
+  // Google Translate usa la cookie googtrans con formato /es/CODIGO
+  const valor = codigo === 'es' ? '/es/es' : `/es/${codigo}`;
 
-  aplicar(15);
+  // Setear en dominio actual y dominio raíz
+  document.cookie = `googtrans=${valor}; path=/`;
+  document.cookie = `googtrans=${valor}; path=/; domain=${window.location.hostname}`;
+
+  window.location.reload();
 };
 
   const categorias = [
