@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 import Image from "next/image";
 import { supabase } from "../../lib/supabase";
 
-const categorias = ["Todos", "Electrónica", "Ropa", "Hogar", "Deportes", "Juguetes", "Autos"];
+const categorias = ["Todos", "Electronica", "Ropa", "Hogar", "Deportes", "Juguetes", "Autos"];
 
 export default function Productos() {
   const [categoriaActiva, setCategoriaActiva] = useState("Todos");
