@@ -38,45 +38,34 @@ export default function Registro() {
   const todosRequisitos = requisitos.every(r => r.ok);
 
   const registrar = async () => {
-    if (!nombre.trim()) { setError('Ingresa tu nombre completo'); return; }
-    if (!email.trim()) { setError('Ingresa tu correo electronico'); return; }
-    if (!todosRequisitos) { setError('La contrasena no cumple todos los requisitos'); return; }
-    if (password !== confirmar) { setError('Las contrasenas no coinciden'); return; }
-    if (tipo === 'vendedor' && !nombreTienda.trim()) { setError('Ingresa el nombre de tu tienda'); return; }
-    if (!aceptoTerminos || !aceptoPrivacidad || !aceptoMayores) { setError('Debes aceptar todos los terminos y condiciones'); return; }
+  if (!nombre.trim()) { setError('Ingresa tu nombre completo'); return; }
+  if (!email.trim()) { setError('Ingresa tu correo electronico'); return; }
+  if (!todosRequisitos) { setError('La contrasena no cumple todos los requisitos'); return; }
+  if (password !== confirmar) { setError('Las contrasenas no coinciden'); return; }
+  if (tipo === 'vendedor' && !nombreTienda.trim()) { setError('Ingresa el nombre de tu tienda'); return; }
+  if (!aceptoTerminos || !aceptoPrivacidad || !aceptoMayores) { setError('Debes aceptar todos los terminos y condiciones'); return; }
 
-    setCargando(true); setError('');
+  setCargando(true); setError('');
 
-    const { data, error: authError } = await supabase.auth.signUp({
-      email,
-      password,
-      options: { emailRedirectTo: 'https://driny.vercel.app/verificar' }
-    });
-
-   if (authError) {
-  setError(authError.message.includes('already') ? 'Este correo ya esta registrado' : 'Error al crear la cuenta. Intenta de nuevo.');
-  setCargando(false); return;
-}
-
-    if (data.user) {
-  const { error: insertError } = await supabase.from('usuarios').insert([{
-    id: crypto.randomUUID(),
-    auth_id: data.user.id,
-    nombre: nombre.trim(),
+  const { data, error: authError } = await supabase.auth.signUp({
     email: email.trim().toLowerCase(),
-    tipo: tipo,
-    nombre_tienda: tipo === 'vendedor' ? nombreTienda.trim() : null,
-    username: null,
-    avatar_url: null,
-  }]);
+    password,
+    options: {
+      data: {
+        nombre: nombre.trim(),
+        tipo: tipo,
+        nombre_tienda: tipo === 'vendedor' ? nombreTienda.trim() : null,
+      }
+    }
+  });
 
-  if (insertError) {
-    console.error('Error insertando usuario:', insertError);
+  if (authError) {
+    setError(authError.message.includes('already') ? 'Este correo ya esta registrado' : 'Error al crear la cuenta. Intenta de nuevo.');
+    setCargando(false); return;
   }
-}
 
-    window.location.href = '/verificar?email=' + encodeURIComponent(email);
-  };
+  window.location.href = '/verificar?email=' + encodeURIComponent(email);
+};
 
   const contenidoModal: any = {
     terminos: {
