@@ -253,11 +253,11 @@ export default function DetalleProducto() {
                       </p>
                       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
                         {[
-                          { label: 'Categoria', valor: producto.categoria },
-                          { label: 'Estado', valor: 'Nuevo' },
-                          { label: 'Envio', valor: 'A todo Colombia' },
-                          { label: 'Garantia', valor: '30 dias devolucion' },
-                        ].map((item, i) => (
+  { label: 'Categoria', valor: producto.categoria },
+  { label: 'Estado', valor: producto.estado_producto === 'nuevo' ? 'Nuevo' : producto.estado_producto === 'usado_como_nuevo' ? 'Usado - Como nuevo' : producto.estado_producto === 'usado_buen_estado' ? 'Usado - Buen estado' : producto.estado_producto === 'usado_aceptable' ? 'Usado - Aceptable' : 'Nuevo' },
+  { label: 'Envio', valor: 'A todo Colombia' },
+  { label: 'Garantia', valor: '30 dias devolucion' },
+].map((item, i) => (
                           <div key={i} style={{ backgroundColor: '#f9f9f9', borderRadius: '8px', padding: '12px', border: '1px solid #f0f0f0' }}>
                             <p style={{ fontSize: '11px', color: '#888', marginBottom: '4px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>{item.label}</p>
                             <p style={{ fontSize: '13px', fontWeight: '700', color: '#333' }}>{item.valor}</p>
@@ -424,10 +424,30 @@ export default function DetalleProducto() {
                   ${Number(producto.precio).toLocaleString('es-CO')}
                   <span style={{ fontSize: '13px', color: '#888', fontWeight: 'normal', marginLeft: '4px' }}>COP</span>
                 </p>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginTop: '8px' }}>
-                  <div style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: '#22c55e' }}></div>
-                  <p style={{ fontSize: '12px', color: '#22c55e', fontWeight: '700', margin: 0 }}>En stock · Envio a todo Colombia</p>
-                </div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', marginTop: '8px' }}>
+  <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+    <div style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: producto.disponibilidad === 'pausado' ? '#ef4444' : '#22c55e' }}></div>
+    <p style={{ fontSize: '12px', color: producto.disponibilidad === 'pausado' ? '#ef4444' : '#22c55e', fontWeight: '700', margin: 0 }}>
+      {producto.disponibilidad === 'disponible' ? 'Disponible' : producto.disponibilidad === 'bajo_pedido' ? 'Bajo pedido' : producto.disponibilidad === 'ultima_unidad' ? 'Ultima unidad' : producto.disponibilidad === 'pausado' ? 'No disponible' : 'Disponible'} · Envio a todo Colombia
+    </p>
+  </div>
+  {producto.sku > 0 && (
+    <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#888" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
+      <p style={{ fontSize: '12px', color: '#888', margin: 0 }}>
+        {producto.sku === 1 ? 'Ultima unidad disponible' : producto.sku + ' unidades disponibles'}
+      </p>
+    </div>
+  )}
+  {producto.estado_producto && producto.estado_producto !== 'nuevo' && (
+    <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#888" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+      <p style={{ fontSize: '12px', color: '#888', margin: 0 }}>
+        {producto.estado_producto === 'usado_como_nuevo' ? 'Usado - Como nuevo' : producto.estado_producto === 'usado_buen_estado' ? 'Usado - Buen estado' : 'Usado - Aceptable'}
+      </p>
+    </div>
+  )}
+</div>
               </div>
 
               {/* CANTIDAD */}
