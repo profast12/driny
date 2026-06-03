@@ -28,12 +28,19 @@ const idiomas = [
 ];
 
 const cambiarIdioma = (codigo: string) => {
-  const select = document.querySelector('#google_translate_element select') as HTMLSelectElement;
-  if (select) {
-    select.value = codigo;
-    select.dispatchEvent(new Event('change'));
-  }
   setIdiomaAbierto(false);
+
+  const aplicar = (intentos: number) => {
+    const select = document.querySelector('#google_translate_element select') as HTMLSelectElement;
+    if (select) {
+      select.value = codigo;
+      select.dispatchEvent(new Event('change'));
+    } else if (intentos > 0) {
+      setTimeout(() => aplicar(intentos - 1), 400);
+    }
+  };
+
+  aplicar(15);
 };
 
   const categorias = [
