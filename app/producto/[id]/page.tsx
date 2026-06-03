@@ -160,10 +160,12 @@ export default function DetalleProducto() {
           </a>
           <div style={{ flex: 1 }}></div>
           <a href="/productos" style={{ color: '#666', textDecoration: 'none', fontSize: '13px', fontWeight: '600' }}>Productos</a>
-          <a href="/carrito" style={{ display: 'flex', alignItems: 'center', gap: '6px', color: '#555', padding: '7px 12px', borderRadius: '8px', border: '1px solid #e5e5e5', textDecoration: 'none', fontSize: '13px', fontWeight: '600' }}>
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
-            Carrito
-          </a>
+          {perfilUsuario?.tipo !== 'vendedor' && (
+  <a href="/carrito" style={{ display: 'flex', alignItems: 'center', gap: '6px', color: '#555', padding: '7px 12px', borderRadius: '8px', border: '1px solid #e5e5e5', textDecoration: 'none', fontSize: '13px', fontWeight: '600' }}>
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+    Carrito
+  </a>
+)}
         </div>
         <div style={{ borderTop: '1px solid #f5f5f5' }}>
           <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '7px 20px' }}>
@@ -283,9 +285,22 @@ export default function DetalleProducto() {
                         </div>
                       )}
 
-                      {usuario && (
-                        <div style={{ backgroundColor: '#f9f9f9', borderRadius: '12px', padding: '16px', marginBottom: '20px', border: '1px solid #eee' }}>
-                          <p style={{ fontSize: '13px', fontWeight: '700', color: '#333', marginBottom: '12px' }}>Escribe una resena</p>
+                      {usuario && perfilUsuario?.tipo === 'vendedor' ? (
+  <div style={{ backgroundColor: '#f9f9f9', borderRadius: '12px', padding: '16px', marginBottom: '20px', border: '1px solid #eee', display: 'flex', alignItems: 'center', gap: '14px' }}>
+    <div style={{ width: '40px', height: '40px', borderRadius: '50%', backgroundColor: '#fff0e0', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#f90" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+    </div>
+    <div>
+      <p style={{ fontSize: '13px', fontWeight: '700', color: '#333', marginBottom: '3px' }}>Solo compradores pueden dejar resenas</p>
+      <p style={{ fontSize: '12px', color: '#888', margin: 0 }}>
+        Para dejar una resena necesitas una cuenta de comprador.{' '}
+        <a href="/registro" style={{ color: '#f90', textDecoration: 'none', fontWeight: '700' }}>Crear cuenta de comprador</a>
+      </p>
+    </div>
+  </div>
+) : usuario && perfilUsuario?.tipo !== 'vendedor' && (
+  <div style={{ backgroundColor: '#f9f9f9', borderRadius: '12px', padding: '16px', marginBottom: '20px', border: '1px solid #eee' }}>
+    <p style={{ fontSize: '13px', fontWeight: '700', color: '#333', marginBottom: '12px' }}>Escribe una resena</p>
                           {mensajeResena && <div style={{ backgroundColor: '#f0fdf4', border: '1px solid #bbf7d0', borderRadius: '8px', padding: '10px', marginBottom: '12px', fontSize: '13px', color: '#22c55e' }}>{mensajeResena}</div>}
                           <div style={{ display: 'flex', gap: '6px', marginBottom: '12px', alignItems: 'center' }}>
                             {[1,2,3,4,5].map(s => <button key={s} onClick={() => setCalificacion(s)} style={{ width: '30px', height: '30px', borderRadius: '6px', border: 'none', backgroundColor: s <= calificacion ? '#f90' : '#e5e5e5', cursor: 'pointer', transition: 'all 0.15s' }}></button>)}
@@ -426,17 +441,32 @@ export default function DetalleProducto() {
               </div>
 
               {/* BOTONES */}
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginBottom: '18px' }}>
-                <button onClick={agregarAlCarrito} className="add-btn-main" style={{ width: '100%', padding: '14px', backgroundColor: agregado ? '#22c55e' : '#111', color: 'white', border: 'none', borderRadius: '10px', fontWeight: '800', fontSize: '14px', cursor: 'pointer', transition: 'all 0.3s', fontFamily: 'Arial Black, sans-serif' }}>
-                  {agregado ? '+ Agregado al carrito' : 'Agregar al carrito'}
-                </button>
-                <a href="/carrito" style={{ display: 'block', width: '100%', padding: '14px', backgroundColor: '#f90', color: '#111', borderRadius: '10px', fontWeight: '800', fontSize: '14px', textDecoration: 'none', textAlign: 'center', fontFamily: 'Arial Black, sans-serif', boxSizing: 'border-box' as const, transition: 'all 0.2s' }}
-                  onMouseOver={e => (e.currentTarget as HTMLElement).style.backgroundColor = '#e68a00'}
-                  onMouseOut={e => (e.currentTarget as HTMLElement).style.backgroundColor = '#f90'}
-                >
-                  Comprar ahora
-                </a>
-              </div>
+<div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginBottom: '18px' }}>
+  {perfilUsuario?.tipo === 'vendedor' ? (
+    <div style={{ backgroundColor: '#f9f9f9', border: '1px solid #eee', borderRadius: '10px', padding: '14px', textAlign: 'center' }}>
+      <p style={{ fontSize: '13px', color: '#888', margin: 0, fontWeight: '600' }}>
+        Las cuentas de vendedor no pueden realizar compras.{' '}
+        <a href="/registro" style={{ color: '#f90', textDecoration: 'none', fontWeight: '700' }}>Crea una cuenta de comprador</a>
+      </p>
+    </div>
+  ) : producto.vendedor_id === usuario?.id ? (
+    <div style={{ backgroundColor: '#fff8f0', border: '1px solid #ffe0b2', borderRadius: '10px', padding: '14px', textAlign: 'center' }}>
+      <p style={{ fontSize: '13px', color: '#f90', margin: 0, fontWeight: '600' }}>Este es tu producto publicado</p>
+    </div>
+  ) : (
+    <>
+      <button onClick={agregarAlCarrito} className="add-btn-main" style={{ width: '100%', padding: '14px', backgroundColor: agregado ? '#22c55e' : '#111', color: 'white', border: 'none', borderRadius: '10px', fontWeight: '800', fontSize: '14px', cursor: 'pointer', transition: 'all 0.3s', fontFamily: 'Arial Black, sans-serif' }}>
+        {agregado ? '+ Agregado al carrito' : 'Agregar al carrito'}
+      </button>
+      <a href="/carrito" style={{ display: 'block', width: '100%', padding: '14px', backgroundColor: '#f90', color: '#111', borderRadius: '10px', fontWeight: '800', fontSize: '14px', textDecoration: 'none', textAlign: 'center', fontFamily: 'Arial Black, sans-serif', boxSizing: 'border-box' as const, transition: 'all 0.2s' }}
+        onMouseOver={e => (e.currentTarget as HTMLElement).style.backgroundColor = '#e68a00'}
+        onMouseOut={e => (e.currentTarget as HTMLElement).style.backgroundColor = '#f90'}
+      >
+        Comprar ahora
+      </a>
+    </>
+  )}
+</div>
 
               {/* GARANTIAS */}
               <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', paddingTop: '14px', borderTop: '1px solid #f5f5f5' }}>
