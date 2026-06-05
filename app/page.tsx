@@ -1,5 +1,6 @@
 "use client";
 import { useState, useEffect } from "react";
+import DrinyBot from './DrinyBot';
 import Image from "next/image"
 import { supabase } from "../lib/supabase";
 
@@ -12,6 +13,7 @@ export default function Home() {
   const [busqueda, setBusqueda] = useState('');
 
   const [idiomaAbierto, setIdiomaAbierto] = useState(false);
+  const [idiomaActual, setIdiomaActual] = useState('es');
 
 const idiomas = [
   { codigo: 'es', nombre: 'Español', bandera: '🇨🇴' },
@@ -29,6 +31,7 @@ const idiomas = [
 
 const cambiarIdioma = (codigo: string) => {
   setIdiomaAbierto(false);
+  setIdiomaActual(codigo);
 
   // Google Translate usa la cookie googtrans con formato /es/CODIGO
   const valor = codigo === 'es' ? '/es/es' : `/es/${codigo}`;
@@ -681,6 +684,7 @@ const cambiarIdioma = (codigo: string) => {
           .mobile-cats { display: flex !important; }
         }
       `}</style>
+      <DrinyBot idioma={idiomaActual} />
 
     </main>
   );
