@@ -30,22 +30,23 @@ Sobre Driny:
 - Vendedores NO pueden comprar ni dejar resenas
 - Compradores NO pueden vender ni crear subastas
 - SKU indica unidades disponibles del producto
-- Notificaciones en tiempo real para compras, ventas y subastas
 - Para comprar: crear cuenta comprador, buscar producto, carrito, pagar con PayPal
 - Para vender: crear cuenta vendedor, panel vendedor, publicar producto con fotos
 - Para subastas: ver subastas activas, hacer ofertas, vendedor acepta o rechaza`;
 
-    const mensajesGroq = messages.map((m: any) => ({
-      role: m.role,
-      content: m.content,
-    }));
+    const mensajesGroq = [
+      { role: 'system', content: systemPrompt },
+      ...messages.map((m: any) => ({
+        role: m.role,
+        content: m.content,
+      }))
+    ];
 
     const response = await client.chat.completions.create({
       model: 'llama3-8b-8192',
       max_tokens: 300,
-      system: systemPrompt,
       messages: mensajesGroq,
-    } as any);
+    });
 
     const texto = response.choices[0]?.message?.content || '';
     return NextResponse.json({ respuesta: texto });
