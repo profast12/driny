@@ -654,7 +654,7 @@ const cambiarIdioma = (codigo: string) => {
             {[
               { titulo: 'Comprar', links: [{ label: 'Todos los productos', href: '/productos' }, { label: 'Subastas', href: '/subastas-real' }] },
               { titulo: 'Vender', links: [{ label: 'Crear cuenta vendedor', href: '/vende-con-nosotros' }, { label: 'Como funciona', href: '/vende-con-nosotros' }] },
-              { titulo: 'Ayuda', links: [{ label: 'Mi perfil', href: '/perfil' }, { label: 'Mis pedidos', href: '/mis-pedidos' }] },
+              { titulo: 'Ayuda', links: [{ label: 'Mi perfil', href: '/perfil' }, { label: 'Mis pedidos', href: '/mis-pedidos' }, { label: 'Contacto y soporte', href: '/contacto' }] },
             ].map((col, i) => (
               <div key={i}>
                 <h4 style={{ color: 'white', fontSize: '13px', fontWeight: '700', marginBottom: '12px' }}>{col.titulo}</h4>
