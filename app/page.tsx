@@ -685,7 +685,8 @@ const cambiarIdioma = (codigo: string) => {
         }
       `}</style>
       <DrinyBot idioma={idiomaActual} />
-
     </main>
   );
 }
+      
+    
