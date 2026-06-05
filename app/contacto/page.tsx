@@ -96,14 +96,14 @@ export default function Contacto() {
             {
               icon: <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#f90" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>,
               titulo: 'Correo electronico',
-              valor: 'soporte@driny.co',
+              valor: 'drinymail@gmail.com',
               desc: 'Respuesta en menos de 24 horas',
               color: '#f90'
             },
             {
               icon: <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#22c55e" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>,
               titulo: 'WhatsApp',
-              valor: '+57 300 000 0000',
+              valor: '+57 301 396 9974',
               desc: 'Lunes a viernes 8am - 6pm',
               color: '#22c55e'
             },
@@ -278,7 +278,7 @@ export default function Contacto() {
               </svg>
               <p style={{ fontWeight: '800', fontSize: '16px', color: 'white', marginBottom: '6px', fontFamily: 'Arial Black, sans-serif' }}>Soporte por WhatsApp</p>
               <p style={{ fontSize: '12px', color: 'rgba(255,255,255,0.8)', marginBottom: '16px', lineHeight: 1.5 }}>Chatea con nosotros directamente en horario de atencion</p>
-              <a href="https://wa.me/573000000000?text=Hola,%20necesito%20ayuda%20con%20Driny" target="_blank" style={{ display: 'block', backgroundColor: 'white', color: '#22c55e', padding: '11px', borderRadius: '10px', textDecoration: 'none', fontWeight: '800', fontSize: '14px', fontFamily: 'Arial Black, sans-serif' }}>
+              <a href="https://wa.me/573013969974?text=Hola,%20necesito%20ayuda%20con%20Driny" target="_blank" style={{ display: 'block', backgroundColor: 'white', color: '#22c55e', padding: '11px', borderRadius: '10px', textDecoration: 'none', fontWeight: '800', fontSize: '14px', fontFamily: 'Arial Black, sans-serif' }}>
                 Escribir por WhatsApp
               </a>
             </div>
