@@ -670,7 +670,10 @@ const cambiarIdioma = (codigo: string) => {
             ))}
           </div>
           <div style={{ borderTop: '1px solid #222', paddingTop: '16px', textAlign: 'center' }}>
-            <p style={{ fontSize: '12px', color: '#555' }}>© 2026 Driny — Todos los derechos reservados | Colombia</p>
+            <p style={{ fontSize: '12px', color: '#555' }}>
+  © 2026 Driny — Todos los derechos reservados | Colombia{' '}
+  <a href="/politica-cookies" style={{ color: '#f90', textDecoration: 'none', fontWeight: '700' }}>Politica de Cookies</a>
+</p>
           </div>
         </div>
       </footer>
