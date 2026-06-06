@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.100.1",
+    "@emailjs/browser": "^4.4.1",
     "@paypal/react-paypal-js": "^9.2.0",
     "@supabase/supabase-js": "^2.106.1",
     "groq-sdk": "^1.2.1",

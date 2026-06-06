@@ -1,6 +1,11 @@
 "use client";
 import { useState } from "react";
+import emailjs from '@emailjs/browser';
 import { supabase } from "../../lib/supabase";
+
+const SERVICE_ID = 'service_jgquzeo';
+const TEMPLATE_ID = 'template_1vfcvoj';
+const PUBLIC_KEY = 'fKKe-9ggzSrmaznFj';
 
 export default function Contacto() {
   const [form, setForm] = useState({ nombre: '', email: '', asunto: '', mensaje: '' });
@@ -8,14 +13,15 @@ export default function Contacto() {
   const [enviado, setEnviado] = useState(false);
   const [error, setError] = useState('');
   const [categoriaActiva, setCategoriaActiva] = useState('');
+  const [ticketNum] = useState('#DRN-' + (Math.floor(Math.random() * 90000) + 10000));
 
   const categorias = [
-    { id: 'compra', label: 'Problema con una compra', icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg> },
-    { id: 'venta', label: 'Problema con una venta', icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg> },
-    { id: 'cuenta', label: 'Problema con mi cuenta', icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg> },
-    { id: 'pago', label: 'Problema con un pago', icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg> },
-    { id: 'subasta', label: 'Problema con una subasta', icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> },
-    { id: 'otro', label: 'Otro motivo', icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg> },
+    { id: 'Problema con una compra', label: 'Problema con una compra', icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg> },
+    { id: 'Problema con una venta', label: 'Problema con una venta', icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg> },
+    { id: 'Problema con mi cuenta', label: 'Problema con mi cuenta', icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg> },
+    { id: 'Problema con un pago', label: 'Problema con un pago', icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg> },
+    { id: 'Problema con una subasta', label: 'Problema con una subasta', icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> },
+    { id: 'Otro motivo', label: 'Otro motivo', icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg> },
   ];
 
   const enviarFormulario = async () => {
@@ -24,12 +30,27 @@ export default function Contacto() {
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) { setError('Ingresa un correo electronico valido'); return; }
     setEnviando(true); setError('');
 
-    await new Promise(r => setTimeout(r, 1500));
+    try {
+      let tipoCuenta = 'No registrado en Driny';
+      const { data: usuario } = await supabase.from('usuarios').select('tipo, nombre').eq('email', form.email.trim().toLowerCase()).maybeSingle();
+      if (usuario) tipoCuenta = usuario.tipo === 'vendedor' ? 'Vendedor' : 'Comprador';
 
-    setEnviado(true);
+      await emailjs.send(SERVICE_ID, TEMPLATE_ID, {
+        motivo: categoriaActiva,
+        nombre: form.nombre.trim(),
+        email_usuario: form.email.trim(),
+        tipo_cuenta: tipoCuenta,
+        asunto: form.asunto.trim() || 'Sin asunto',
+        mensaje: form.mensaje.trim(),
+        ticket: ticketNum,
+      }, PUBLIC_KEY);
+
+      setEnviado(true);
+    } catch (err: any) {
+      setError('Error al enviar el mensaje. Intenta de nuevo o escríbenos directamente a drinymail@gmail.com');
+    }
+
     setEnviando(false);
-    setForm({ nombre: '', email: '', asunto: '', mensaje: '' });
-    setCategoriaActiva('');
   };
 
   return (
@@ -79,11 +100,9 @@ export default function Contacto() {
               <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
             </svg>
           </div>
-          <h1 style={{ fontSize: '32px', fontWeight: '900', color: 'white', marginBottom: '10px', fontFamily: 'Arial Black, sans-serif' }}>
-            Centro de soporte
-          </h1>
+          <h1 style={{ fontSize: '32px', fontWeight: '900', color: 'white', marginBottom: '10px', fontFamily: 'Arial Black, sans-serif' }}>Centro de soporte</h1>
           <p style={{ color: '#aaa', fontSize: '15px', maxWidth: '500px', margin: '0 auto', lineHeight: 1.6 }}>
-            Estamos aqui para ayudarte. Escríbenos y te responderemos lo antes posible.
+            Estamos aqui para ayudarte. Escribenos y te responderemos lo antes posible.
           </p>
         </div>
       </div>
@@ -93,33 +112,13 @@ export default function Contacto() {
         {/* TARJETAS INFO */}
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '16px', marginBottom: '40px' }}>
           {[
-            {
-              icon: <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#f90" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>,
-              titulo: 'Correo electronico',
-              valor: 'drinymail@gmail.com',
-              desc: 'Respuesta en menos de 24 horas',
-              color: '#f90'
-            },
-            {
-              icon: <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#22c55e" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>,
-              titulo: 'WhatsApp',
-              valor: '+57 301 396 9974',
-              desc: 'Lunes a viernes 8am - 6pm',
-              color: '#22c55e'
-            },
-            {
-              icon: <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>,
-              titulo: 'Tiempo de respuesta',
-              valor: 'Menos de 24h',
-              desc: 'En dias habiles laborales',
-              color: '#3b82f6'
-            },
+            { icon: <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#f90" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>, titulo: 'Correo electronico', valor: 'drinymail@gmail.com', desc: 'Respuesta en menos de 24 horas', color: '#f90' },
+            { icon: <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#22c55e" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>, titulo: 'WhatsApp', valor: '+57 301 396 9974', desc: 'Lunes a viernes 8am - 6pm', color: '#22c55e' },
+            { icon: <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>, titulo: 'Tiempo de respuesta', valor: 'Menos de 24h', desc: 'En dias habiles laborales', color: '#3b82f6' },
           ].map((item, i) => (
             <div key={i} className="info-card" style={{ backgroundColor: 'white', borderRadius: '16px', padding: '24px', border: '1px solid #eee', boxShadow: '0 2px 8px rgba(0,0,0,0.06)', transition: 'all 0.2s', textAlign: 'center' }}>
               <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '14px' }}>
-                <div style={{ width: '52px', height: '52px', borderRadius: '14px', backgroundColor: '#f9f9f9', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1px solid #eee' }}>
-                  {item.icon}
-                </div>
+                <div style={{ width: '52px', height: '52px', borderRadius: '14px', backgroundColor: '#f9f9f9', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1px solid #eee' }}>{item.icon}</div>
               </div>
               <p style={{ fontSize: '12px', color: '#888', fontWeight: '700', marginBottom: '6px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>{item.titulo}</p>
               <p style={{ fontSize: '16px', fontWeight: '800', color: item.color, marginBottom: '4px', fontFamily: 'Arial Black, sans-serif' }}>{item.valor}</p>
@@ -136,21 +135,17 @@ export default function Contacto() {
             {enviado ? (
               <div style={{ textAlign: 'center', padding: '40px 20px' }}>
                 <div style={{ width: '72px', height: '72px', backgroundColor: '#f0fdf4', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 20px', border: '2px solid #bbf7d0', animation: 'checkIn 0.5s ease' }}>
-                  <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#22c55e" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                    <polyline points="20 6 9 17 4 12"/>
-                  </svg>
+                  <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#22c55e" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
                 </div>
                 <h3 style={{ fontSize: '22px', fontWeight: '800', color: '#111', marginBottom: '10px', fontFamily: 'Arial Black, sans-serif' }}>Mensaje enviado</h3>
                 <p style={{ color: '#666', fontSize: '14px', lineHeight: 1.7, marginBottom: '24px', maxWidth: '360px', margin: '0 auto 24px' }}>
-                  Recibimos tu mensaje correctamente. Te responderemos al correo que nos proporcionaste en menos de 24 horas habiles.
+                  Recibimos tu mensaje correctamente. Te responderemos a <strong>{form.email || 'tu correo'}</strong> en menos de 24 horas habiles.
                 </p>
                 <div style={{ backgroundColor: '#f9f9f9', borderRadius: '12px', padding: '16px', marginBottom: '24px', border: '1px solid #eee' }}>
                   <p style={{ fontSize: '12px', color: '#888', marginBottom: '4px', textTransform: 'uppercase', letterSpacing: '0.5px', fontWeight: '700' }}>Numero de ticket</p>
-                  <p style={{ fontSize: '16px', fontWeight: '800', color: '#f90', margin: 0, fontFamily: 'Arial Black, sans-serif' }}>
-                    #DRN-{Math.floor(Math.random() * 90000) + 10000}
-                  </p>
+                  <p style={{ fontSize: '18px', fontWeight: '800', color: '#f90', margin: 0, fontFamily: 'Arial Black, sans-serif' }}>{ticketNum}</p>
                 </div>
-                <button onClick={() => setEnviado(false)} style={{ backgroundColor: '#f90', color: '#111', padding: '12px 28px', borderRadius: '10px', border: 'none', fontWeight: '800', fontSize: '14px', cursor: 'pointer', fontFamily: 'Arial Black, sans-serif' }}>
+                <button onClick={() => { setEnviado(false); setForm({ nombre: '', email: '', asunto: '', mensaje: '' }); setCategoriaActiva(''); }} style={{ backgroundColor: '#f90', color: '#111', padding: '12px 28px', borderRadius: '10px', border: 'none', fontWeight: '800', fontSize: '14px', cursor: 'pointer', fontFamily: 'Arial Black, sans-serif' }}>
                   Enviar otro mensaje
                 </button>
               </div>
@@ -158,7 +153,7 @@ export default function Contacto() {
               <>
                 <div style={{ marginBottom: '28px', paddingBottom: '20px', borderBottom: '2px solid #f90' }}>
                   <h2 style={{ fontSize: '20px', fontWeight: '800', color: '#111', margin: 0, fontFamily: 'Arial Black, sans-serif' }}>Formulario de contacto</h2>
-                  <p style={{ color: '#888', fontSize: '13px', marginTop: '6px', margin: 0 }}>Completa el formulario y te responderemos pronto</p>
+                  <p style={{ color: '#888', fontSize: '13px', marginTop: '6px', margin: '6px 0 0' }}>Completa el formulario y te responderemos pronto</p>
                 </div>
 
                 {error && (
@@ -183,7 +178,6 @@ export default function Contacto() {
                   </div>
                 </div>
 
-                {/* CAMPOS */}
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '14px', marginBottom: '14px' }}>
                   <div>
                     <label style={{ fontSize: '12px', color: '#888', display: 'block', marginBottom: '7px', textTransform: 'uppercase', letterSpacing: '0.5px', fontWeight: '700' }}>Nombre completo <span style={{ color: '#ef4444' }}>*</span></label>
@@ -202,7 +196,7 @@ export default function Contacto() {
 
                 <div style={{ marginBottom: '24px' }}>
                   <label style={{ fontSize: '12px', color: '#888', display: 'block', marginBottom: '7px', textTransform: 'uppercase', letterSpacing: '0.5px', fontWeight: '700' }}>Mensaje <span style={{ color: '#ef4444' }}>*</span></label>
-                  <textarea placeholder="Describe tu problema o consulta detalladamente. Incluye numeros de pedido u otra informacion relevante..." value={form.mensaje} onChange={e => setForm(p => ({ ...p, mensaje: e.target.value }))} rows={5} className="input-c" style={{ width: '100%', padding: '12px 14px', border: '2px solid #eee', borderRadius: '10px', fontSize: '14px', outline: 'none', transition: 'all 0.2s', boxSizing: 'border-box' as const, color: '#333', backgroundColor: 'white', resize: 'vertical', fontFamily: 'Arial, sans-serif' }} />
+                  <textarea placeholder="Describe tu problema o consulta detalladamente..." value={form.mensaje} onChange={e => setForm(p => ({ ...p, mensaje: e.target.value }))} rows={5} className="input-c" style={{ width: '100%', padding: '12px 14px', border: '2px solid #eee', borderRadius: '10px', fontSize: '14px', outline: 'none', transition: 'all 0.2s', boxSizing: 'border-box' as const, color: '#333', backgroundColor: 'white', resize: 'vertical', fontFamily: 'Arial, sans-serif' }} />
                   <p style={{ fontSize: '11px', color: '#bbb', marginTop: '5px' }}>{form.mensaje.length}/1000 caracteres</p>
                 </div>
 
@@ -226,7 +220,6 @@ export default function Contacto() {
           {/* PANEL LATERAL */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
 
-            {/* HORARIO */}
             <div style={{ backgroundColor: 'white', borderRadius: '16px', padding: '24px', boxShadow: '0 2px 8px rgba(0,0,0,0.06)', border: '1px solid #eee' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '18px', paddingBottom: '14px', borderBottom: '2px solid #f90' }}>
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#f90" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
@@ -250,7 +243,6 @@ export default function Contacto() {
               </div>
             </div>
 
-            {/* PREGUNTAS FRECUENTES */}
             <div style={{ backgroundColor: 'white', borderRadius: '16px', padding: '24px', boxShadow: '0 2px 8px rgba(0,0,0,0.06)', border: '1px solid #eee' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '18px', paddingBottom: '14px', borderBottom: '2px solid #f90' }}>
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#f90" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
@@ -271,7 +263,6 @@ export default function Contacto() {
               </div>
             </div>
 
-            {/* WHATSAPP */}
             <div style={{ background: 'linear-gradient(135deg, #22c55e, #16a34a)', borderRadius: '16px', padding: '24px', textAlign: 'center' }}>
               <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ marginBottom: '12px' }}>
                 <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/>
@@ -286,7 +277,6 @@ export default function Contacto() {
         </div>
       </div>
 
-      {/* FOOTER */}
       <footer style={{ backgroundColor: '#111', color: '#888', padding: '20px', textAlign: 'center', marginTop: '16px' }}>
         <p style={{ fontSize: '12px', margin: 0 }}>© 2026 Driny — Todos los derechos reservados | Colombia</p>
       </footer>
