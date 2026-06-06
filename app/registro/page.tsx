@@ -238,13 +238,9 @@ Esta declaracion se realiza bajo las leyes de la Republica de Colombia. Cualquie
       )}
 
       {/* NAVBAR */}
-      <div style={{ backgroundColor: 'white', boxShadow: '0 2px 8px rgba(0,0,0,0.08)', padding: '0 24px', height: '60px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-        <a href="/" style={{ textDecoration: 'none' }}>
-          <div style={{ display: 'flex', alignItems: 'flex-end', gap: '2px' }}>
-            <span style={{ fontSize: '22px', fontWeight: '900', color: '#111', letterSpacing: '-1px', fontFamily: 'Arial Black, sans-serif' }}>DRINY</span>
-            <div style={{ width: '6px', height: '6px', backgroundColor: '#f90', borderRadius: '50%', marginBottom: '3px', marginLeft: '1px' }}></div>
-          </div>
-          <div style={{ height: '3px', background: 'linear-gradient(90deg, #f90, #ff6b00)', borderRadius: '2px', marginTop: '1px' }}></div>
+      <div style={{ backgroundColor: 'white', boxShadow: '0 2px 8px rgba(0, 0, 0, 0.08)', padding: '0 24px', height: '60px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <a href="/" style={{ display: 'flex', alignItems: 'center', textDecoration: 'none' }}>
+          <Image src="/logo.png" alt="Driny" width={65} height={65} style={{ width: 'auto', height: '55px' }} />
         </a>
         <a href="/login" style={{ color: '#888', textDecoration: 'none', fontSize: '13px', fontWeight: '600' }}>
           Ya tienes cuenta? <span style={{ color: '#f90' }}>Inicia sesion</span>
