@@ -7,8 +7,9 @@ export default function PerfilVendedor() {
   const [vendedor, setVendedor] = useState<any>(null);
   const [productos, setProductos] = useState<any[]>([]);
   const [subastas, setSubastas] = useState<any[]>([]);
+  const [calificaciones, setCalificaciones] = useState<any[]>([]);
   const [cargando, setCargando] = useState(true);
-  const [tab, setTab] = useState<'productos' | 'subastas'>('productos');
+  const [tab, setTab] = useState<'productos' | 'subastas' | 'calificaciones'>('productos');
   const [busqueda, setBusqueda] = useState('');
 
   useEffect(() => {
@@ -19,40 +20,21 @@ export default function PerfilVendedor() {
   }, []);
 
   const cargarPerfil = async (vendId: string) => {
-  const { data: v } = await supabase
-    .from('usuarios')
-    .select('*')
-    .eq('auth_id', vendId)
-    .maybeSingle();
-
-  if (!v) {
-    const { data: v2 } = await supabase
-      .from('usuarios')
-      .select('*')
-      .eq('id', vendId)
-      .maybeSingle();
-    if (v2) setVendedor(v2);
-  } else {
-    setVendedor(v);
-  }
-
-  const { data: p } = await supabase
-    .from('productos')
-    .select('*')
-    .eq('vendedor_id', vendId)
-    .order('created_at', { ascending: false });
-  if (p) setProductos(p);
-
-  const { data: s } = await supabase
-    .from('subastas_real')
-    .select('*')
-    .eq('vendedor_id', vendId)
-    .eq('activa', true)
-    .order('created_at', { ascending: false });
-  if (s) setSubastas(s);
-
-  setCargando(false);
-};
+    const { data: v } = await supabase.from('usuarios').select('*').eq('auth_id', vendId).maybeSingle();
+    if (!v) {
+      const { data: v2 } = await supabase.from('usuarios').select('*').eq('id', vendId).maybeSingle();
+      if (v2) setVendedor(v2);
+    } else {
+      setVendedor(v);
+    }
+    const { data: p } = await supabase.from('productos').select('*').eq('vendedor_id', vendId).order('created_at', { ascending: false });
+    if (p) setProductos(p);
+    const { data: s } = await supabase.from('subastas_real').select('*').eq('vendedor_id', vendId).eq('activa', true).order('created_at', { ascending: false });
+    if (s) setSubastas(s);
+    const { data: califs } = await supabase.from('calificaciones_vendedor').select('*').eq('vendedor_id', vendId).order('created_at', { ascending: false });
+    if (califs) setCalificaciones(califs);
+    setCargando(false);
+  };
 
   const filtrados = productos.filter(p => p.nombre.toLowerCase().includes(busqueda.toLowerCase()));
 
@@ -161,7 +143,7 @@ export default function PerfilVendedor() {
             {[
               { label: 'Productos', valor: productos.length, color: '#f90' },
               { label: 'Subastas activas', valor: subastas.length, color: '#22c55e' },
-              { label: 'Calificacion', valor: '5.0', color: '#3b82f6' },
+              { label: 'Calificacion', valor: calificaciones.length > 0 ? (calificaciones.reduce((a, c) => a + c.calificacion, 0) / calificaciones.length).toFixed(1) : 'Sin calif.', color: '#f59e0b' },
             ].map((stat, i) => (
               <div key={i} style={{ backgroundColor: '#f9f9f9', borderRadius: '12px', padding: '14px 20px', border: '1px solid #eee', textAlign: 'center', minWidth: '100px' }}>
                 <p style={{ fontSize: '22px', fontWeight: '900', color: stat.color, margin: 0, fontFamily: 'Arial Black, sans-serif' }}>{stat.valor}</p>
@@ -176,6 +158,7 @@ export default function PerfilVendedor() {
           {[
             { id: 'productos', label: `Productos (${productos.length})` },
             { id: 'subastas', label: `Subastas activas (${subastas.length})` },
+            { id: 'calificaciones', label: `Calificaciones (${calificaciones.length})` },
           ].map(t => (
             <button key={t.id} className="tab-btn" onClick={() => setTab(t.id as any)} style={{ padding: '12px 16px', border: 'none', background: 'none', cursor: 'pointer', fontSize: '13px', fontWeight: '700', color: tab === t.id ? '#f90' : '#888', borderBottom: tab === t.id ? '2px solid #f90' : '2px solid transparent', transition: 'all 0.2s', whiteSpace: 'nowrap' }}>
               {t.label}
@@ -207,7 +190,7 @@ export default function PerfilVendedor() {
           </div>
         )}
 
-        {/* PRODUCTOS */}
+        {/* TAB: PRODUCTOS */}
         {tab === 'productos' && (
           filtrados.length === 0 ? (
             <div style={{ backgroundColor: 'white', borderRadius: '16px', padding: '60px', textAlign: 'center', border: '1px solid #eee' }}>
@@ -256,7 +239,7 @@ export default function PerfilVendedor() {
           )
         )}
 
-        {/* SUBASTAS */}
+        {/* TAB: SUBASTAS */}
         {tab === 'subastas' && (
           subastas.length === 0 ? (
             <div style={{ backgroundColor: 'white', borderRadius: '16px', padding: '60px', textAlign: 'center', border: '1px solid #eee' }}>
@@ -298,6 +281,89 @@ export default function PerfilVendedor() {
             </div>
           )
         )}
+
+        {/* TAB: CALIFICACIONES */}
+        {tab === 'calificaciones' && (
+          <div style={{ animation: 'fadeIn 0.3s ease' }}>
+            {calificaciones.length === 0 ? (
+              <div style={{ backgroundColor: 'white', borderRadius: '16px', padding: '60px', textAlign: 'center', border: '1px solid #eee' }}>
+                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#ddd" strokeWidth="1.5" style={{ marginBottom: '16px' }}>
+                  <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+                </svg>
+                <p style={{ fontSize: '16px', fontWeight: '700', color: '#333' }}>Sin calificaciones todavia</p>
+              </div>
+            ) : (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+
+                {/* RESUMEN */}
+                <div style={{ backgroundColor: 'white', borderRadius: '16px', padding: '24px', border: '1px solid #eee', display: 'flex', alignItems: 'center', gap: '32px', flexWrap: 'wrap' }}>
+                  <div style={{ textAlign: 'center' }}>
+                    <p style={{ fontSize: '48px', fontWeight: '900', color: '#f90', margin: 0, fontFamily: 'Arial Black, sans-serif' }}>
+                      {(calificaciones.reduce((a, c) => a + c.calificacion, 0) / calificaciones.length).toFixed(1)}
+                    </p>
+                    <div style={{ display: 'flex', gap: '4px', justifyContent: 'center', margin: '6px 0' }}>
+                      {[1, 2, 3, 4, 5].map(s => {
+                        const promedio = calificaciones.reduce((a, c) => a + c.calificacion, 0) / calificaciones.length;
+                        return (
+                          <svg key={s} width="18" height="18" viewBox="0 0 24 24" fill={s <= Math.round(promedio) ? '#f90' : '#e5e5e5'} stroke={s <= Math.round(promedio) ? '#f90' : '#e5e5e5'} strokeWidth="1">
+                            <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+                          </svg>
+                        );
+                      })}
+                    </div>
+                    <p style={{ fontSize: '13px', color: '#888', margin: 0 }}>{calificaciones.length} calificacion{calificaciones.length !== 1 ? 'es' : ''}</p>
+                  </div>
+                  <div style={{ flex: 1, minWidth: '200px' }}>
+                    {[5, 4, 3, 2, 1].map(star => {
+                      const count = calificaciones.filter(c => c.calificacion === star).length;
+                      const pct = calificaciones.length > 0 ? (count / calificaciones.length) * 100 : 0;
+                      return (
+                        <div key={star} style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '6px' }}>
+                          <span style={{ fontSize: '12px', fontWeight: '700', color: '#888', width: '12px', textAlign: 'right' }}>{star}</span>
+                          <svg width="12" height="12" viewBox="0 0 24 24" fill="#f90" stroke="#f90" strokeWidth="1"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                          <div style={{ flex: 1, height: '8px', backgroundColor: '#f5f5f5', borderRadius: '4px', overflow: 'hidden' }}>
+                            <div style={{ height: '100%', width: pct + '%', backgroundColor: '#f90', borderRadius: '4px', transition: 'width 0.5s' }}></div>
+                          </div>
+                          <span style={{ fontSize: '12px', color: '#888', width: '28px' }}>{count}</span>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* LISTA CALIFICACIONES */}
+                {calificaciones.map(c => (
+                  <div key={c.id} style={{ backgroundColor: 'white', borderRadius: '14px', padding: '20px', border: '1px solid #eee', boxShadow: '0 1px 4px rgba(0,0,0,0.04)' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '12px' }}>
+                      <div style={{ width: '42px', height: '42px', borderRadius: '50%', backgroundColor: '#f90', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '16px', fontWeight: '800', color: '#111', flexShrink: 0, border: '2px solid #ffe0b2' }}>
+                        {c.comprador_avatar ? <img src={c.comprador_avatar} style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : (c.comprador_nombre || 'U').charAt(0).toUpperCase()}
+                      </div>
+                      <div style={{ flex: 1 }}>
+                        <p style={{ fontWeight: '700', fontSize: '14px', color: '#333', marginBottom: '4px' }}>{c.comprador_nombre || 'Comprador'}</p>
+                        <div style={{ display: 'flex', gap: '3px' }}>
+                          {[1, 2, 3, 4, 5].map(s => (
+                            <svg key={s} width="14" height="14" viewBox="0 0 24 24" fill={s <= c.calificacion ? '#f90' : '#e5e5e5'} stroke={s <= c.calificacion ? '#f90' : '#e5e5e5'} strokeWidth="1">
+                              <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+                            </svg>
+                          ))}
+                        </div>
+                      </div>
+                      <p style={{ fontSize: '11px', color: '#bbb', flexShrink: 0 }}>
+                        {new Date(c.created_at).toLocaleDateString('es-CO', { day: 'numeric', month: 'short', year: 'numeric' })}
+                      </p>
+                    </div>
+                    {c.comentario && (
+                      <div style={{ backgroundColor: '#f9f9f9', borderRadius: '10px', padding: '12px', border: '1px solid #eee' }}>
+                        <p style={{ fontSize: '13px', color: '#555', lineHeight: 1.6, margin: 0 }}>{c.comentario}</p>
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+
       </div>
 
       <footer style={{ backgroundColor: '#111', color: '#888', padding: '20px', textAlign: 'center' }}>
