@@ -49,17 +49,27 @@ export default function MisPedidos() {
   };
 
   const enviarCalificacion = async () => {
-    if (!modalCalificar || !usuario) return;
-    setEnviandoCalif(true);
+  if (!modalCalificar || !usuario) return;
+  setEnviandoCalif(true);
 
+  try {
     const { data: perfilData } = await supabase
       .from('usuarios').select('*').eq('auth_id', usuario.id).maybeSingle();
 
-    const { data: pedidoData } = await supabase
-      .from('pedidos').select('*').eq('id', modalCalificar.id).single();
+    const { data: itemsPedido } = await supabase
+      .from('pedido_items').select('*').eq('pedido_id', modalCalificar.id);
 
-    const vendedorId = itemsActivos.find(i => i.vendedor_id)?.vendedor_id;
-    if (!vendedorId) { setEnviandoCalif(false); return; }
+    if (!itemsPedido || itemsPedido.length === 0) {
+      setEnviandoCalif(false);
+      return;
+    }
+
+    const vendedorId = itemsPedido[0].vendedor_id;
+
+    if (!vendedorId) {
+      setEnviandoCalif(false);
+      return;
+    }
 
     const { error } = await supabase.from('calificaciones_vendedor').insert([{
       vendedor_id: vendedorId,
@@ -86,11 +96,15 @@ export default function MisPedidos() {
         setCalifEnviada(false);
         setCalificacion(5);
         setComentarioCalif('');
+        setHoverStar(0);
       }, 2500);
     }
+  } catch (err) {
+    console.error('Error enviando calificacion:', err);
+  }
 
-    setEnviandoCalif(false);
-  };
+  setEnviandoCalif(false);
+};
 
   const getBadge = (estado: string) => {
     if (estado === 'pagado') return { bg: '#d1fae5', color: '#065f46', label: 'Pago confirmado', paso: 1 };
