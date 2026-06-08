@@ -49,27 +49,24 @@ export default function MisPedidos() {
   };
 
   const enviarCalificacion = async () => {
-  if (!modalCalificar || !usuario) return;
+  if (!modalCalificar || !usuario) {
+    alert('Error: No hay pedido o usuario');
+    return;
+  }
   setEnviandoCalif(true);
 
   try {
-    const { data: perfilData } = await supabase
+    const { data: perfilData, error: perfilError } = await supabase
       .from('usuarios').select('*').eq('auth_id', usuario.id).maybeSingle();
 
-    const { data: itemsPedido } = await supabase
+    const { data: itemsPedido, error: itemsError } = await supabase
       .from('pedido_items').select('*').eq('pedido_id', modalCalificar.id);
 
-    if (!itemsPedido || itemsPedido.length === 0) {
-      setEnviandoCalif(false);
-      return;
-    }
+    if (itemsError) { alert('Error items: ' + itemsError.message); setEnviandoCalif(false); return; }
+    if (!itemsPedido || itemsPedido.length === 0) { alert('No se encontraron items del pedido'); setEnviandoCalif(false); return; }
 
     const vendedorId = itemsPedido[0].vendedor_id;
-
-    if (!vendedorId) {
-      setEnviandoCalif(false);
-      return;
-    }
+    if (!vendedorId) { alert('No se encontro vendedor_id en los items'); setEnviandoCalif(false); return; }
 
     const { error } = await supabase.from('calificaciones_vendedor').insert([{
       vendedor_id: vendedorId,
@@ -81,26 +78,31 @@ export default function MisPedidos() {
       comprador_avatar: perfilData?.avatar_url || null,
     }]);
 
-    if (!error) {
-      await supabase.from('notificaciones').insert([{
-        usuario_id: vendedorId,
-        titulo: 'Nueva calificacion recibida',
-        mensaje: 'Un comprador te califico con ' + calificacion + ' de 5 estrellas.',
-        pedido_id: modalCalificar.id,
-      }]);
-
-      setCalificacionesHechas(prev => [...prev, modalCalificar.id]);
-      setCalifEnviada(true);
-      setTimeout(() => {
-        setModalCalificar(null);
-        setCalifEnviada(false);
-        setCalificacion(5);
-        setComentarioCalif('');
-        setHoverStar(0);
-      }, 2500);
+    if (error) {
+      alert('Error al insertar: ' + error.message + ' | Codigo: ' + error.code);
+      setEnviandoCalif(false);
+      return;
     }
-  } catch (err) {
-    console.error('Error enviando calificacion:', err);
+
+    await supabase.from('notificaciones').insert([{
+      usuario_id: vendedorId,
+      titulo: 'Nueva calificacion recibida',
+      mensaje: 'Un comprador te califico con ' + calificacion + ' de 5 estrellas.',
+      pedido_id: modalCalificar.id,
+    }]);
+
+    setCalificacionesHechas(prev => [...prev, modalCalificar.id]);
+    setCalifEnviada(true);
+    setTimeout(() => {
+      setModalCalificar(null);
+      setCalifEnviada(false);
+      setCalificacion(5);
+      setComentarioCalif('');
+      setHoverStar(0);
+    }, 2500);
+
+  } catch (err: any) {
+    alert('Error inesperado: ' + err.message);
   }
 
   setEnviandoCalif(false);
