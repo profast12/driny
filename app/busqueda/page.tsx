@@ -1,5 +1,6 @@
 "use client";
 import { useState, useEffect, useRef } from "react";
+import Image from "next/image";
 import { supabase } from "../../lib/supabase";
 
 const categorias = ["Todas", "Electronica", "Ropa", "Hogar", "Deportes", "Juguetes", "Autos", "Arte", "Coleccionables", "Otro"];
@@ -145,11 +146,18 @@ export default function Busqueda() {
         <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '13px 20px', display: 'flex', alignItems: 'center', gap: '16px' }}>
           <a href="/" style={{ textDecoration: 'none', flexShrink: 0 }}>
             <div style={{ display: 'flex', alignItems: 'flex-end', gap: '2px' }}>
-              <span style={{ fontSize: '22px', fontWeight: '900', color: '#111', letterSpacing: '-1px', fontFamily: 'Arial Black, sans-serif' }}>DRINY</span>
-              <div style={{ width: '6px', height: '6px', backgroundColor: '#f90', borderRadius: '50%', marginBottom: '3px', marginLeft: '1px' }}></div>
-            </div>
-            <div style={{ height: '3px', background: 'linear-gradient(90deg, #f90, #ff6b00)', borderRadius: '2px', marginTop: '1px' }}></div>
-          </a>
+              <a href="/">
+                <Image
+                  src="/logo.png"
+                  alt="Driny"
+                  width={75}
+                  height={75}
+                  style={{
+                    width: 'auto',
+                    height: '75px'
+                  }}
+                />
+              </a>
 
           {/* BUSCADOR CON SUGERENCIAS */}
           <div style={{ flex: 1, maxWidth: '600px', position: 'relative' }} ref={sugerenciasRef}>
