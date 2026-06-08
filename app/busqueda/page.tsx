@@ -1,6 +1,6 @@
 "use client";
 import { useState, useEffect, useRef } from "react";
-import Image from "next/image";
+import Image from "next/image"
 import { supabase } from "../../lib/supabase";
 
 const categorias = ["Todas", "Electronica", "Ropa", "Hogar", "Deportes", "Juguetes", "Autos", "Arte", "Coleccionables", "Otro"];
@@ -145,19 +145,20 @@ export default function Busqueda() {
       <div style={{ backgroundColor: 'white', boxShadow: '0 2px 8px rgba(0,0,0,0.08)', position: 'sticky', top: 0, zIndex: 100 }}>
         <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '13px 20px', display: 'flex', alignItems: 'center', gap: '16px' }}>
           <a href="/" style={{ textDecoration: 'none', flexShrink: 0 }}>
-            <div style={{ display: 'flex', alignItems: 'flex-end', gap: '2px' }}>
-              <a href="/">
-                <Image
-                  src="/logo.png"
-                  alt="Driny"
-                  width={75}
-                  height={75}
-                  style={{
-                    width: 'auto',
-                    height: '75px'
-                  }}
-                />
-              </a>
+  <div style={{ display: 'flex', alignItems: 'flex-end', gap: '2px' }}>
+    <Image
+      src="/logo.png"
+      alt="Driny"
+      width={75}
+      height={75}
+      style={{
+        width: 'auto',
+        height: '75px'
+      }}
+    />
+  </div>
+</a>
+
 
           {/* BUSCADOR CON SUGERENCIAS */}
           <div style={{ flex: 1, maxWidth: '600px', position: 'relative' }} ref={sugerenciasRef}>
