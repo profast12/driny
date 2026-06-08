@@ -49,16 +49,16 @@ export default function Registro() {
   setCargando(true); setError('');
 
   const { data, error: authError } = await supabase.auth.signUp({
-    email: email.trim().toLowerCase(),
-    password,
-    options: {
-      data: {
-        nombre: nombre.trim(),
-        tipo: tipo,
-        nombre_tienda: tipo === 'vendedor' ? nombreTienda.trim() : null,
-      }
+  email: email.trim().toLowerCase(),
+  password,
+  options: {
+    data: {
+      nombre: nombre.trim(),
+      tipo: tipo,
+      nombre_tienda: tipo === 'vendedor' ? nombreTienda.trim() : null,
     }
-  });
+  }
+});
 
   if (authError) {
     setError(authError.message.includes('already') ? 'Este correo ya esta registrado' : 'Error al crear la cuenta. Intenta de nuevo.');
