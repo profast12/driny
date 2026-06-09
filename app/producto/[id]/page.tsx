@@ -20,6 +20,8 @@ export default function DetalleProducto() {
   const [mensajeResena, setMensajeResena] = useState('');
   const [tabActivo, setTabActivo] = useState<'descripcion' | 'resenas' | 'vendedor'>('descripcion');
   const [fotoActiva, setFotoActiva] = useState(0);
+  const [esFavorito, setEsFavorito] = useState(false);
+  const [toggleandoFav, setToggleandoFav] = useState(false);
 
   useEffect(() => {
     const parts = window.location.pathname.split('/');
@@ -31,6 +33,9 @@ export default function DetalleProducto() {
         setUsuario(session.user);
         const { data: p } = await supabase.from('usuarios').select('*').eq('email', session.user.email).single();
         if (p) setPerfilUsuario(p);
+        const parts = window.location.pathname.split('/');
+        const prodId = parts[parts.length - 1];
+        if (prodId) verificarFavorito(prodId, session.user.id);
       }
     });
   }, []);
@@ -75,6 +80,29 @@ export default function DetalleProducto() {
   if (res) setResenas(res);
   setCargando(false);
 };
+
+  const verificarFavorito = async (prodId: string, userId: string) => {
+    const { data } = await supabase
+      .from('favoritos')
+      .select('id')
+      .eq('usuario_id', userId)
+      .eq('producto_id', prodId)
+      .maybeSingle();
+    setEsFavorito(!!data);
+  };
+
+  const toggleFavorito = async () => {
+    if (!usuario) { window.location.href = '/login'; return; }
+    setToggleandoFav(true);
+    if (esFavorito) {
+      await supabase.from('favoritos').delete().eq('usuario_id', usuario.id).eq('producto_id', id);
+      setEsFavorito(false);
+    } else {
+      await supabase.from('favoritos').insert([{ usuario_id: usuario.id, producto_id: id }]);
+      setEsFavorito(true);
+    }
+    setToggleandoFav(false);
+  };
 
   const agregarAlCarrito = async () => {
     if (!usuario) { window.location.href = '/login'; return; }
@@ -487,6 +515,22 @@ export default function DetalleProducto() {
     </>
   )}
 </div>
+
+              {/* FAVORITO */}
+              {usuario && perfilUsuario?.tipo !== 'vendedor' && (
+                <button
+                  onClick={toggleFavorito}
+                  disabled={toggleandoFav}
+                  style={{ width: '100%', padding: '11px', backgroundColor: esFavorito ? '#fff0f0' : 'white', color: esFavorito ? '#ef4444' : '#888', border: esFavorito ? '1.5px solid #fecaca' : '1.5px solid #eee', borderRadius: '10px', cursor: toggleandoFav ? 'not-allowed' : 'pointer', fontWeight: '700', fontSize: '13px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', transition: 'all 0.2s', marginBottom: '14px' }}
+                  onMouseOver={e => { if (!esFavorito) { (e.currentTarget as HTMLElement).style.borderColor = '#fecaca'; (e.currentTarget as HTMLElement).style.color = '#ef4444'; (e.currentTarget as HTMLElement).style.backgroundColor = '#fff0f0'; } }}
+                  onMouseOut={e => { if (!esFavorito) { (e.currentTarget as HTMLElement).style.borderColor = '#eee'; (e.currentTarget as HTMLElement).style.color = '#888'; (e.currentTarget as HTMLElement).style.backgroundColor = 'white'; } }}
+                >
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill={esFavorito ? '#ef4444' : 'none'} stroke={esFavorito ? '#ef4444' : '#888'} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+                  </svg>
+                  {esFavorito ? 'Guardado en favoritos' : 'Guardar en favoritos'}
+                </button>
+              )}
 
               {/* GARANTIAS */}
               <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', paddingTop: '14px', borderTop: '1px solid #f5f5f5' }}>

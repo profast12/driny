@@ -233,6 +233,7 @@ export default function Perfil() {
   {[
     { id: 'info', label: 'Mi informacion', icon: <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>, mostrar: true },
     { id: 'pedidos', label: 'Mis pedidos', icon: <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>, mostrar: perfil?.tipo !== 'vendedor' },
+    { id: 'favoritos', label: 'Mis favoritos', icon: <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>, mostrar: perfil?.tipo !== 'vendedor' },
     { id: 'productos', label: 'Mis productos', icon: <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>, mostrar: perfil?.tipo === 'vendedor' },
   ].filter(t => t.mostrar).map(t => (
     <button key={t.id} className="tab-btn" onClick={() => setTab(t.id)} style={{ padding: '9px 18px', borderRadius: '9px', border: 'none', cursor: 'pointer', fontSize: '13px', fontWeight: '700', color: tab === t.id ? '#111' : '#888', backgroundColor: tab === t.id ? '#f90' : 'transparent', transition: 'all 0.2s', display: 'flex', alignItems: 'center', gap: '6px', whiteSpace: 'nowrap' }}>
@@ -353,6 +354,19 @@ export default function Perfil() {
             )}
           </div>
         )}
+
+        {tab === 'favoritos' && (
+  <div style={{ backgroundColor: 'white', borderRadius: '16px', padding: '40px', textAlign: 'center', border: '1px solid #eee', animation: 'fadeIn 0.3s ease' }}>
+    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#f90" strokeWidth="1.5" style={{ marginBottom: '16px' }}>
+      <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+    </svg>
+    <h3 style={{ fontSize: '18px', fontWeight: '700', color: '#333', marginBottom: '8px' }}>Mis favoritos</h3>
+    <p style={{ color: '#888', fontSize: '14px', marginBottom: '20px' }}>Guarda los productos que mas te gustan</p>
+    <a href="/favoritos" style={{ backgroundColor: '#f90', color: '#111', padding: '11px 24px', borderRadius: '10px', textDecoration: 'none', fontWeight: '700', fontSize: '14px' }}>
+      Ver mis favoritos
+    </a>
+  </div>
+)}
 
         {/* TAB PRODUCTOS */}
         {tab === 'productos' && (

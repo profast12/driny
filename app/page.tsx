@@ -453,7 +453,7 @@ const cambiarIdioma = (codigo: string) => {
                 { label: 'Subastas en vivo', href: '/subastas-real', icon: '' },
                 { label: 'Mi carrito', href: '/carrito', icon: '' },
                 { label: 'Mi perfil', href: '/perfil', icon: '' },
-                ...(usuario?.tipo !== 'vendedor' ? [{ label: 'Mis pedidos', href: '/mis-pedidos', icon: '' }] : []),
+                ...(usuario?.tipo !== 'vendedor' ? [{ label: 'Mis pedidos', href: '/mis-pedidos', icon: '' }, { label: 'Mis favoritos', href: '/favoritos', icon: '' }] : []),
                 ...(usuario?.tipo === 'vendedor' ? [{ label: 'Panel vendedor', href: '/vender', icon: '' }, { label: 'Mis subastas', href: '/subastas-panel', icon: '⚡' }] : []),
                 { label: 'Vender en Driny', href: '/vende-con-nosotros', icon: '' },
               ].map((item, i) => (
@@ -690,5 +690,3 @@ const cambiarIdioma = (codigo: string) => {
     </main>
   );
 }
-      
-    
