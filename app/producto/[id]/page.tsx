@@ -4,6 +4,7 @@ import { supabase } from "../../../lib/supabase";
 
 export default function DetalleProducto() {
   const [id, setId] = useState('');
+  const [copiado, setCopiado] = useState(false);
   const [producto, setProducto] = useState<any>(null);
   const [vendedor, setVendedor] = useState<any>(null);
   const [productosVendedor, setProductosVendedor] = useState<any[]>([]);
@@ -90,6 +91,18 @@ export default function DetalleProducto() {
       .maybeSingle();
     setEsFavorito(!!data);
   };
+
+  const compartirWhatsApp = () => {
+  const url = window.location.href;
+  const texto = `Mira este producto en Driny: ${producto.nombre} por $${Number(producto.precio).toLocaleString('es-CO')} COP - ${url}`;
+  window.open(`https://wa.me/?text=${encodeURIComponent(texto)}`, '_blank');
+};
+
+const copiarEnlace = async () => {
+  await navigator.clipboard.writeText(window.location.href);
+  setCopiado(true);
+  setTimeout(() => setCopiado(false), 2500);
+};
 
   const toggleFavorito = async () => {
     if (!usuario) { window.location.href = '/login'; return; }
@@ -531,6 +544,49 @@ export default function DetalleProducto() {
                   {esFavorito ? 'Guardado en favoritos' : 'Guardar en favoritos'}
                 </button>
               )}
+
+              {/* COMPARTIR */}
+<div style={{ paddingTop: '14px', borderTop: '1px solid #f5f5f5', marginTop: '4px' }}>
+  <p style={{ fontSize: '12px', color: '#888', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '10px' }}>Compartir producto</p>
+  <div style={{ display: 'flex', gap: '8px' }}>
+    <button
+      onClick={compartirWhatsApp}
+      style={{ flex: 1, padding: '10px', backgroundColor: '#22c55e', color: 'white', border: 'none', borderRadius: '10px', cursor: 'pointer', fontWeight: '700', fontSize: '13px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '7px', transition: 'all 0.2s' }}
+      onMouseOver={e => (e.currentTarget as HTMLElement).style.backgroundColor = '#16a34a'}
+      onMouseOut={e => (e.currentTarget as HTMLElement).style.backgroundColor = '#22c55e'}
+    >
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/>
+      </svg>
+      WhatsApp
+    </button>
+    <button
+      onClick={copiarEnlace}
+      style={{ flex: 1, padding: '10px', backgroundColor: copiado ? '#f0fdf4' : 'white', color: copiado ? '#22c55e' : '#555', border: copiado ? '1.5px solid #bbf7d0' : '1.5px solid #eee', borderRadius: '10px', cursor: 'pointer', fontWeight: '700', fontSize: '13px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '7px', transition: 'all 0.2s' }}
+      onMouseOver={e => { if (!copiado) { (e.currentTarget as HTMLElement).style.borderColor = '#f90'; (e.currentTarget as HTMLElement).style.color = '#f90'; } }}
+      onMouseOut={e => { if (!copiado) { (e.currentTarget as HTMLElement).style.borderColor = '#eee'; (e.currentTarget as HTMLElement).style.color = '#555'; } }}
+    >
+      {copiado ? (
+        <>
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#22c55e" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <polyline points="20 6 9 17 4 12"/>
+          </svg>
+          Copiado
+        </>
+      ) : (
+        <>
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/>
+            <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>
+          </svg>
+          Copiar enlace
+        </>
+      )}
+    </button>
+  </div>
+</div>
+
+
 
               {/* GARANTIAS */}
               <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', paddingTop: '14px', borderTop: '1px solid #f5f5f5' }}>
