@@ -92,17 +92,19 @@ export default function DetalleProducto() {
   };
 
   const toggleFavorito = async () => {
-    if (!usuario) { window.location.href = '/login'; return; }
-    setToggleandoFav(true);
-    if (esFavorito) {
-      await supabase.from('favoritos').delete().eq('usuario_id', usuario.id).eq('producto_id', id);
-      setEsFavorito(false);
-    } else {
-      await supabase.from('favoritos').insert([{ usuario_id: usuario.id, producto_id: id }]);
-      setEsFavorito(true);
-    }
-    setToggleandoFav(false);
-  };
+  if (!usuario) { window.location.href = '/login'; return; }
+  setToggleandoFav(true);
+  if (esFavorito) {
+    const { error } = await supabase.from('favoritos').delete().eq('usuario_id', usuario.id).eq('producto_id', id);
+    if (error) { alert('Error al eliminar: ' + error.message); }
+    else setEsFavorito(false);
+  } else {
+    const { error } = await supabase.from('favoritos').insert([{ usuario_id: usuario.id, producto_id: id }]);
+    if (error) { alert('Error al guardar: ' + error.message + ' codigo: ' + error.code); }
+    else setEsFavorito(true);
+  }
+  setToggleandoFav(false);
+};
 
   const agregarAlCarrito = async () => {
     if (!usuario) { window.location.href = '/login'; return; }
