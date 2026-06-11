@@ -14,6 +14,8 @@ const estadoLabels: any = {
 };
 
 export default function Busqueda() {
+  const [historial, setHistorial] = useState<string[]>([]);
+  const [mostrarHistorial, setMostrarHistorial] = useState(false);
   const [query, setQuery] = useState('');
   const [queryInput, setQueryInput] = useState('');
   const [productos, setProductos] = useState<any[]>([]);
@@ -31,12 +33,13 @@ export default function Busqueda() {
   const sugerenciasRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    const q = params.get('q') || '';
-    setQuery(q);
-    setQueryInput(q);
-    if (q) buscar(q);
-  }, []);
+  const params = new URLSearchParams(window.location.search);
+  const q = params.get('q') || '';
+  setQuery(q);
+  setQueryInput(q);
+  cargarHistorial();
+  if (q) buscar(q);
+}, []);
 
   useEffect(() => {
     const cerrar = (e: MouseEvent) => {
@@ -55,6 +58,30 @@ export default function Busqueda() {
     }, 300);
     return () => clearTimeout(timeout);
   }, [queryInput]);
+
+  const cargarHistorial = () => {
+  const h = localStorage.getItem('driny_historial');
+  if (h) setHistorial(JSON.parse(h));
+};
+
+const guardarEnHistorial = (texto: string) => {
+  if (!texto.trim()) return;
+  const h = JSON.parse(localStorage.getItem('driny_historial') || '[]');
+  const nuevo = [texto, ...h.filter((i: string) => i !== texto)].slice(0, 8);
+  localStorage.setItem('driny_historial', JSON.stringify(nuevo));
+  setHistorial(nuevo);
+};
+
+const eliminarDelHistorial = (texto: string) => {
+  const nuevo = historial.filter(i => i !== texto);
+  localStorage.setItem('driny_historial', JSON.stringify(nuevo));
+  setHistorial(nuevo);
+};
+
+const limpiarHistorial = () => {
+  localStorage.removeItem('driny_historial');
+  setHistorial([]);
+};
 
   const cargarSugerencias = async (texto: string) => {
     const { data } = await supabase
@@ -78,11 +105,13 @@ export default function Busqueda() {
   };
 
   const handleBuscar = () => {
-    if (!queryInput.trim()) return;
-    setQuery(queryInput);
-    buscar(queryInput);
-    window.history.pushState({}, '', '/busqueda?q=' + encodeURIComponent(queryInput));
-  };
+  if (!queryInput.trim()) return;
+  guardarEnHistorial(queryInput.trim());
+  setQuery(queryInput);
+  setMostrarHistorial(false);
+  buscar(queryInput);
+  window.history.pushState({}, '', '/busqueda?q=' + encodeURIComponent(queryInput));
+};
 
   const handleKey = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter') handleBuscar();
@@ -90,12 +119,14 @@ export default function Busqueda() {
   };
 
   const seleccionarSugerencia = (prod: any) => {
-    setQueryInput(prod.nombre);
-    setQuery(prod.nombre);
-    setMostrarSugerencias(false);
-    buscar(prod.nombre);
-    window.history.pushState({}, '', '/busqueda?q=' + encodeURIComponent(prod.nombre));
-  };
+  guardarEnHistorial(prod.nombre);
+  setQueryInput(prod.nombre);
+  setQuery(prod.nombre);
+  setMostrarSugerencias(false);
+  setMostrarHistorial(false);
+  buscar(prod.nombre);
+  window.history.pushState({}, '', '/busqueda?q=' + encodeURIComponent(prod.nombre));
+};
 
   const filtrados = productos
     .filter(p => categoriaActiva === 'Todas' || p.categoria === categoriaActiva)
@@ -164,15 +195,18 @@ export default function Busqueda() {
           <div style={{ flex: 1, maxWidth: '600px', position: 'relative' }} ref={sugerenciasRef}>
             <div style={{ display: 'flex' }}>
               <input
-                ref={inputRef}
-                type="text"
-                placeholder="Buscar productos, marcas y mas..."
-                value={queryInput}
-                onChange={e => { setQueryInput(e.target.value); setMostrarSugerencias(true); }}
-                onKeyDown={handleKey}
-                onFocus={() => { if (sugerencias.length > 0) setMostrarSugerencias(true); }}
-                style={{ flex: 1, padding: '11px 16px', border: '2px solid #f90', borderRight: 'none', borderRadius: '8px 0 0 8px', fontSize: '14px', outline: 'none', color: '#333', backgroundColor: 'white' }}
-              />
+  ref={inputRef}
+  type="text"
+  placeholder="Buscar productos, marcas y mas..."
+  value={queryInput}
+  onChange={e => { setQueryInput(e.target.value); setMostrarSugerencias(true); setMostrarHistorial(false); }}
+  onKeyDown={handleKey}
+  onFocus={() => {
+    if (sugerencias.length > 0) setMostrarSugerencias(true);
+    else if (queryInput.length < 2 && historial.length > 0) setMostrarHistorial(true);
+  }}
+  style={{ flex: 1, padding: '11px 16px', border: '2px solid #f90', borderRight: 'none', borderRadius: '8px 0 0 8px', fontSize: '14px', outline: 'none', color: '#333', backgroundColor: 'white' }}
+/>
               <button onClick={handleBuscar} style={{ padding: '11px 18px', backgroundColor: '#f90', border: 'none', borderRadius: '0 8px 8px 0', cursor: 'pointer', flexShrink: 0 }}>
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
               </button>
@@ -201,6 +235,45 @@ export default function Busqueda() {
                     Ver todos los resultados para "{queryInput}"
                   </button>
                 </div>
+              </div>
+            )}
+
+            {/* HISTORIAL */}
+            {mostrarHistorial && !mostrarSugerencias && historial.length > 0 && (
+              <div style={{ position: 'absolute', top: '100%', left: 0, right: 0, backgroundColor: 'white', borderRadius: '12px', boxShadow: '0 8px 32px rgba(0,0,0,0.15)', border: '1px solid #eee', zIndex: 300, overflow: 'hidden', animation: 'slideDown 0.2s ease', marginTop: '4px' }}>
+                <div style={{ padding: '10px 14px', borderBottom: '1px solid #f5f5f5', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#888" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+                    </svg>
+                    <p style={{ fontSize: '11px', color: '#888', margin: 0, fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Busquedas recientes</p>
+                  </div>
+                  <button onClick={limpiarHistorial} style={{ background: 'none', border: 'none', color: '#ef4444', fontSize: '11px', fontWeight: '700', cursor: 'pointer', padding: '2px 6px' }}>
+                    Limpiar todo
+                  </button>
+                </div>
+                {historial.map((h, i) => (
+                  <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '10px 14px', borderBottom: '1px solid #f9f9f9', transition: 'background 0.15s' }}
+                    onMouseOver={e => (e.currentTarget as HTMLElement).style.backgroundColor = '#fff8f0'}
+                    onMouseOut={e => (e.currentTarget as HTMLElement).style.backgroundColor = 'transparent'}
+                  >
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#bbb" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
+                      <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+                    </svg>
+                    <span onClick={() => { setQueryInput(h); guardarEnHistorial(h); setMostrarHistorial(false); buscar(h); window.history.pushState({}, '', '/busqueda?q=' + encodeURIComponent(h)); }}
+                      style={{ flex: 1, fontSize: '13px', color: '#333', cursor: 'pointer', fontWeight: '500' }}>
+                      {h}
+                    </span>
+                    <button onClick={() => eliminarDelHistorial(h)} style={{ background: 'none', border: 'none', color: '#ccc', cursor: 'pointer', padding: '2px', display: 'flex', alignItems: 'center', flexShrink: 0, transition: 'color 0.2s' }}
+                      onMouseOver={e => (e.currentTarget as HTMLElement).style.color = '#ef4444'}
+                      onMouseOut={e => (e.currentTarget as HTMLElement).style.color = '#ccc'}
+                    >
+                      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                        <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+                      </svg>
+                    </button>
+                  </div>
+                ))}
               </div>
             )}
           </div>

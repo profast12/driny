@@ -109,10 +109,13 @@ const cambiarIdioma = (codigo: string) => {
   };
 
   const buscar = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' && busqueda.trim()) {
-      window.location.href = '/busqueda?q=' + busqueda;
-    }
-  };
+  if (e.key === 'Enter' && busqueda.trim()) {
+    const h = JSON.parse(localStorage.getItem('driny_historial') || '[]');
+    const nuevo = [busqueda.trim(), ...h.filter((i: string) => i !== busqueda.trim())].slice(0, 8);
+    localStorage.setItem('driny_historial', JSON.stringify(nuevo));
+    window.location.href = '/busqueda?q=' + busqueda;
+  }
+};
 
   const noLeidas = notificaciones.filter(n => !n.leida).length;
 
@@ -205,8 +208,14 @@ const cambiarIdioma = (codigo: string) => {
               onKeyDown={buscar}
               style={{ flex: 1, padding: '11px 16px', border: '2px solid #f90', borderRight: 'none', borderRadius: '8px 0 0 8px', fontSize: '14px', outline: 'none', backgroundColor: 'white', color: '#333' }}
             />
-            <button
-              onClick={() => busqueda.trim() && (window.location.href = '/busqueda?q=' + busqueda)}
+            <button onClick={() => {
+  if (busqueda.trim()) {
+    const h = JSON.parse(localStorage.getItem('driny_historial') || '[]');
+    const nuevo = [busqueda.trim(), ...h.filter((i: string) => i !== busqueda.trim())].slice(0, 8);
+    localStorage.setItem('driny_historial', JSON.stringify(nuevo));
+    window.location.href = '/busqueda?q=' + busqueda;
+  }
+}}
               style={{ padding: '11px 18px', backgroundColor: '#f90', border: 'none', borderRadius: '0 8px 8px 0', cursor: 'pointer' }}
             >
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
