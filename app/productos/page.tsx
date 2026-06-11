@@ -323,10 +323,16 @@ export default function Productos() {
                       {p.descripcion && <p style={{ fontSize: '13px', color: '#888', lineHeight: 1.5 }}>{p.descripcion.slice(0, 80)}{p.descripcion.length > 80 ? '...' : ''}</p>}
                     </div>
                     <div style={{ textAlign: 'right', marginLeft: '20px', flexShrink: 0 }}>
-                      <p style={{ fontWeight: '800', fontSize: '20px', color: '#111', marginBottom: '12px' }}>
-                        ${Number(p.precio).toLocaleString('es-CO')}
-                        <span style={{ fontSize: '12px', color: '#888', fontWeight: 'normal', display: 'block' }}>COP</span>
-                      </p>
+                      <p style={{ fontWeight: '800', fontSize: '16px', color: '#111', marginBottom: '4px' }}>
+  ${Number(p.precio).toLocaleString('es-CO')}
+  <span style={{ fontSize: '10px', color: '#888', fontWeight: 'normal' }}> COP</span>
+</p>
+{(p.cantidad_vendida || 0) > 0 && (
+  <p style={{ fontSize: '11px', color: '#22c55e', fontWeight: '700', marginBottom: '10px', display: 'flex', alignItems: 'center', gap: '4px' }}>
+    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#22c55e" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+    {p.cantidad_vendida} vendido{p.cantidad_vendida !== 1 ? 's' : ''}
+  </p>
+)}
                       <button
                         className="add-btn"
                         onClick={e => agregarAlCarrito(e, p.id)}

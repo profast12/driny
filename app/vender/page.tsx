@@ -365,6 +365,10 @@ export default function Vender() {
                           </span>
                           <span style={{ color: '#ddd' }}>·</span>
                           <span style={{ fontSize: '11px', color: '#888' }}>SKU: {p.sku}</span>
+<span style={{ color: '#ddd' }}>·</span>
+<span style={{ fontSize: '11px', color: '#22c55e', fontWeight: '700' }}>
+  {p.cantidad_vendida || 0} vendido{(p.cantidad_vendida || 0) !== 1 ? 's' : ''}
+</span>
                         </div>
                       </div>
                       <p style={{ fontWeight: '800', fontSize: '14px', color: '#111', flexShrink: 0 }}>${Number(p.precio).toLocaleString('es-CO')}</p>
@@ -388,8 +392,8 @@ export default function Vender() {
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '12px' }}>
               {[
                 { label: 'Total productos', valor: misProductos.length, color: '#f90' },
-                { label: 'Disponibles', valor: misProductos.filter(p => p.disponibilidad === 'disponible').length, color: '#22c55e' },
-                { label: 'SKU total', valor: misProductos.reduce((a, p) => a + (Number(p.sku) || 0), 0), color: '#3b82f6' },
+{ label: 'Disponibles', valor: misProductos.filter(p => p.disponibilidad === 'disponible').length, color: '#22c55e' },
+{ label: 'Total vendidos', valor: misProductos.reduce((a, p) => a + (Number(p.cantidad_vendida) || 0), 0), color: '#3b82f6' },
               ].map((stat, i) => (
                 <div key={i} style={{ backgroundColor: 'white', borderRadius: '12px', padding: '16px', textAlign: 'center', border: '1px solid #eee', boxShadow: '0 1px 4px rgba(0,0,0,0.04)' }}>
                   <p style={{ fontSize: '24px', fontWeight: '900', color: stat.color, margin: 0, fontFamily: 'Arial Black, sans-serif' }}>{stat.valor}</p>

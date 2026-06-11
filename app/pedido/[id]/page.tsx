@@ -31,32 +31,42 @@ export default function DetallePedido() {
 
  const actualizarEstado = async (s: string) => {
   setActualizando(true);
+
   await supabase.from('pedidos').update({ estado: s }).eq('id', id);
 
   if (s === 'entregado') {
     for (const item of items) {
-      const { data: prod } = await supabase.from('productos').select('sku').eq('id', item.producto_id).single();
-      if (prod && prod.sku > 0) {
-        await supabase.from('productos').update({ sku: prod.sku - item.cantidad }).eq('id', item.producto_id);
+      const { data: prod } = await supabase
+        .from('productos')
+        .select('sku, cantidad_vendida')
+        .eq('id', item.producto_id)
+        .single();
+
+      if (prod) {
+        await supabase.from('productos').update({
+          sku: Math.max(0, (prod.sku || 0) - (item.cantidad || 1)),
+          cantidad_vendida: (prod.cantidad_vendida || 0) + (item.cantidad || 1),
+        }).eq('id', item.producto_id);
       }
     }
   }
 
-  const mensajeEstado = s === 'preparando' ? 'Tu pedido esta siendo preparado'
-    : s === 'enviado' ? 'Tu pedido esta en camino'
-    : s === 'entregado' ? 'Tu pedido fue entregado'
-    : s === 'cancelado' ? 'Tu pedido fue cancelado'
-    : 'Tu pedido fue actualizado';
+  const mensajeEstado =
+    s === 'preparando' ? 'Tu pedido esta siendo preparado' :
+    s === 'enviado' ? 'Tu pedido esta en camino' :
+    s === 'entregado' ? 'Tu pedido fue entregado' :
+    s === 'cancelado' ? 'Tu pedido fue cancelado' :
+    'Tu pedido fue actualizado';
 
   await supabase.from('notificaciones').insert([{
     usuario_id: pedido.comprador_id,
     titulo: 'Actualizacion de tu pedido',
     mensaje: mensajeEstado + ' — Haz clic para ver el estado',
-    pedido_id: id
+    pedido_id: id,
   }]);
 
   setEstado(s);
-  setMensaje("Estado actualizado correctamente");
+  setMensaje('Estado actualizado correctamente');
   setActualizando(false);
   setTimeout(() => setMensaje(''), 3000);
 };

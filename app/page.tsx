@@ -633,10 +633,16 @@ useEffect(() => {
                   <div style={{ padding: '12px' }}>
                     <p style={{ fontSize: '11px', color: '#888', marginBottom: '3px' }}>{p.categoria}</p>
                     <p style={{ fontWeight: '600', fontSize: '13px', color: '#333', marginBottom: '8px', lineHeight: 1.3, height: '34px', overflow: 'hidden' }}>{p.nombre}</p>
-                    <p style={{ fontWeight: '800', fontSize: '16px', color: '#111', marginBottom: '10px' }}>
-                      ${Number(p.precio).toLocaleString('es-CO')}
-                      <span style={{ fontSize: '10px', color: '#888', fontWeight: 'normal' }}> COP</span>
-                    </p>
+                    <p style={{ fontWeight: '800', fontSize: '16px', color: '#111', marginBottom: '4px' }}>
+  ${Number(p.precio).toLocaleString('es-CO')}
+  <span style={{ fontSize: '10px', color: '#888', fontWeight: 'normal' }}> COP</span>
+</p>
+{(p.cantidad_vendida || 0) > 0 && (
+  <p style={{ fontSize: '11px', color: '#22c55e', fontWeight: '700', marginBottom: '10px', display: 'flex', alignItems: 'center', gap: '4px' }}>
+    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#22c55e" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+    {p.cantidad_vendida} vendido{p.cantidad_vendida !== 1 ? 's' : ''}
+  </p>
+)}
                     <button
                       className="add-btn"
                       onClick={e => { e.stopPropagation(); window.location.href = '/producto/' + p.id; }}
