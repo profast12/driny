@@ -1,16 +1,20 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import DrinyBot from './DrinyBot';
 import Image from "next/image"
 import { supabase } from "../lib/supabase";
 
 export default function Home() {
   const [usuario, setUsuario] = useState<any>(null);
+  const buscadorRef = useRef<HTMLDivElement>(null);
+  const [historialBusqueda, setHistorialBusqueda] = useState<string[]>([]);
+  const [mostrarHistorialPrincipal, setMostrarHistorialPrincipal] = useState(false);
   const [notificaciones, setNotificaciones] = useState<any[]>([]);
   const [mostrarNotif, setMostrarNotif] = useState(false);
   const [mostrarMenu, setMostrarMenu] = useState(false);
   const [productos, setProductos] = useState<any[]>([]);
   const [busqueda, setBusqueda] = useState('');
+  
 
   const [idiomaAbierto, setIdiomaAbierto] = useState(false);
   const [idiomaActual, setIdiomaActual] = useState('es');
@@ -55,6 +59,19 @@ const cambiarIdioma = (codigo: string) => {
   const cerrar = (e: MouseEvent) => {
     const target = e.target as HTMLElement;
     if (!target.closest('[data-idioma]')) setIdiomaAbierto(false);
+  };
+  document.addEventListener('click', cerrar);
+  return () => document.removeEventListener('click', cerrar);
+}, []);
+
+useEffect(() => {
+  const h = localStorage.getItem('driny_historial');
+  if (h) setHistorialBusqueda(JSON.parse(h));
+
+  const cerrar = (e: MouseEvent) => {
+    if (buscadorRef.current && !buscadorRef.current.contains(e.target as Node)) {
+      setMostrarHistorialPrincipal(false);
+    }
   };
   document.addEventListener('click', cerrar);
   return () => document.removeEventListener('click', cerrar);
@@ -113,6 +130,7 @@ const cambiarIdioma = (codigo: string) => {
     const h = JSON.parse(localStorage.getItem('driny_historial') || '[]');
     const nuevo = [busqueda.trim(), ...h.filter((i: string) => i !== busqueda.trim())].slice(0, 8);
     localStorage.setItem('driny_historial', JSON.stringify(nuevo));
+    setMostrarHistorialPrincipal(false);
     window.location.href = '/busqueda?q=' + busqueda;
   }
 };
@@ -198,31 +216,65 @@ const cambiarIdioma = (codigo: string) => {
   />
 </a>
 
-          {/* BUSCADOR desktop */}
-          <div className="desktop-only" style={{ flex: 1, display: 'flex', maxWidth: '560px' }}>
-            <input
-              type="text"
-              placeholder="Buscar productos, marcas y mas..."
-              value={busqueda}
-              onChange={e => setBusqueda(e.target.value)}
-              onKeyDown={buscar}
-              style={{ flex: 1, padding: '11px 16px', border: '2px solid #f90', borderRight: 'none', borderRadius: '8px 0 0 8px', fontSize: '14px', outline: 'none', backgroundColor: 'white', color: '#333' }}
-            />
-            <button onClick={() => {
-  if (busqueda.trim()) {
-    const h = JSON.parse(localStorage.getItem('driny_historial') || '[]');
-    const nuevo = [busqueda.trim(), ...h.filter((i: string) => i !== busqueda.trim())].slice(0, 8);
-    localStorage.setItem('driny_historial', JSON.stringify(nuevo));
-    window.location.href = '/busqueda?q=' + busqueda;
-  }
-}}
-              style={{ padding: '11px 18px', backgroundColor: '#f90', border: 'none', borderRadius: '0 8px 8px 0', cursor: 'pointer' }}
-            >
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
-              </svg>
-            </button>
-          </div>
+          {/* BUSCADOR DESKTOP */}
+<div className="desktop-only" ref={buscadorRef} style={{ flex: 1, display: 'flex', maxWidth: '560px', position: 'relative' }}>
+  <input
+    type="text"
+    placeholder="Buscar productos, marcas y mas..."
+    value={busqueda}
+    onChange={e => { setBusqueda(e.target.value); setMostrarHistorialPrincipal(false); }}
+    onKeyDown={buscar}
+    onFocus={() => { if (busqueda.length < 2) { const h = JSON.parse(localStorage.getItem('driny_historial') || '[]'); setHistorialBusqueda(h); if (h.length > 0) setMostrarHistorialPrincipal(true); } }}
+    style={{ flex: 1, padding: '11px 16px', border: '2px solid #f90', borderRight: 'none', borderRadius: '8px 0 0 8px', fontSize: '14px', outline: 'none', backgroundColor: 'white', color: '#333' }}
+  />
+  <button onClick={() => {
+    if (busqueda.trim()) {
+      const h = JSON.parse(localStorage.getItem('driny_historial') || '[]');
+      const nuevo = [busqueda.trim(), ...h.filter((i: string) => i !== busqueda.trim())].slice(0, 8);
+      localStorage.setItem('driny_historial', JSON.stringify(nuevo));
+      setMostrarHistorialPrincipal(false);
+      window.location.href = '/busqueda?q=' + busqueda;
+    }
+  }} style={{ padding: '11px 18px', backgroundColor: '#f90', border: 'none', borderRadius: '0 8px 8px 0', cursor: 'pointer' }}>
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+  </button>
+
+  {/* HISTORIAL DESKTOP */}
+  {mostrarHistorialPrincipal && historialBusqueda.length > 0 && (
+    <div style={{ position: 'absolute', top: '100%', left: 0, right: 0, backgroundColor: 'white', borderRadius: '12px', boxShadow: '0 8px 32px rgba(0,0,0,0.15)', border: '1px solid #eee', zIndex: 300, overflow: 'hidden', animation: 'slideDown 0.2s ease', marginTop: '4px' }}>
+      <div style={{ padding: '10px 14px', borderBottom: '1px solid #f5f5f5', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#888" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          <p style={{ fontSize: '11px', color: '#888', margin: 0, fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Busquedas recientes</p>
+        </div>
+        <button onClick={() => { localStorage.removeItem('driny_historial'); setHistorialBusqueda([]); setMostrarHistorialPrincipal(false); }} style={{ background: 'none', border: 'none', color: '#ef4444', fontSize: '11px', fontWeight: '700', cursor: 'pointer' }}>
+          Limpiar todo
+        </button>
+      </div>
+      {historialBusqueda.map((h, i) => (
+        <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '10px 14px', borderBottom: '1px solid #f9f9f9', cursor: 'pointer', transition: 'background 0.15s' }}
+          onMouseOver={e => (e.currentTarget as HTMLElement).style.backgroundColor = '#fff8f0'}
+          onMouseOut={e => (e.currentTarget as HTMLElement).style.backgroundColor = 'transparent'}
+        >
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#bbb" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
+            <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+          </svg>
+          <span onClick={() => { setBusqueda(h); setMostrarHistorialPrincipal(false); const nuevo = [h, ...historialBusqueda.filter(i => i !== h)].slice(0, 8); localStorage.setItem('driny_historial', JSON.stringify(nuevo)); window.location.href = '/busqueda?q=' + encodeURIComponent(h); }} style={{ flex: 1, fontSize: '13px', color: '#333', fontWeight: '500' }}>
+            {h}
+          </span>
+          <button onClick={e => { e.stopPropagation(); const nuevo = historialBusqueda.filter(item => item !== h); localStorage.setItem('driny_historial', JSON.stringify(nuevo)); setHistorialBusqueda(nuevo); if (nuevo.length === 0) setMostrarHistorialPrincipal(false); }} style={{ background: 'none', border: 'none', color: '#ccc', cursor: 'pointer', padding: '2px', display: 'flex', alignItems: 'center', flexShrink: 0, transition: 'color 0.2s' }}
+            onMouseOver={e => (e.currentTarget as HTMLElement).style.color = '#ef4444'}
+            onMouseOut={e => (e.currentTarget as HTMLElement).style.color = '#ccc'}
+          >
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+            </svg>
+          </button>
+        </div>
+      ))}
+    </div>
+  )}
+</div>
 
           <div style={{ flex: 1 }}></div>
 
