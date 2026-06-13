@@ -472,6 +472,16 @@ const copiarEnlace = async () => {
       {producto.disponibilidad === 'disponible' ? 'Disponible' : producto.disponibilidad === 'bajo_pedido' ? 'Bajo pedido' : producto.disponibilidad === 'ultima_unidad' ? 'Ultima unidad' : producto.disponibilidad === 'pausado' ? 'No disponible' : 'Disponible'} · Envio a todo Colombia
     </p>
   </div>
+  {(producto.cantidad_vendida || 0) > 0 && (
+  <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#22c55e" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <polyline points="20 6 9 17 4 12"/>
+    </svg>
+    <p style={{ fontSize: '12px', color: '#22c55e', fontWeight: '700', margin: 0 }}>
+      {producto.cantidad_vendida} vendido{producto.cantidad_vendida !== 1 ? 's' : ''}
+    </p>
+  </div>
+)}
   {producto.sku > 0 && (
     <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
       <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#888" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>

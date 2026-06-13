@@ -35,18 +35,29 @@ export default function DetallePedido() {
   await supabase.from('pedidos').update({ estado: s }).eq('id', id);
 
   if (s === 'entregado') {
-    for (const item of items) {
-      const { data: prod } = await supabase
-        .from('productos')
-        .select('sku, cantidad_vendida')
-        .eq('id', item.producto_id)
-        .single();
+    const { data: itemsData } = await supabase
+      .from('pedido_items')
+      .select('*')
+      .eq('pedido_id', id);
 
-      if (prod) {
-        await supabase.from('productos').update({
-          sku: Math.max(0, (prod.sku || 0) - (item.cantidad || 1)),
-          cantidad_vendida: (prod.cantidad_vendida || 0) + (item.cantidad || 1),
-        }).eq('id', item.producto_id);
+    if (itemsData && itemsData.length > 0) {
+      for (const item of itemsData) {
+        if (!item.producto_id) continue;
+
+        const { data: prod } = await supabase
+          .from('productos')
+          .select('sku, cantidad_vendida')
+          .eq('id', item.producto_id)
+          .maybeSingle();
+
+        if (prod) {
+          const nuevoSku = Math.max(0, (prod.sku || 0) - (item.cantidad || 1));
+          const nuevaCantidad = (prod.cantidad_vendida || 0) + (item.cantidad || 1);
+          await supabase.from('productos').update({
+            sku: nuevoSku,
+            cantidad_vendida: nuevaCantidad,
+          }).eq('id', item.producto_id);
+        }
       }
     }
   }

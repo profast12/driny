@@ -638,6 +638,12 @@ useEffect(() => {
   <span style={{ fontSize: '10px', color: '#888', fontWeight: 'normal' }}> COP</span>
 </p>
 {(p.cantidad_vendida || 0) > 0 && (
+  <p style={{ fontSize: '11px', color: '#22c55e', fontWeight: '700', marginBottom: '6px', display: 'flex', alignItems: 'center', gap: '4px', margin: '0 0 6px' }}>
+    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#22c55e" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+    {p.cantidad_vendida} vendido{p.cantidad_vendida !== 1 ? 's' : ''}
+  </p>
+)}
+{(p.cantidad_vendida || 0) > 0 && (
   <p style={{ fontSize: '11px', color: '#22c55e', fontWeight: '700', marginBottom: '10px', display: 'flex', alignItems: 'center', gap: '4px' }}>
     <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#22c55e" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
     {p.cantidad_vendida} vendido{p.cantidad_vendida !== 1 ? 's' : ''}
